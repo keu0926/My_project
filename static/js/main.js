@@ -34,13 +34,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-
-
-
-
-
-
-
 const slides = document.querySelectorAll('.slide');
 const pagination = document.getElementById('pagination');
 
@@ -112,18 +105,27 @@ if (slides.length > 0 && pagination) {
     }
 
     // ★ 모바일 터치 스와이프 & PC 마우스 드래그 통합 처리
+    //   - 손가락이 40px 이상 움직이는 순간 바로 슬라이드를 넘깁니다. (touchend를 기다리지 않음)
+    //   - 카카오톡 같은 인앱 브라우저에서 touchend 대신 touchcancel이 오더라도 동작하도록 함께 처리합니다.
+    //   - 좌표는 screenX 대신 clientX/clientY를 사용합니다.
     const sliderContainer = slides[0].parentElement;
+    const SWIPE_THRESHOLD = 40;
     let startX = 0;
     let startY = 0;
+    let lastX = 0;
+    let lastY = 0;
+    let isTouching = false;
     let isDragging = false;
     let isSwiped = false;
 
-    function handleSwipe(endX, endY) {
-        const diffX = startX - endX;
-        const diffY = startY - endY;
+    function trySwipe(x, y) {
+        if (isSwiped) return;
+
+        const diffX = startX - x;
+        const diffY = startY - y;
 
         // 상하 스크롤보다 좌우 이동폭이 크고, 40px 이상 움직였을 때만 슬라이드 전환
-        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > SWIPE_THRESHOLD) {
             isSwiped = true;
             if (diffX > 0) {
                 nextSlide(); // 왼쪽으로 끌었을 때 -> 다음 슬라이드
@@ -136,27 +138,43 @@ if (slides.length > 0 && pagination) {
 
     // 1) 모바일/태블릿 터치 이벤트
     sliderContainer.addEventListener('touchstart', (e) => {
-        startX = e.changedTouches[0].screenX;
-        startY = e.changedTouches[0].screenY;
+        const t = e.touches[0];
+        startX = lastX = t.clientX;
+        startY = lastY = t.clientY;
         isSwiped = false;
+        isTouching = true;
     }, { passive: true });
 
-    sliderContainer.addEventListener('touchend', (e) => {
-        handleSwipe(e.changedTouches[0].screenX, e.changedTouches[0].screenY);
+    sliderContainer.addEventListener('touchmove', (e) => {
+        if (!isTouching) return;
+        const t = e.touches[0];
+        lastX = t.clientX;
+        lastY = t.clientY;
+        trySwipe(lastX, lastY);
     }, { passive: true });
+
+    function endTouch(e) {
+        if (!isTouching) return;
+        isTouching = false;
+        const t = e.changedTouches && e.changedTouches[0];
+        trySwipe(t ? t.clientX : lastX, t ? t.clientY : lastY);
+    }
+
+    sliderContainer.addEventListener('touchend', endTouch, { passive: true });
+    sliderContainer.addEventListener('touchcancel', endTouch, { passive: true });
 
     // 2) PC 마우스 드래그 이벤트
     sliderContainer.addEventListener('mousedown', (e) => {
         isDragging = true;
         isSwiped = false;
-        startX = e.screenX;
-        startY = e.screenY;
+        startX = e.clientX;
+        startY = e.clientY;
     });
 
     window.addEventListener('mouseup', (e) => {
         if (!isDragging) return;
         isDragging = false;
-        handleSwipe(e.screenX, e.screenY);
+        trySwipe(e.clientX, e.clientY);
     });
 
     // 마우스로 배너 내부 이미지를 끌 때 기본 고스트 이미지 드래그 방지
@@ -251,8 +269,3 @@ function smoothScroll(event, targetId) {
       revealElements.forEach(el => observer.observe(el));
     });
     
-
-
-
-
-
