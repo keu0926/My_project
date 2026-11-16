@@ -100,7 +100,7 @@ a {
 }
 
 .grid-layout {
-    max-width: 1024px;
+    max-width: 1160px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: 140px repeat(5, 1fr);
@@ -136,8 +136,8 @@ a {
     align-items: center;
     justify-content: center;
     height: 48px;
-    font-size: 12px;
-    font-weight: 450;
+    font-size: 15px;
+    font-weight: 600;
     color: #1d1d1f;
     opacity: 0.8;
     cursor: pointer;
@@ -219,13 +219,13 @@ a {
 }
 
 .mega-column ul li {
-    margin-bottom: 14px;
+    margin-bottom: 16px;
 }
 
 .mega-column ul li a {
-    font-size: 12px;
+    font-size: 15px;
     color: #1d1d1f;
-    font-weight: 400;
+    font-weight: 600;
 }
 
 .mega-column ul li a:hover {
