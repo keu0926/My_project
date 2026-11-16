@@ -243,6 +243,132 @@ a {
     font-weight: 400;
 }
 
+/* 햄버거 버튼 & 모바일 메뉴 패널 (기본값: PC에서는 숨김) */
+.menu-toggle {
+    display: none;
+    position: relative;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.menu-toggle i {
+    position: absolute;
+    left: 11px;
+    width: 22px;
+    height: 2px;
+    border-radius: 2px;
+    background-color: #1d1d1f;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.menu-toggle i:nth-child(1) { top: 15px; }
+.menu-toggle i:nth-child(2) { top: 21px; }
+.menu-toggle i:nth-child(3) { top: 27px; }
+
+.menu-toggle.is-open i:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.menu-toggle.is-open i:nth-child(2) { opacity: 0; }
+.menu-toggle.is-open i:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.mobile-menu {
+    display: none;
+}
+
+.mm-group,
+.mm-link {
+    border-bottom: 1px solid #e8e8ed;
+}
+
+.mm-group summary,
+.mm-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1d1d1f;
+    cursor: pointer;
+}
+
+.mm-group summary {
+    list-style: none;
+}
+
+.mm-group summary::-webkit-details-marker {
+    display: none;
+}
+
+.mm-group summary::after {
+    content: "+";
+    font-size: 22px;
+    font-weight: 400;
+    color: #86868b;
+}
+
+.mm-group[open] summary::after {
+    content: "\2212";
+}
+
+.mm-group ul {
+    list-style: none;
+    padding: 0 24px 14px;
+}
+
+.mm-group li a {
+    display: block;
+    padding: 11px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #424245;
+}
+
+.mm-group li a:hover {
+    color: #0071e3;
+}
+
+.mm-auth {
+    display: flex;
+    gap: 12px;
+    padding: 24px 24px 0;
+}
+
+.mm-auth a {
+    flex: 1;
+    text-align: center;
+    padding: 13px 0;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.mm-auth .mm-login {
+    color: #1d1d1f;
+    border: 1px solid #1d1d1f;
+}
+
+.mm-auth .mm-register {
+    color: #ffffff;
+    background-color: #0071e3;
+    border: 1px solid #0071e3;
+}
+
+.bottom-banner-bar {
+    width: 100%;
+    background-color: #ffffff;
+    border-top: 1px solid #d2d2d7;
+    color: #6e6e73;
+    text-align: center;
+    padding: 14px 0;
+    font-size: 12px;
+    font-weight: 400;
+}
+
 
 /* ------------------------------------------
    4. 전역 기본 타이포그래피 & 공통 버튼
@@ -409,11 +535,63 @@ h4 { font-size: 17px; line-height: 1.35; letter-spacing: -0.015em; font-weight: 
 
 
 /* ------------------------------------------
-   7. 전역 반응형 대응 (GNB & 푸터 & 기본 타이포)
+   7. 전역 반응형 대응 (태블릿/모바일: 햄버거 메뉴 & 푸터 & 기본 타이포)
 ------------------------------------------ */
 @media (max-width: 1024px) {
-    .top-left-menu a { margin: 0 24px 0 0; }
-    .grid-layout { grid-template-columns: 120px repeat(5, 1fr); padding: 0 16px; }
+    /* 최상단 탑바는 숨김 */
+    .top-bar { display: none; }
+
+    /* 헤더: 로고(왼쪽) + 햄버거 버튼(오른쪽) */
+    .header-container .grid-layout {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+    }
+    .logo-area { justify-content: flex-start; }
+    .gnb-item { display: none; }
+    .mega-dropdown { display: none !important; }
+
+    /* 터치 화면에서 hover가 남아 본문이 흐려지는 현상 방지 */
+    .header-container:hover + .main-content {
+        filter: none;
+        opacity: 1;
+    }
+
+    .menu-toggle {
+        display: block;
+        margin-right: -11px;
+    }
+
+    /* 햄버거로 열리는 전체 화면 메뉴 패널 */
+    .mobile-menu {
+        display: block;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 48px);
+        height: calc(100dvh - 48px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        background-color: #fbfbfd;
+        border-top: 1px solid #d2d2d7;
+        padding: 0 0 48px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px);
+        transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+                    transform 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+                    visibility 0.3s;
+    }
+
+    .mobile-menu.is-open {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+    }
+
+    body.menu-open { overflow: hidden; }
 }
 
 @media (max-width: 768px) {
@@ -423,28 +601,6 @@ h4 { font-size: 17px; line-height: 1.35; letter-spacing: -0.015em; font-weight: 
     h4 { font-size: 15px; }
     p  { font-size: 14.5px; }
     span { font-size: 12px; }
-
-    .top-bar-inner { padding: 10px 16px; font-size: 13px; }
-    .top-left-menu { display: none; }
-    .top-right-menu { width: 100%; display: flex; justify-content: flex-end; align-items: center; }
-    .top-right-menu a { margin-left: 12px; }
-    .btn-register { padding: 4px 14px; font-size: 13px; }
-
-    .grid-layout {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        overflow-x: auto;
-        white-space: nowrap;
-        gap: 16px;
-        padding: 0 16px;
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-    .grid-layout::-webkit-scrollbar { display: none; }
-    .logo-area { flex-shrink: 0; }
-    .gnb-item { flex-shrink: 0; font-size: 12px; }
-    .mega-dropdown { display: none !important; }
 
     .btn { padding: 8px 22px; font-size: 14px; }
     .btn-wrapper { padding: 24px 0; gap: 8px; }
