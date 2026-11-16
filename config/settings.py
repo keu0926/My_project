@@ -9,7 +9,7 @@ SECRET_KEY = 'django-insecure-th5044537pribs)!0#(w@iykp&yfk87qk$j0q$o97!&ew_1@!j
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.mycafe24.ai']
 
 # Application definition
 INSTALLED_APPS = [
