@@ -43,76 +43,140 @@ document.addEventListener("DOMContentLoaded", function () {
 
 const slides = document.querySelectorAll('.slide');
 const pagination = document.getElementById('pagination');
-let currentIndex = 0;
-const totalSlides = slides.length;
-let timer = null;
 
-// [초기화] 하단 점 생성
-slides.forEach((_, index) => {
-    const dot = document.createElement('div');
-    dot.classList.add('dot');
-    if (index === 0) dot.classList.add('active');
-    dot.addEventListener('click', () => {
-        goToSlide(index);
-        resetTimer();
+if (slides.length > 0 && pagination) {
+    let currentIndex = 0;
+    const totalSlides = slides.length;
+    let timer = null;
+
+    // [초기화] 하단 점 생성
+    slides.forEach((_, index) => {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (index === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => {
+            goToSlide(index);
+            resetTimer();
+        });
+        pagination.appendChild(dot);
     });
-    pagination.appendChild(dot);
-});
 
-const dots = document.querySelectorAll('.dot');
+    const dots = document.querySelectorAll('.dot');
 
     // [핵심] 슬라이드 클래스 부여 함수 (중앙, 좌, 우 배치)
-function updateSlider() {
-    slides.forEach((slide, index) => {
-    // 모든 클래스 초기화
-    slide.classList.remove('active', 'prev', 'next');
-        
-    // 이전/다음 인덱스 계산 (무한 로테이션을 위한 나머지 연산)
-    const prevIndex = (currentIndex - 1 + totalSlides) % totalSlides;
-    const nextIndex = (currentIndex + 1) % totalSlides;
+    function updateSlider() {
+        slides.forEach((slide, index) => {
+            slide.classList.remove('active', 'prev', 'next');
 
-    if (index === currentIndex) {
-        slide.classList.add('active');
-    } else if (index === prevIndex) {
-        slide.classList.add('prev');
-    } else if (index === nextIndex) {
-        slide.classList.add('next');
+            const prevIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+            const nextIndex = (currentIndex + 1) % totalSlides;
+
+            if (index === currentIndex) {
+                slide.classList.add('active');
+            } else if (index === prevIndex) {
+                slide.classList.add('prev');
+            } else if (index === nextIndex) {
+                slide.classList.add('next');
+            }
+        });
+
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentIndex);
+        });
     }
-});
 
-// 점 업데이트
-dots.forEach((dot, index) => {
-    dot.classList.toggle('active', index === currentIndex);
+    // 다음 / 이전 슬라이드로 이동
+    function nextSlide() {
+        currentIndex = (currentIndex + 1) % totalSlides;
+        updateSlider();
+    }
+
+    function prevSlide() {
+        currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+        updateSlider();
+    }
+
+    function goToSlide(index) {
+        currentIndex = index;
+        updateSlider();
+    }
+
+    // 자동 롤링 타이머 설정 (6초)
+    function startTimer() {
+        timer = setInterval(nextSlide, 6000);
+    }
+
+    function resetTimer() {
+        clearInterval(timer);
+        startTimer();
+    }
+
+    // ★ 모바일 터치 스와이프 & PC 마우스 드래그 통합 처리
+    const sliderContainer = slides[0].parentElement;
+    let startX = 0;
+    let startY = 0;
+    let isDragging = false;
+    let isSwiped = false;
+
+    function handleSwipe(endX, endY) {
+        const diffX = startX - endX;
+        const diffY = startY - endY;
+
+        // 상하 스크롤보다 좌우 이동폭이 크고, 40px 이상 움직였을 때만 슬라이드 전환
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+            isSwiped = true;
+            if (diffX > 0) {
+                nextSlide(); // 왼쪽으로 끌었을 때 -> 다음 슬라이드
+            } else {
+                prevSlide(); // 오른쪽으로 끌었을 때 -> 이전 슬라이드
+            }
+            resetTimer();
+        }
+    }
+
+    // 1) 모바일/태블릿 터치 이벤트
+    sliderContainer.addEventListener('touchstart', (e) => {
+        startX = e.changedTouches[0].screenX;
+        startY = e.changedTouches[0].screenY;
+        isSwiped = false;
+    }, { passive: true });
+
+    sliderContainer.addEventListener('touchend', (e) => {
+        handleSwipe(e.changedTouches[0].screenX, e.changedTouches[0].screenY);
+    }, { passive: true });
+
+    // 2) PC 마우스 드래그 이벤트
+    sliderContainer.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        isSwiped = false;
+        startX = e.screenX;
+        startY = e.screenY;
     });
-}
 
-    // 다음 슬라이드로 이동
-function nextSlide() {
-    currentIndex = (currentIndex + 1) % totalSlides;
+    window.addEventListener('mouseup', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        handleSwipe(e.screenX, e.screenY);
+    });
+
+    // 마우스로 배너 내부 이미지를 끌 때 기본 고스트 이미지 드래그 방지
+    sliderContainer.addEventListener('dragstart', (e) => {
+        e.preventDefault();
+    });
+
+    // 드래그해서 넘겼을 때 배너 안의 링크(<a>)가 실수로 클릭되는 현상 방지
+    sliderContainer.addEventListener('click', (e) => {
+        if (isSwiped) {
+            e.preventDefault();
+            e.stopPropagation();
+            isSwiped = false;
+        }
+    }, true);
+
+    // 첫 실행
     updateSlider();
-}
-
-// 특정 슬라이드로 이동
-function goToSlide(index) {
-    currentIndex = index;
-    updateSlider();
-}
-
-// 자동 롤링 타이머 설정 (3초)
-function startTimer() {
-    timer = setInterval(nextSlide, 6000);
-}
-
-// 클릭 시 타이머 리셋
-function resetTimer() {
-    clearInterval(timer);
     startTimer();
 }
-
-// 첫 실행
-updateSlider();
-startTimer();
-
 
 
 

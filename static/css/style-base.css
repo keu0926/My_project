@@ -358,17 +358,33 @@ a {
     border: 1px solid #0071e3;
 }
 
-.bottom-banner-bar {
-    width: 100%;
-    background-color: #ffffff;
-    border-top: 1px solid #d2d2d7;
-    color: #6e6e73;
+/* ★ 338번째 줄: 중복된 .bottom-banner-bar 자리에 교체하여 추가 */
+.mm-contact {
+    margin-top: 28px;
+    padding: 20px 24px 0;
+    border-top: 1px solid #e8e8ed;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
     text-align: center;
-    padding: 14px 0;
-    font-size: 12px;
-    font-weight: 400;
 }
 
+.mm-contact .mm-phone {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1d1d1f;
+}
+
+.mm-contact .mm-address {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #0071e3;
+}
+
+.mm-contact .mm-hours {
+    font-size: 13px;
+    color: #86868b;
+}
 
 /* ------------------------------------------
    4. 전역 기본 타이포그래피 & 공통 버튼

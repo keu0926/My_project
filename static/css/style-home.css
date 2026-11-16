@@ -101,6 +101,10 @@ body.intro-active {
     transform: scale(0.8) translateX(0);
     z-index: 0;
     pointer-events: none;
+    touch-action: pan-y;      /* 모바일: 세로 스크롤 허용, 가로 스와이프 감지 */
+    user-select: none;        /* PC: 드래그 시 텍스트/이미지 파랗게 선택됨 방지 */
+    -webkit-user-select: none;
+    cursor: grab;             /* PC: 잡아서 끌 수 있는 손 모양 커서 표시 */
 }
 
 .slide a {
@@ -121,6 +125,7 @@ body.intro-active {
     transform: scale(1) translateX(0);
     z-index: 3;
     pointer-events: auto;
+    cursor: grabbing;         /* PC: 클릭 후 끌고 있을 때 움켜쥔 커서 표시 */
 }
 
 .slide.prev {
