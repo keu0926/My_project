@@ -11,6 +11,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['.mycafe24.ai', 'localhost', '127.0.0.1']
 
+CSRF_TRUSTED_ORIGINS = ['https://*.mycafe24.ai']
+
 # Application definition
 INSTALLED_APPS = [
     'main',
