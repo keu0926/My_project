@@ -24,6 +24,11 @@
             <div class="gnb-item">Class</div>
             <div class="gnb-item">Board</div>
             <div class="gnb-item">Booking</div>
+
+            <!-- 태블릿/모바일 햄버거 버튼 (PC에서는 숨김) -->
+            <button type="button" class="menu-toggle" id="menu-toggle" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobile-menu">
+                <i></i><i></i><i></i>
+            </button>
         </div>
 
         <!-- 메가 드롭다운 서브 메뉴 그리드 -->
@@ -95,5 +100,90 @@
                 대치동 최고의 소수정예학원, 지금 시작합니다. ➔
             </div>
         </div>
+
+        <!-- 태블릿/모바일 전체 화면 메뉴 패널 (PC에서는 숨김) -->
+        <nav class="mobile-menu" id="mobile-menu" aria-label="모바일 메뉴">
+            <details class="mm-group" name="mm">
+                <summary>Intro</summary>
+                <ul>
+                    <li><a href="{% url 'intro_greeting' %}">인사말</a></li>
+                    <li><a href="{% url 'intro_teachers' %}">강사진</a></li>
+                    <li><a href="{% url 'intro_results' %}">입시 실적</a></li>
+                    <li><a href="{% url 'intro_facility' %}">학원 시설</a></li>
+                    <li><a href="{% url 'intro_location' %}">오시는 길</a></li>
+                </ul>
+            </details>
+
+            <details class="mm-group" name="mm">
+                <summary>System</summary>
+                <ul>
+                    <li><a href="{% url 'system_x10' %}">X10 학습법</a></li>
+                    <li><a href="{% url 'system_life' %}">생활 관리</a></li>
+                    <li><a href="#">영단어 시험</a></li>
+                    <li><a href="#">주간 모의고사</a></li>
+                    <li><a href="#">식단 관리</a></li>
+                </ul>
+            </details>
+
+            <details class="mm-group" name="mm">
+                <summary>Class</summary>
+                <ul>
+                    <li><a href="{% url 'class_retake' %}">재수종합반</a></li>
+                    <li><a href="#">검시대입반</a></li>
+                    <li><a href="#">방학캠프반</a></li>
+                    <li><a href="#">영어단과반</a></li>
+                    <li><a href="#">통합탐구반</a></li>
+                    <li><a href="#">수시논술반</a></li>
+                </ul>
+            </details>
+
+            <details class="mm-group" name="mm">
+                <summary>Board</summary>
+                <ul>
+                    <li><a href="{% url 'notice_list' %}">공지 사항</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">입시 자료</a></li>
+                    <li><a href="#">안내 사항</a></li>
+                </ul>
+            </details>
+
+            <a class="mm-link" href="{% url 'booking' %}">Booking</a>
+
+            <div class="mm-auth">
+                <a href="#" class="mm-login">로그인</a>
+                <a href="#" class="mm-register">회원 가입</a>
+            </div>
+        </nav>
     </div>
-		
+
+    <script>
+    (function () {
+        var btn = document.getElementById('menu-toggle');
+        var panel = document.getElementById('mobile-menu');
+        if (!btn || !panel) return;
+
+        function setOpen(open) {
+            panel.classList.toggle('is-open', open);
+            btn.classList.toggle('is-open', open);
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            btn.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+            document.body.classList.toggle('menu-open', open);
+        }
+
+        btn.addEventListener('click', function () {
+            setOpen(!panel.classList.contains('is-open'));
+        });
+
+        panel.addEventListener('click', function (e) {
+            if (e.target.closest('a')) setOpen(false);
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') setOpen(false);
+        });
+
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 1024) setOpen(false);
+        });
+    })();
+    </script>
