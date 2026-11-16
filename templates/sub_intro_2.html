@@ -1,0 +1,20 @@
+<!-- sub_intro_2.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}강사진 | 대치플투스학원{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/style-intro_2.css' %}">
+{% endblock %}
+
+{% block content %}
+    {% include 'partials/sub_intro_2_section_1.html' %}
+    {% include 'partials/sub_intro_2_section_2.html' %}
+    {% include 'partials/sub_intro_2_section_3.html' %}
+    {% include 'partials/sub_intro_2_section_modal.html' %}
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/intro_2.js' %}"></script>
+{% endblock %}

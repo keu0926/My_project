@@ -1,0 +1,179 @@
+{% load static %} 
+
+
+  <!-- 정돈된 글자에 미세한 거친 질감을 더하는 SVG 필터 -->
+  <svg class="svg-filters">
+    <defs>
+      <filter id="rough-edge" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.2" numOctaves="2" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.8" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- 1. 최상단 와이드 히어로 이미지 -->
+  <div class="hero-banner-wrap reveal-fadein">
+    <!-- src 경로를 저장하신 이미지 파일명(예: image_gqtwdL.png)으로 맞춰주세요 -->
+    <img src="/static/images/X10-system.png" alt="FLTOOS+ X10 학습법 과녁 적중" class="hero-banner-img">
+  </div>
+<div class="x10-wrapper">
+  <!-- 2. 이미지 하단에 걸쳐서 아래로 삐져나오는 2개의 핵심 카드 (1160px 폭) -->
+
+  <section class="overlap-cards-section">
+    <div class="cards-grid">
+      
+      <!-- 카드 1: 1:1 개별 맞춤 적중 -->
+      <article class="impact-card card-mint">
+        <div class="card-top-row">
+          <span class="card-tag">TARGETING · 0.1mm PRECISION</span>
+          <span class="card-badge-visual">◎ 1:1</span>
+        </div>
+        <h2 class="card-title"><span>1:1 개별 맞춤</span> 약점 적중</h2>
+        <p class="card-desc">
+          모두에게 똑같은 커리큘럼은 90%가 낭비입니다.<br>
+          오직 당신의 <strong>취약 궤적만을 정밀 타격</strong>해 완벽히 꿰뚫습니다.
+        </p>
+      </article>
+
+      <!-- 카드 2: 빈틈없는 생활 관리 X10 효과 -->
+      <article class="impact-card card-gold">
+        <div class="card-top-row">
+          <span class="card-tag">MANAGEMENT · X10 MULTIPLIER</span>
+          <span class="card-badge-visual">X10 ↑</span>
+        </div>
+        <h2 class="card-title">빈틈없는 생활 관리, <span>X10 효과</span></h2>
+        <p class="card-desc">
+          학습 루틴부터 흔들림 없는 생활 통제까지,<br>
+          <strong>빈틈없는 밀착 관리</strong>로 같은 시간 대비 10배의 결과를 만듭니다.
+        </p>
+      </article>
+
+    </div>
+  </section>
+
+
+
+<section class="brand-stamp-banner" id="brandBanner1">
+  <div class="banner-bg-blur"></div>
+  <div class="stamp-inner">
+    <h2 class="stamp-lead-text">혼자서는 불가능했던 성적의 한계 돌파</h2>
+    <div class="stamp-box">대치플투스에서라면 가능합니다!</div>
+  </div>
+</section>
+
+
+
+
+<!-- 2. 1:1 개별 약점 적중 상세 섹션 -->
+<section class="targeting-detail-section">
+  
+  <!-- 내용 뒤에서 크게 돌아가는 초대형 배경 과녁 -->
+  <div class="bg-giant-scope">
+    <div class="bg-scope-ring bsr-outer"></div>
+    <div class="bg-scope-ring bsr-mid"></div>
+    <div class="bg-scope-ring bsr-inner"></div>
+    <div class="bg-scope-core">X10</div>
+  </div>
+
+  <div class="targeting-container">
+    
+    <!-- 상단 중앙 타이틀 영역 -->
+    <div class="targeting-header">
+      <span class="section-pill">MISSION 01 · 1:1 TARGETING</span>
+      <h2 class="targeting-title">
+        0.1mm 오차 없는 <span>1:1 개별 약점 적중</span>
+      </h2>
+      <p class="targeting-sub">
+        남들과 똑같은 커리큘럼은 90%가 낭비입니다.<br>
+        학생마다 다른 오답의 원인과 취약 궤적을 정확히 추적해 정중앙을 꿰뚫습니다.
+      </p>
+    </div>
+
+    <!-- 하단 3단 맞춤 타격 카드 -->
+    <div class="step-grid-3col">
+      <div class="target-step-card">
+        <div class="step-label">STEP 01 · PRECISION DIAGNOSIS</div>
+        <h3>개인별 취약 궤적 정밀 진단</h3>
+        <p>단순 점수가 아닌 풀이 과정과 사고의 오류를 분석해, 성적을 깎아먹는 핵심 약점을 정확히 찾아냅니다.</p>
+      </div>
+
+      <div class="target-step-card">
+        <div class="step-label">STEP 02 · CUSTOMIZED STRIKE</div>
+        <h3>불필요한 90% 제거, 1:1 정밀 타격 처방</h3>
+        <p>남들이 다 푸는 문제집 대신, 오직 학생 본인의 약점만을 정확히 겨냥하는 개인별 맞춤 문항과 원리 클리닉을 제공합니다.</p>
+      </div>
+
+      <div class="target-step-card">
+        <div class="step-label">STEP 03 · COMPLETE MASTERY</div>
+        <h3>약점의 완벽한 관통과 체화</h3>
+        <p>뚫린 구멍을 메우는 수준을 넘어, 가장 취약했던 영역을 시험장에서 가장 자신 있는 무기(X10)로 바꿉니다.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+<!-- 파트 2 하단 독립 슬로건 섹션 -->
+<section class="clinic-slogan-banner" id="clinicSloganBanner">
+  <div class="clinic-slogan-inner">
+    <p class="clinic-slogan-sub">1:1 맞춤 클리닉이기에 가능합니다.</p>
+    <h2 class="clinic-slogan-main">핵심은 <span>선명하게</span>, 약점은 <span>정확하게</span>.</h2>
+  </div>
+</section>
+
+
+<!-- [파트 3 - 섹션 1] 철저한 학습·생활 관리 X10 섹션 -->
+<section class="management-x10-section">
+  <div class="mgmt-container">
+    
+    <div class="mgmt-header">
+      <span class="mgmt-pill">MISSION 02 · X10 TOTAL MANAGEMENT</span>
+      <h2 class="mgmt-title">빈틈없는 학습·생활 관리, <span>X10 효과</span></h2>
+      <p class="mgmt-sub">
+        아무리 좋은 전략도 실행이 무너지면 결과가 바뀌지 않습니다.<br>
+        공부에만 온전히 몰입할 수 있는 완벽한 시스템으로<br>
+        같은 시간 대비 10배의 효율을 완성합니다.
+      </p>
+    </div>
+
+    <div class="mgmt-grid-3col">
+      <div class="mgmt-card">
+        <div class="x10-big-badge">X10</div>
+        <h3>초단위 학습 루틴 관리</h3>
+        <p>오늘 무엇을 얼마나 공부할지 고민하는 시간을 없애고, 매일의 목표 달성률을 100%로 끌어올리는 밀착 스케줄링을 제공합니다.</p>
+      </div>
+
+      <div class="mgmt-card">
+        <div class="x10-big-badge">X10</div>
+        <h3>흔들림 없는 생활 습관 통제</h3>
+        <p>기상부터 취침, 스마트폰 통제, 자습 태도까지 공부에만 온전히 에너지를 쏟을 수 있는 최적의 환경과 리듬을 만듭니다.</p>
+      </div>
+
+      <div class="mgmt-card">
+        <div class="x10-big-badge">X10</div>
+        <h3>10배 압축 회독 시스템</h3>
+        <p>배운 내용이 휘발되지 않도록 당일 인출 테스트와 누적 복습 시스템을 가동해 같은 시간 대비 10배의 기억 지속력을 완성합니다.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- [파트 3 - 섹션 2] 최종 브랜드 클로징 배너 -->
+<section class="final-closing-section">
+  <div class="closing-inner">
+    <p class="closing-sub">1:1 약점 적중부터 빈틈없는 생활 통제까지,</p>
+    <div>
+      <h2 class="closing-brand-title">대치플투스에서라면 가능합니다!</h2>
+    </div>
+    <div class="btn-wrapper">
+      <a class="btn btn-regular" onclick="alert('대치플투스 1:1 X10 정밀 진단 예약 창으로 연결됩니다.')">
+        지금 바로 1:1 약점 정밀 진단 신청하기 →
+      </a>
+    </div>
+  </div>
+</section>
+</div>
+

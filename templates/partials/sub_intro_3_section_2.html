@@ -1,0 +1,30 @@
+{% load static %} 
+
+<div class="section-type5 reveal-up" id="Certificate">
+  <div class="section-header">
+    <h2>합격의 기록, 그 영광의 순간들</h2>
+    <p class="p-box">
+      입시와 내신의 본질을 꿰뚫는 압도적인 결과로 증명합니다.<br>
+      노력과 실력으로 이뤄낸 값진 합격 기록을 직접 확인하세요.
+    </p>
+  </div>
+
+  <div class="cert-grid" id="certGrid"></div>
+
+  <div class="more-btn-wrapper">
+    <button class="more-btn" id="loadMoreBtn">
+      <p id="btnText">합격증 더 보기</p>
+      <svg class="chevron-icon" viewBox="0 0 24 24">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- 확대 보기 모달창 -->
+<div class="modal-overlay" id="certModal">
+  <div class="modal-box">
+    <button class="close-btn" id="modalCloseBtn" aria-label="닫기">✕</button>
+    <div class="modal-image-wrap" id="modalImageWrap"></div>
+  </div>
+</div>

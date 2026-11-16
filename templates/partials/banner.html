@@ -1,0 +1,31 @@
+{% load static %} 
+  
+<div class="slider-section">
+    <div class="slider-container">
+        <div class="slider-track" id="sliderTrack">
+      
+            <!-- 슬라이드 1 -->
+            <div class="slide">
+                <a href="{% url 'sub_system_1' %}">
+                    <img src="{% static 'images/slide1.png' %}" alt="배너 1">
+                </a>
+            </div>
+
+            <!-- 슬라이드 2 -->
+            <div class="slide">
+                <a href="{% url 'sub_class_1' %}">
+                    <img src="{% static 'images/slide2.png' %}" alt="배너 2">
+                </a>
+            </div>
+
+            <!-- 슬라이드 3 -->
+            <div class="slide">
+                <a href="#">
+                    <img src="{% static 'images/slide3.png' %}" alt="배너 3">
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="pagination" id="pagination"></div>
+</div>
+    <!-- 하단 인디케이터 점 -->

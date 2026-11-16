@@ -1,0 +1,349 @@
+{% load static %} 
+
+<!-- 네 번째 섹션: 학부모와의 실시간 소통 (좌측 타이틀 + 중앙 알림 카드 + 우측 배경 스마트폰) -->
+<!-- 다섯 번째 섹션: 엄격한 면학 분위기 조성 및 학원 벌점 규정 (아코디언 형식 · 1160px 폭) -->
+<section class="rules-section">
+  <div class="rules-wrapper reveal-up">
+    
+    <!-- 섹션 타이틀 -->
+    <div class="rules-header">
+      <p class="rules-eyebrow">타협 없는 면학 분위기</p>
+      <h2 class="rules-title">대치플투스 학원 벌점 규정 안내</h2>
+      <p class="rules-desc">
+        모든 학생이 최상의 집중력을 유지할 수 있도록 투명하고 엄격한 생활 규정을 운영합니다.
+      </p>
+    </div>
+
+    <!-- 핵심 누적 벌점 기준 요약 (2단 카드) -->
+    <div class="penalty-summary-grid">
+      <div class="penalty-card warning">
+        <div class="penalty-badge">누적 벌점 20점 이상</div>
+        <h3>경고 및 학부모님 통보</h3>
+        <p>학습 태도 및 생활 규정 위반 누적 시 즉시 학부모님께 안내됩니다.</p>
+      </div>
+      <div class="penalty-card danger">
+        <div class="penalty-badge">누적 벌점 30점 이상</div>
+        <h3>강제 퇴원 조치</h3>
+        <p>면학 분위기를 심각하게 저해하는 경우 규정에 따라 퇴원 처리됩니다.</p>
+      </div>
+    </div>
+
+    <!-- 아코디언 영역 (상하 외곽선 없음 · 동적 높이 애니메이션) -->
+    <div class="accordion-list">
+      
+      <!-- 1. 출결 관리 -->
+      <div class="accordion-item active">
+        <button type="button" class="accordion-trigger">
+          <div class="trigger-left">
+            <span class="cat-num">01</span>
+            <span class="cat-title">출결 관리</span>
+            <span class="cat-sub">결석 · 지각 · 조퇴 · 외출 · 출결 미체크</span>
+          </div>
+          <span class="trigger-icon"></span>
+        </button>
+        <div class="accordion-panel">
+          <div class="accordion-panel-inner">
+            <table class="rules-table">
+              <thead>
+                <tr>
+                  <th>벌점 사유</th>
+                  <th>세부 내용</th>
+                  <th>벌점</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="2" class="reason-cell">결석</td>
+                  <td>무단 결석</td>
+                  <td><span class="pt-badge high">20점</span></td>
+                </tr>
+                <tr>
+                  <td>사유 결석 (부모님 미리 연락)</td>
+                  <td><span class="pt-badge">5점</span></td>
+                </tr>
+                <tr>
+                  <td rowspan="2" class="reason-cell">지각</td>
+                  <td>무단 지각</td>
+                  <td><span class="pt-badge mid">10점</span></td>
+                </tr>
+                <tr>
+                  <td>사유 지각 (부모님 미리 연락)</td>
+                  <td><span class="pt-badge">5점</span></td>
+                </tr>
+                <tr>
+                  <td rowspan="2" class="reason-cell">조퇴</td>
+                  <td>무단 조퇴</td>
+                  <td><span class="pt-badge mid">10점</span></td>
+                </tr>
+                <tr>
+                  <td>사유 조퇴 (부모님 미리 연락)</td>
+                  <td><span class="pt-badge">5점</span></td>
+                </tr>
+                <tr>
+                  <td class="reason-cell">외출</td>
+                  <td>무단 외출</td>
+                  <td><span class="pt-badge mid">10점</span></td>
+                </tr>
+                <tr>
+                  <td class="reason-cell">출결 미체크</td>
+                  <td>1회 (등원, 하원 각각)</td>
+                  <td><span class="pt-badge">3점</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. 전자 기기 관리 -->
+      <div class="accordion-item">
+        <button type="button" class="accordion-trigger">
+          <div class="trigger-left">
+            <span class="cat-num">02</span>
+            <span class="cat-title">전자 기기 관리</span>
+            <span class="cat-sub">학습 외 사이트 · 메신저 · SNS 공유 · 휴대폰 미제출</span>
+          </div>
+          <span class="trigger-icon"></span>
+        </button>
+        <div class="accordion-panel">
+          <div class="accordion-panel-inner">
+            <table class="rules-table">
+              <thead>
+                <tr>
+                  <th>벌점 사유</th>
+                  <th>세부 내용</th>
+                  <th>벌점</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="2" class="reason-cell">학습 외 사이트 접속</td>
+                  <td>1회 : 기기 한 달간 원장 보관</td>
+                  <td><span class="pt-badge mid">10점</span></td>
+                </tr>
+                <tr>
+                  <td>2회 : 강제 퇴원</td>
+                  <td><span class="pt-badge high">30점</span></td>
+                </tr>
+                <tr>
+                  <td class="reason-cell">메신저(카톡 등) 사용</td>
+                  <td>학습 외 사이트 접속과 동일 (1회 기기 한 달간 원장 보관 / 2회 강제 퇴원)</td>
+                  <td><span class="pt-badge mid">10점</span></td>
+                </tr>
+                <tr>
+                  <td class="reason-cell">강사와 인스타 및 SNS<br>계정 공유 및 개인톡</td>
+                  <td>상담 및 학부모 통보, 해당 강사 징계</td>
+                  <td><span class="pt-badge mid">10점</span></td>
+                </tr>
+                <tr>
+                  <td class="reason-cell">휴대폰 미제출</td>
+                  <td>학습 외 사이트 접속과 동일 (1회 기기 한 달간 원장 보관 / 2회 강제 퇴원)</td>
+                  <td><span class="pt-badge mid">10점</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. 생활 관리 -->
+      <div class="accordion-item">
+        <button type="button" class="accordion-trigger">
+          <div class="trigger-left">
+            <span class="cat-num">03</span>
+            <span class="cat-title">생활 관리</span>
+            <span class="cat-sub">친목 도모 · 이성 교제 · 통제 미준수 · 원내 질서</span>
+          </div>
+          <span class="trigger-icon"></span>
+        </button>
+        <div class="accordion-panel">
+          <div class="accordion-panel-inner">
+            <table class="rules-table">
+              <thead>
+                <tr>
+                  <th>벌점 사유</th>
+                  <th>세부 내용</th>
+                  <th>벌점</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="reason-cell">친목 도모</td>
+                  <td>강의실, 복도, 자습실 및 화장실 대화 1회 적발 시</td>
+                  <td><span class="pt-badge mid">10점</span></td>
+                </tr>
+                <tr>
+                  <td rowspan="2" class="reason-cell">이성 교제</td>
+                  <td>1회 : 상담 및 학부모 통보</td>
+                  <td><span class="pt-badge mid">15점</span></td>
+                </tr>
+                <tr>
+                  <td>2회 : 강제 퇴원</td>
+                  <td><span class="pt-badge high">30점</span></td>
+                </tr>
+                <tr>
+                  <td rowspan="2" class="reason-cell">선생님 통제 미준수</td>
+                  <td>1회 : 벌점 및 부모님 통보, 원장 면담</td>
+                  <td><span class="pt-badge mid">10점</span></td>
+                </tr>
+                <tr>
+                  <td>2회 : 강제 퇴원</td>
+                  <td><span class="pt-badge high">30점</span></td>
+                </tr>
+                <tr>
+                  <td class="reason-cell">절도</td>
+                  <td>강제 퇴원</td>
+                  <td><span class="pt-badge high">30점</span></td>
+                </tr>
+                <tr>
+                  <td class="reason-cell">폭력, 욕설, 성희롱</td>
+                  <td>강제 퇴원</td>
+                  <td><span class="pt-badge high">30점</span></td>
+                </tr>
+                <tr>
+                  <td class="reason-cell">원내 흡연</td>
+                  <td>강제 퇴원</td>
+                  <td><span class="pt-badge high">30점</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. 시각 관리 -->
+      <div class="accordion-item">
+        <button type="button" class="accordion-trigger">
+          <div class="trigger-left">
+            <span class="cat-num">04</span>
+            <span class="cat-title">시각 관리</span>
+            <span class="cat-sub">수업 중 입실 · 책상 정리 정돈 · 다리 떨기 및 졸음</span>
+          </div>
+          <span class="trigger-icon"></span>
+        </button>
+        <div class="accordion-panel">
+          <div class="accordion-panel-inner">
+            <table class="rules-table">
+              <thead>
+                <tr>
+                  <th>벌점 사유</th>
+                  <th>세부 내용</th>
+                  <th>벌점</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="2" class="reason-cell">수업 중 입실</td>
+                  <td>무단 입실</td>
+                  <td><span class="pt-badge mid">10점</span></td>
+                </tr>
+                <tr>
+                  <td>허가 입실 (부모님 미리 연락)</td>
+                  <td><span class="pt-badge">5점</span></td>
+                </tr>
+                <tr>
+                  <td rowspan="2" class="reason-cell">환경 미화<br>(책상 정리 정돈)</td>
+                  <td>1회 : 구두 경고</td>
+                  <td><span class="pt-badge zero">0점</span></td>
+                </tr>
+                <tr>
+                  <td>2회 : 벌점 부여</td>
+                  <td><span class="pt-badge">5점</span></td>
+                </tr>
+                <tr>
+                  <td rowspan="2" class="reason-cell">기타 시각 관리<br>(다리 떨기, 잦은 졸음 등)</td>
+                  <td>1회 : 구두 경고</td>
+                  <td><span class="pt-badge zero">0점</span></td>
+                </tr>
+                <tr>
+                  <td>2회 : 벌점 부여</td>
+                  <td><span class="pt-badge mid">10점</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. 청각 관리 -->
+      <div class="accordion-item">
+        <button type="button" class="accordion-trigger">
+          <div class="trigger-left">
+            <span class="cat-num">05</span>
+            <span class="cat-title">청각 관리</span>
+            <span class="cat-sub">볼펜 소리 · 비닐 소리 등 소음 유발</span>
+          </div>
+          <span class="trigger-icon"></span>
+        </button>
+        <div class="accordion-panel">
+          <div class="accordion-panel-inner">
+            <table class="rules-table">
+              <thead>
+                <tr>
+                  <th>벌점 사유</th>
+                  <th>세부 내용</th>
+                  <th>벌점</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="2" class="reason-cell">볼펜 소리, 비닐 소리 등</td>
+                  <td>1회 : 구두 경고</td>
+                  <td><span class="pt-badge zero">0점</span></td>
+                </tr>
+                <tr>
+                  <td>2회 : 벌점 부여</td>
+                  <td><span class="pt-badge">5점</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. 후각 관리 -->
+      <div class="accordion-item">
+        <button type="button" class="accordion-trigger">
+          <div class="trigger-left">
+            <span class="cat-num">06</span>
+            <span class="cat-title">후각 관리</span>
+            <span class="cat-sub">담배 냄새 · 심한 향수 · 심한 체취 등</span>
+          </div>
+          <span class="trigger-icon"></span>
+        </button>
+        <div class="accordion-panel">
+          <div class="accordion-panel-inner">
+            <table class="rules-table">
+              <thead>
+                <tr>
+                  <th>벌점 사유</th>
+                  <th>세부 내용</th>
+                  <th>벌점</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="2" class="reason-cell">담배, 심한 향수,<br>심한 체취 등</td>
+                  <td>1차 : 구두 경고</td>
+                  <td><span class="pt-badge zero">0점</span></td>
+                </tr>
+                <tr>
+                  <td>2차 : 벌점 부여</td>
+                  <td><span class="pt-badge">5점</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- //.accordion-list 끝 -->
+
+    <!-- 하단 벌점 삭제 및 환불 규정 안내 -->
+    <div class="rules-footnote">
+      <p>• 각각의 항목에 대한 벌점은 <strong>부과일로부터 30일 기준</strong>으로 자동 삭제됩니다.</p>
+      <p>• 벌점 누적으로 강제 퇴원 시 <strong>수강료 환불규정(18조 3항)</strong>에 따라 환불 처리됩니다.</p>
+    </div>
+
+  </div><!-- //.rules-wrapper 끝 -->
+</section>

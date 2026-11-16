@@ -1,0 +1,16 @@
+<!-- 부모 틀을 가져와서 구멍을 채웁니다 -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}재수종합반 | 대치플투스학원{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/style-class_1.css' %}">
+{% endblock %}
+
+{% block content %}
+	<!-- 1. 상단 배너 조각 삽입 + 데이터 전달 -->
+    {% include 'partials/sub_class_1_section_1.html' %}
+    {% include 'partials/sub_class_1_section_2.html' %}
+    {% include 'partials/sub_class_1_section_3.html' %}
+{% endblock %}

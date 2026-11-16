@@ -1,0 +1,24 @@
+<!-- 부모 틀을 가져와서 구멍을 채웁니다 -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}X10학습법 | 대치플투스학원{% endblock %}
+
+{% block extra_css %}
+
+    <link rel="stylesheet" href="{% static 'css/style-system_1.css' %}">    
+
+{% endblock %}
+
+
+{% block content %}
+	<!-- 1. 상단 배너 조각 삽입 + 데이터 전달 -->
+    {% include 'partials/sub_system_1_section_1.html' %}
+    
+{% endblock %}
+
+{% block extra_js %}
+
+    <script src="{% static 'js/system_1.js' %}"></script>
+
+{% endblock %}

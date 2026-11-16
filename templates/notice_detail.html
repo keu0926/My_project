@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+
+    <link rel="stylesheet" href="{% static 'css/style-board_1.css' %}">    
+
+{% endblock %}
+
+
+{% block content %}
+<section class="notice-section">
+  <div class="notice-wrapper">
+
+    <div class="notice-detail-card">
+      <!-- 게시글 상단 메타 정보 -->
+      <div class="detail-head">
+        <div class="detail-badges">
+          {% if notice.is_pinned %}<span class="badge-pin">중요</span>{% endif %}
+          <span class="badge-cat">{{ notice.category }}</span>
+        </div>
+        <h2 class="detail-title">{{ notice.title }}</h2>
+        <div class="detail-meta">
+          <span>작성일 {{ notice.created_at|date:"Y년 m월 d일" }}</span>
+          <span class="dot">·</span>
+          <span>조회수 {{ notice.views }}</span>
+        </div>
+      </div>
+
+      <!-- 게시글 본문 (줄바꿈 자동 유지) -->
+      <div class="detail-body">
+        {{ notice.content|linebreaksbr }}
+      </div>
+
+      <!-- 이전글 / 다음글 네비게이션 -->
+      <div class="detail-nav">
+        <div class="nav-row">
+          <span class="nav-label">다음글</span>
+          {% if next_notice %}
+            <a href="{% url 'notice_detail' next_notice.pk %}">{{ next_notice.title }}</a>
+          {% else %}
+            <span class="nav-empty">다음 글이 없습니다.</span>
+          {% endif %}
+        </div>
+        <div class="nav-row">
+          <span class="nav-label">이전글</span>
+          {% if prev_notice %}
+            <a href="{% url 'notice_detail' prev_notice.pk %}">{{ prev_notice.title }}</a>
+          {% else %}
+            <span class="nav-empty">이전 글이 없습니다.</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- 하단 목록 버튼 -->
+    <div class="detail-footer">
+      <a href="{% url 'notice_list' %}" class="btn-back-list">목록으로 돌아가기</a>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

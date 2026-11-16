@@ -1,0 +1,224 @@
+/* ==========================================================================
+   인사말 페이지 전용 스타일 (style-intro_1.css) - 독립형 통합본
+========================================================================== */
+
+/* ------------------------------------------
+   0. 스크롤 등장 애니메이션 & 기본 버튼 (style-base.css에서 추출)
+------------------------------------------ */
+@keyframes revealfadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.reveal-fadein {
+    animation: revealfadeIn 1.2s ease-in-out forwards;
+}
+
+.reveal-up {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1), 
+                transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: opacity, transform;
+}
+
+.reveal-up.active {
+    opacity: 1;
+    transform: translate(0, 0);
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 32px;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.btn-wrapper {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 40px 0px;
+}
+
+.btn-blue {
+    color: #0071e3;
+    border: 1px solid #0071e3;
+}
+
+.btn-blue:hover {
+    color: #ffffff;
+    background-color: #0071e3;
+}
+
+
+/* ------------------------------------------
+   1. 첫 번째 구역: 히어로 섹션 (.section-type4)
+------------------------------------------ */
+.section-type4 {
+    width: 100%;
+    height: 75vh;
+    background: linear-gradient(rgba(15, 32, 54, 0.88), rgba(15, 32, 54, 0.96)), 
+                url('../images/intro.png') no-repeat center center/cover;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-top: 120px;
+    margin-bottom: 60px;
+}
+
+.section-type4 span {
+    display: initial;
+    font-size: 60px;
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+    font-weight: 600;
+    color: #d4af37;
+}
+
+.section-type4 p {
+    color: #E5E5E7;
+}
+
+.section-type4 h1 {
+    color: #fff;
+}
+
+.section-type4 .inner {
+    width: 100%;
+    max-width: 1160px;
+    text-align: center;
+}
+
+
+/* ------------------------------------------
+   2. 두 번째 구역: 가치관 3단 오버랩 카드 (.section-type2 & .cards2)
+------------------------------------------ */
+.section-type2 {
+    width: 100%;
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 70px 0;
+}
+
+.section-type2 .cards2 {
+    margin: -60px auto 100px auto;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.section-type2 .card2 {
+    background: #ffffff;
+    border-radius: 28px;
+    padding: 40px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    border-top: 4px solid #0f2036;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.section-type2 .card2:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.08);
+    border-top-color: #d4af37;
+}
+
+.section-type2 .card2 span {
+    display: block;
+    color: #d4af37;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+
+/* ------------------------------------------
+   3. 세 번째 구역: 하단 클로징 섹션 (.section-type3)
+------------------------------------------ */
+.section-type3 {
+    width: 100%;
+    background: #fff;
+    margin: 0 auto;
+    padding: 70px 0;
+}
+
+.section-type3 h2 {
+    margin-bottom: 48px;
+}
+
+.section-type3 .wrapper {
+    max-width: 1160px;
+    margin: 0 auto;
+}
+
+
+/* ------------------------------------------
+   4. 반응형 대응 (태블릿 & 모바일 통합)
+------------------------------------------ */
+@media (max-width: 1024px) {
+    .section-type4 .inner,
+    .section-type2,
+    .section-type3 .wrapper {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .section-type2 .cards2 {
+        margin-top: -30px;
+        gap: 18px;
+    }
+}
+
+@media (max-width: 768px) {
+    .btn {
+        padding: 8px 22px;
+        font-size: 14px;
+    }
+    .btn-wrapper {
+        padding: 24px 0;
+        gap: 8px;
+    }
+
+    /* 첫 번째 구역 모바일 */
+    .section-type4 {
+        height: auto;
+        padding: 72px 20px;
+        margin-bottom: 30px;
+    }
+    .section-type4 span {
+        font-size: 32px;
+    }
+
+    /* 두 번째 구역 모바일 (3열 -> 1열 전환) */
+    .section-type2 {
+        padding: 48px 20px;
+    }
+    .section-type2 .cards2 {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        grid-template-rows: auto !important;
+        grid-auto-flow: row !important;
+        gap: 16px;
+        margin: 0 auto 48px auto;
+    }
+    .section-type2 .card2 {
+        padding: 28px 24px;
+        border-radius: 22px;
+    }
+
+    /* 세 번째 구역 모바일 */
+    .section-type3 {
+        padding: 48px 20px;
+    }
+    .section-type3 h2 {
+        margin-bottom: 28px;
+    }
+}

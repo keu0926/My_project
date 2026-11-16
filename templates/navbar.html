@@ -1,0 +1,99 @@
+{% load static %}
+
+    <!-- 최상단 유틸 바 -->
+    <div class="top-bar">
+        <div class="top-bar-inner">
+            <div class="top-left-menu">
+                ☎ 010-2653-3250<a href="{% url 'sub_intro_5' %}">֍ 서울시 강남구 삼성로 71길 19, 대치플투스학원 ֍</a>✚ 매일 오전 8시 ~ 오후 10시
+            </div>
+            <div class="top-right-menu">
+                <a href="#">로그인</a> <a href="#" class="btn-register">회원 가입</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 헤더 영역 -->
+    <div class="header-container">
+        <!-- 상단 고정 그리드 뼈대 -->
+        <div class="grid-layout">
+            <div class="logo-area">
+                <a href="{% url 'home' %}"><img src="{% static 'images/logo-round.png' %}" alt="FLTOOS"></a>
+            </div>
+            <div class="gnb-item">Intro</div>
+            <div class="gnb-item">System</div>
+            <div class="gnb-item">Class</div>
+            <div class="gnb-item">Board</div>
+            <div class="gnb-item">Booking</div>
+        </div>
+
+        <!-- 메가 드롭다운 서브 메뉴 그리드 -->
+        <div class="mega-dropdown">
+            <div class="grid-layout mega-dropdown-inner">
+                
+                <!-- 1열: 왼쪽 북 배너 영역 -->
+                <div class="mega-banner">
+                    <div class="book-dummy"><img src="{% static 'images/logo_249_88.png' %}" alt="대치플투스"></img></div>
+                    <span>나를 이끌어 주는 곳<br>대치플투스 학원!</span>
+                </div>
+
+                <!-- 2열 -->
+                <div class="mega-column">
+                    <ul>
+                        <li><a href="{% url 'sub_intro_1' %}">인사말</a></li>
+                        <li><a href="{% url 'sub_intro_2' %}">강사진</a></li>
+                        <li><a href="{% url 'sub_intro_3' %}">입시 실적</a></li>
+                        <li><a href="{% url 'sub_intro_4' %}">학원 시설</a></li>
+                        <li><a href="{% url 'sub_intro_5' %}">오시는 길</a></li>
+                    </ul>
+                </div>
+
+                <!-- 3열 -->
+                <div class="mega-column">
+                    <ul>
+                        <li><a href="{% url 'sub_system_1' %}">X10 학습법</a></li>
+                        <li><a href="{% url 'sub_system_2' %}">생활 관리</a></li>
+                        <li><a href="#">영단어 시험</a></li>
+                        <li><a href="#">주간 모의고사</a></li>
+                        <li><a href="#">식단 관리</a></li>
+                    </ul>
+                </div>
+
+                <!-- 4열 -->
+                <div class="mega-column">
+                    <ul>
+                        <li><a href="{% url 'sub_class_1' %}">재수종합반</a></li>
+                        <li><a href="#">검시대입반</a></li>
+                        <li><a href="#">방학캠프반</a></li>
+                        <li><a href="#">영어단과반</a></li>
+                        <li><a href="#">통합탐구반</a></li>
+                        <li><a href="#">수시논술반</a></li>
+                    </ul>
+                </div>
+
+                <!-- 5열 -->
+                <div class="mega-column">
+                    <ul>
+                        <li><a href="{% url 'notice_list' %}">공지 사항</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">입시 자료</a></li>
+                        <li><a href="#">안내 사항</a></li>
+
+                    </ul>
+                </div>
+
+                <!-- 6열 -->
+                <div class="mega-column">
+                    <ul>
+                        <li><a href="{% url 'sub_booking' %}">상담 예약</a></li>
+                    </ul>
+                </div>
+
+            </div>
+            
+            <!-- 드롭다운 최하단 띠 배너 -->
+            <div class="bottom-banner-bar">
+                대치동 최고의 소수정예학원, 지금 시작합니다. ➔
+            </div>
+        </div>
+    </div>
+		

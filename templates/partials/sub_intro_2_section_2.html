@@ -1,0 +1,32 @@
+{% load static %}
+<!-------------------------------- 두 번째 구역 시작 -------------------------------->
+
+{% for group in teacher_groups %}
+<section id="{{ group.id }}" class="section-type5">
+    <div class="contents-section reveal-up">
+        <div class="title">
+            <h2>{{ group.title }}</h2>
+            <div class="p-box">
+                <p>{{ group.desc|safe }}</p>
+            </div>
+        </div>
+    </div>
+
+    <section class="cards">
+        {% for t in group.teachers %}
+        <div class="contents-section reveal-up">
+            <!-- ★ data-modal을 버튼 대신 카드(article)에 부여 -->
+            <article class="card" data-modal="{{ t.modal_id }}">
+                <p>{{ t.subject }}</p>
+                <h3 style="margin-bottom:16px;">{{ t.name }} 선생님</h3>
+                <div class="card-image">
+                    <img src="{% static 'images/' %}{{ t.card_img }}" alt="{{ t.name }}" />
+                </div>
+                <!-- 버튼에서는 data-modal을 제거하여 중복 실행 방지 -->
+                <button class="open-btn" type="button" aria-label="{{ t.name }} 선생님 약력 보기"></button>
+            </article>
+        </div>
+        {% endfor %}
+    </section>
+</section>
+{% endfor %}

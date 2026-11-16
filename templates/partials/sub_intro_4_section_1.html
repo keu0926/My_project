@@ -1,0 +1,19 @@
+{% load static %} 
+
+ <!-- 3. 상단 브랜드 히어로 섹션 (오시는 길 스타일 연동) -->
+        <section class="section-type1" style="background-color: #ea7eb0;">
+            <div class="inner reveal-fadein">
+                <h1>오직 공부에만 몰두하는 집중 공간</h1>
+                <p><br>최고 효율의 학습 결과를 만들기 위해<br> 책상 하나, 조명 밝기, 공기의 흐름까지 세심하게 설계했습니다.</p>
+                <div class="btn-wrapper">
+                    <a href="#LectureRoom" class="btn btn-regular2" onclick="smoothScroll(event, '#LectureRoom')">강의실</a>
+                    <a href="#StudyRoom" class="btn btn-regular2" onclick="smoothScroll(event, '#StudyRoom')">자습실</a>
+                    <a href="#Reception" class="btn btn-regular2"onclick="smoothScroll(event, '#Reception')">상담실</a>
+                </div>
+                <div class="image-wrapper">
+				    <img class="image" src="{% static 'images/desk.png' %}" style="max-width: 370px; margin-top:-19px;" alt="책상">
+			    </div>
+            </div>
+                <!-- 탭 메뉴 형태 유지 (필요 시 층별 안내 등으로 활용 가능) -->
+            
+        </section>

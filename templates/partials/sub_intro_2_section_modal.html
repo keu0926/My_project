@@ -1,0 +1,26 @@
+{% load static %}
+
+<dialog id="myModal" class="custom-modal">
+    <div class="modal-inner">
+        <button class="close-btn" id="closeModal"></button>
+        <!-- 이 부분의 내용만 계속 바뀝니다. -->
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</dialog>
+
+{% for t in all_teachers %}
+<template id="{{ t.modal_id }}">
+    <div class="teacher-detail">
+        <div>
+            <p class="animate-text"><strong>{{ t.slogan|safe }}</strong></p>
+            <h2 class="animate-text">{{ t.name }} 선생님</h2>
+            <span class="animate-text">
+                <hr>
+                {% for career in t.careers %}• {{ career }}<br>{% endfor %}
+                <hr>
+            </span>
+        </div>
+        <img class="animate-image" src="{% static 'images/' %}{{ t.modal_img|default:t.card_img }}" alt="{{ t.name }} 선생님">
+    </div>
+</template>
+{% endfor %}

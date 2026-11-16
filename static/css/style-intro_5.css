@@ -1,0 +1,205 @@
+/* ==========================================================================
+   오시는 길 페이지 전용 스타일 (style-intro_5.css) - 독립형 통합본
+========================================================================== */
+
+/* ------------------------------------------
+   1. 첫 번째 구역: 상단 히어로 배너 (.section-type1)
+------------------------------------------ */
+.section-type1 {
+    width: 100%;
+    height: 630px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-top: 120px;
+    margin-bottom: 60px;
+}
+
+.section-type1 h1 {
+    color: #fff;
+}
+
+.section-type1 p {
+    color: #E5E5E7;
+}
+
+.section-type1 .inner {
+    width: 100%;
+    max-width: 1160px;
+    text-align: center;
+}
+
+.section-type1 .image-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    padding: 20px 0;
+    text-align: center;
+    align-items: center;
+}
+
+.section-type1 .image {
+    width: 100%;
+    max-width: 205px;
+    height: auto;
+    margin: 0 -30px;
+    transform-origin: center center;
+    transition:
+        transform 0.4s cubic-bezier(0.25, 1, 0.50, 1),
+        box-shadow 0.4s cubic-bezier(0.25, 1, 0.50, 1);
+}
+
+.section-type1 .image:hover {
+    transform: scale(1.02);
+}
+
+
+/* ------------------------------------------
+   2. 본문 구역 공통 레이아웃 (.section-type2 & 카드 그리드)
+------------------------------------------ */
+.section-type2 {
+    width: 100%;
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 70px 0;
+}
+
+.section-type2 .title {
+    margin-bottom: 48px;
+}
+
+.cards {
+    display: grid;
+    gap: 24px;
+}
+
+.cards-col1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.cards-col3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.card,
+.section-type2 .card {
+    background: #fff;
+    border-radius: 28px;
+    padding: 40px;
+    height: 500px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    transform-origin: center center;
+    transition:
+        transform 0.4s cubic-bezier(0.25, 1, 0.50, 1),
+        box-shadow 0.4s cubic-bezier(0.25, 1, 0.50, 1);
+}
+
+.card:hover,
+.section-type2 .card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.08);
+}
+
+
+/* ------------------------------------------
+   3. 구역별 세부 맞춤 스타일 (#section-map, #station-routes)
+------------------------------------------ */
+/* 지도 카드(구역 2) 내부 정렬 보정 */
+#section-map .card {
+    height: auto;
+    min-height: 430px;
+    align-items: center;
+    gap: 32px;
+}
+
+/* 대중교통 안내 카드(구역 3) 글자 넘침 방지 자동 높이 조절 */
+#station-routes .card {
+    height: auto;
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+
+/* ------------------------------------------
+   4. 반응형 대응 (태블릿 & 모바일 통합)
+------------------------------------------ */
+@media (max-width: 1024px) {
+    .section-type1 .inner,
+    .section-type2 {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .section-type1 .image {
+        max-width: 165px;
+        margin: 0 -18px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* 첫 번째 구역 모바일 */
+    .section-type1 {
+        height: auto;
+        padding: 72px 20px 60px;
+        margin-bottom: 30px;
+    }
+    .section-type1 h1 {
+        font-size: 28px;
+    }
+    .section-type1 .image-wrapper {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .section-type1 .image {
+        max-width: 100% !important;
+        margin: 0;
+    }
+
+    /* 본문 구역(2, 3, 4구역) 모바일 1열 정렬 */
+    .section-type2 {
+        padding: 48px 20px;
+    }
+    .section-type2 .title {
+        margin-bottom: 28px;
+    }
+
+    .cards,
+    .cards-col1,
+    .cards-col3 {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        grid-template-rows: auto !important;
+        grid-auto-flow: row !important;
+        gap: 16px;
+    }
+
+    .card,
+    .section-type2 .card,
+    #station-routes .card {
+        height: auto;
+        min-height: 240px;
+        padding: 28px 24px;
+        border-radius: 22px;
+    }
+
+    /* 지도 카드 모바일 세로 배치 전환 (인라인 display: flex 대응) */
+    #section-map .card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 24px;
+    }
+
+    #section-map .map-wrapper {
+        max-width: 100% !important;
+    }
+
+    #daechi-kakao-map {
+        height: 260px !important;
+    }
+}

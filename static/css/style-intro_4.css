@@ -1,0 +1,494 @@
+/* ==========================================================================
+   학원시설 페이지 전용 스타일 (style-intro_4.css) - 독립형 통합본
+========================================================================== */
+
+/* ------------------------------------------
+   1. 페이지 기본 오버라이드
+------------------------------------------ */
+a {
+    background-repeat: no-repeat; 
+    background-position: center center; 
+    background-size: cover !important;
+}
+
+h3 {
+    margin: 1%;
+}
+
+
+/* ------------------------------------------
+   2. 공통 섹션 및 카드 레이아웃 (style-base.css에서 추출)
+------------------------------------------ */
+
+/* 첫 번째 구역: 상단 히어로 배너 (.section-type1) */
+.section-type1 {
+    width: 100%;
+    height: 630px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-top: 120px;
+    margin-bottom: 60px;
+}
+
+.section-type1 h1 {
+    color: #fff;
+}
+
+.section-type1 p {
+    color: #E5E5E7;
+}
+
+.section-type1 .inner {
+    width: 100%;
+    max-width: 1160px;
+    text-align: center;
+}
+
+.section-type1 .image-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    padding: 20px 0;
+    text-align: center;
+    align-items: center;
+}
+
+.section-type1 .image {
+    width: 100%;
+    max-width: 205px;
+    height: auto;
+    margin: 0 -30px;
+    transform-origin: center center;
+    transition:
+        transform 0.4s cubic-bezier(0.25, 1, 0.50, 1),
+        box-shadow 0.4s cubic-bezier(0.25, 1, 0.50, 1);
+}
+
+.section-type1 .image:hover {
+    transform: scale(1.02);
+}
+
+/* 두 번째 구역: 핵심 공간 소개 카드 그리드 (.section-type2) */
+.section-type2 {
+    width: 100%;
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 70px 0;
+}
+
+.section-type2 .title {
+    margin-bottom: 48px;
+}
+
+.cards {
+    display: grid;
+    gap: 24px;
+}
+
+.cards-col1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.cards-col2 {
+    display: grid;
+    grid-template-rows: repeat(2, auto); /* 세로 2줄(카드 -> 설명글)로 먼저 배치 */
+    grid-auto-flow: column;              /* 다음 열로 이동 */
+}
+
+.card,
+.section-type2 .card {
+    background: #fff;
+    border-radius: 28px;
+    padding: 40px;
+    height: 500px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    transform-origin: center center;
+    transition:
+        transform 0.4s cubic-bezier(0.25, 1, 0.50, 1),
+        box-shadow 0.4s cubic-bezier(0.25, 1, 0.50, 1);
+}
+
+.card-col2,
+.section-type2 .card.card-col2 {
+    height: 400px;
+    max-height: 400px;
+}
+
+.card:hover,
+.section-type2 .card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.08);
+}
+
+/* 세 번째 구역: 하단 상담 유도 배너 (.section-type3) */
+.section-type3 {
+    width: 100%;
+    background: #fff;
+    margin: 0 auto;
+    padding: 70px 0;
+}
+
+.section-type3 h2 {
+    margin-bottom: 48px;
+}
+
+.section-type3 .inner {
+    max-width: 1160px;
+    margin: 0 auto;
+}
+
+
+/* ------------------------------------------
+   3. 카드 열기(+) 및 모달 닫기(X) 버튼 (style-base.css에서 추출)
+------------------------------------------ */
+.open-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 30px;
+    height: 30px;
+    background-color: #1d1d1f;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.open-btn::before, 
+.open-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 14px;
+    height: 2.5px;
+    background-color: white;
+}
+
+.open-btn::before {
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.open-btn::after {
+    transform: translate(-50%, -50%) rotate(-180deg);
+}
+
+.open-btn:hover {
+    background-color: #0077ed;
+}
+
+.close-btn {
+    position: absolute;
+    right: 2%;
+    top: 9%;
+    width: 30px;
+    height: 30px;
+    background-color: #1d1d1f;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.close-btn::before, 
+.close-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 14px;
+    height: 2.5px;
+    background-color: white;
+}
+
+.close-btn::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.close-btn::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.close-btn:hover {
+    background-color: #0077ed;
+}
+
+
+/* ------------------------------------------
+   4. 사진 갤러리 모달 (#photoModal)
+------------------------------------------ */
+#photoModal.photo-modal {
+    position: fixed;
+    inset: 0;
+    width: 90vw;
+    height: 88vh;
+    height: 88dvh;
+    max-width: 1050px;
+    max-height: 800px;
+    margin: auto;
+    padding: 30px;
+    box-sizing: border-box;
+    border: none;
+    border-radius: 16px;
+    background: #111;
+    color: #fff;
+    overflow: hidden;
+}
+
+#photoModal.photo-modal::backdrop {
+    background: rgba(0, 0, 0, .92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+#photoModal.photo-modal[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#photoModal .modal-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    overflow: hidden;
+}
+
+#photoModal .modal-top {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px 20px 0;
+}
+
+#photoModal .photo-stage {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #050505;
+}
+
+#photoModal .photo-stage img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+#photoModal .caption {
+    flex: 0 0 auto;
+    padding: 14px 0;
+    text-align: center;
+}
+
+#photoModal .thumbs {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-height: 75px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 5px 0 10px;
+    box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: #777 transparent;
+}
+
+#photoModal .thumb {
+    flex: 0 0 90px;
+    width: 90px;
+    height: 60px;
+}
+
+#photoModal .thumb.active {
+    border-color: #fff;
+    opacity: 1;
+}
+
+#photoModal .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#photoModal .close {
+    position: absolute;
+    top: -5px;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font-size: 34px;
+    font-weight: 200;
+    cursor: pointer;
+    z-index: 10;
+}
+
+/* 갤러리 좌우 화살표 */
+#photoModal .arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 65px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    z-index: 5;
+    transition: opacity .25s, transform .25s;
+}
+
+#photoModal .arrow::before {
+    content: "";
+    display: block;
+    width: 22px;
+    height: 22px;
+    border-top: 2px solid rgba(255, 255, 255, .9);
+    border-right: 2px solid rgba(255, 255, 255, .9);
+    transition: border-color .25s;
+}
+
+#photoModal .arrow.prev {
+    left: 5px;
+}
+
+#photoModal .arrow.prev::before {
+    transform: rotate(-135deg);
+}
+
+#photoModal .arrow.next {
+    right: 5px;
+}
+
+#photoModal .arrow.next::before {
+    transform: rotate(45deg);
+}
+
+#photoModal .arrow:hover {
+    opacity: .65;
+}
+
+#photoModal .arrow:hover::before {
+    border-color: #fff;
+}
+
+
+/* ------------------------------------------
+   5. 반응형 대응 (태블릿 & 모바일 통합)
+------------------------------------------ */
+@media (max-width: 1024px) {
+    .section-type1 .inner,
+    .section-type2,
+    .section-type3 .inner {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .section-type1 .image {
+        max-width: 165px;
+        margin: 0 -18px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* 첫 번째 구역 모바일 */
+    .section-type1 {
+        height: auto;
+        padding: 72px 20px 60px;
+        margin-bottom: 30px;
+    }
+    .section-type1 h1 {
+        font-size: 28px;
+    }
+    .section-type1 .image-wrapper {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .section-type1 .image {
+        max-width: 110px;
+        margin: 0 -8px;
+    }
+
+    /* 두 번째 구역 모바일 (세로 열 흐름 해제 및 1열 정렬) */
+    .section-type2 {
+        padding: 48px 20px;
+    }
+    .section-type2 .title {
+        margin-bottom: 28px;
+    }
+    .cards,
+    .cards-col1,
+    .cards-col2 {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        grid-template-rows: auto !important;
+        grid-auto-flow: row !important;
+        gap: 16px;
+    }
+    .card,
+    .card-col2,
+    .section-type2 .card,
+    .section-type2 .card.card-col2 {
+        height: auto;
+        max-height: none;
+        min-height: 240px;
+        padding: 28px 24px;
+        border-radius: 22px;
+    }
+
+    /* 세 번째 구역 모바일 */
+    .section-type3 {
+        padding: 48px 20px;
+    }
+    .section-type3 h2 {
+        margin-bottom: 28px;
+    }
+
+    /* 갤러리 모달 모바일 */
+    #photoModal.photo-modal {
+        padding: 20px 14px;
+    }
+    #photoModal .modal-top {
+        padding-bottom: 12px;
+    }
+    #photoModal .photo-stage {
+        min-height: 0;
+    }
+    #photoModal .thumb {
+        flex-basis: 65px;
+        width: 65px;
+        height: 45px;
+    }
+    #photoModal .arrow {
+        width: 45px;
+        height: 75px;
+    }
+    #photoModal .arrow::before {
+        width: 16px;
+        height: 16px;
+    }
+}

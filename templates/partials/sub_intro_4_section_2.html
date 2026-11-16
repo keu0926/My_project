@@ -1,0 +1,106 @@
+{% load static %} 
+{% static 'images/lecture_room_1.jpg' as img_url1 %}
+{% static 'images/study_room_1.jpg' as img_url2 %}
+{% static 'images/study_room_2.jpg' as img_url3 %}
+{% static 'images/lobby_desk_1.jpg' as img_url4 %}
+{% static 'images/academy_exterior_1.jpg' as img_url5 %}
+
+        <!-- 4. 핵심 공간 소개 구역 (3열 카드 그리드 활용 - section-type2) -->
+        <section class="section-type2">
+            <div class="title reveal-up" id="LectureRoom">
+                <h2>공간이 만드는 학습의 차이</h2>
+                <div class="p-box">
+					<p>
+						최상의 집중을 위한 환경,<br>
+						더 나은 결과를 위한 공간.
+					</p>
+				</div>
+            </div>
+            
+
+
+            <div class="cards cards-col1 reveal-up">
+                <!-- 카드 1: 라이브 강의실 -->
+                
+                <a class="card" data-gallery="classroom" href="#" style="background-image: url('{{img_url1}}');">
+                    <button class="open-btn" type="button" data-gallery="classroom" aria-label="강의실 사진 보기"></button>
+                </a>
+                
+                <div style="text-align: center;">
+                    <span>01 / LECTURE ROOM</span>
+                    <h3>소수정예 특화 강의실</h3>
+                    <p>수업에 온전히 집중할 수 있도록 설계된<br>쾌적한 교육 공간<br>&nbsp;</p>
+                    <a href="#" class="btn btn-blue" data-gallery="classroom">더 구경하기</a>
+                    <p><br><br><br>&nbsp;</p>
+                </div>
+            </div>
+
+            <div class="cards cards-col2 reveal-up" id="StudyRoom">
+                <a class="card card-col2" href="#" data-gallery="study" style="background-image: url('{{img_url2}}');">
+                    <button class="open-btn" data-gallery="study"></button>
+                </a>
+                <div style="text-align: center;">
+                    <span>02 / STUDY ROOM1</span>
+                    <h3>파티션 자습실</h3>
+                    <p>온전히 집중할 수 있도록<br>개인별 독립된 학습 공간<br>&nbsp;</p>
+                    <a href="#" class="btn btn-blue" data-gallery="study">더 구경하기</a>
+                    <p><br><br><br>&nbsp;</p>
+                </div>
+                <a class="card card-col2" href="#" data-gallery="study2" style="background-image: url('{{img_url3}}');">
+                    <button class="open-btn" data-gallery="study2"></button>
+                </a>
+                <div style="text-align: center;">
+                    <span>03 / STUDY ROOM2</span>
+                    <h3>개방형 자습실</h3>
+                    <p>더 관리받고 더 경쟁하는<br>개방형 자습 공간<br>&nbsp;</p>
+                    <a href="#" class="btn btn-blue" data-gallery="study2">더 구경하기</a>
+                     <p><br><br><br>&nbsp;</p>
+                </div>
+            </div>
+            <div class="cards cards-col2 reveal-up">
+                <a class="card card-col2" id="Reception" href="#" data-gallery="desk" style="background-image: url('{{img_url4}}');">
+                    <button class="open-btn" data-gallery="desk"></button>
+                </a>
+                <div style="text-align: center;">
+                    <span>04 / RECEPTION</span>
+                    <h3>로비 및 안내 데스크</h3>
+                    <p>학우들과 아침에 만나<br>서로 반갑게 인사를 나누는 공간<br>&nbsp;</p>
+                    <a href="#" class="btn btn-blue" data-gallery="desk">더 구경하기</a>
+                    <p><br><br><br>&nbsp;</p>
+                </div>
+                <a class="card card-col2" href="#" data-gallery="exterior" style="background-image: url('{{img_url5}}');">
+                    <button class="open-btn" data-gallery="exterior"></button>
+                </a>
+                <div style="text-align: center;">
+                    <span>05 / ACADEMY EXTERIOR</span>
+                    <h3>학원 전경</h3>
+                    <p>대치플투스 학원의 첫인상<br>그리고 무한한 성장을 약속하는 공간<br>&nbsp;</p>
+                    <a href="#" class="btn btn-blue" data-gallery="exterior">더 구경하기</a>
+                    <p><br><br><br>&nbsp;</p> 
+                </div>
+            </div>
+        </section>
+
+<dialog id="photoModal" class="photo-modal" aria-label="사진 갤러리">
+    <div class="modal-inner">
+
+        <button class="close-btn" type="button" aria-label="닫기"></button>
+
+        <div class="modal-top">
+            <div class="modal-heading" id="modalTitle"></div>
+            <div class="counter" id="photoCounter"></div>
+        </div>
+
+        <div class="photo-stage">
+            <img id="mainPhoto" src="" alt="">
+
+            <button class="arrow prev" type="button" aria-label="이전 사진"></button>
+            <button class="arrow next" type="button" aria-label="다음 사진"></button>
+        </div>
+
+        <div class="caption" id="photoCaption"></div>
+
+        <div class="thumbs" id="thumbnails"></div>
+
+    </div>
+</dialog>

@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+
+    <link rel="stylesheet" href="{% static 'css/style-board_1.css' %}">    
+
+{% endblock %}
+
+
+{% block content %}
+<section class="notice-section">
+  <div class="notice-wrapper">
+
+    <!-- 상단 타이틀 & 검색 영역 -->
+    <div class="notice-header">
+      <div class="header-text">
+        <span class="notice-eyebrow">ANNOUNCEMENT</span>
+        <h2 class="notice-title">대치플투스 공지사항</h2>
+        <p class="notice-desc">학사 일정과 주요 안내 사항을 신속하고 정확하게 전해드립니다.</p>
+      </div>
+
+      <!-- 검색 폼 -->
+      <form method="GET" action="{% url 'notice_list' %}" class="notice-search-form">
+        <input type="text" name="q" value="{{ query }}" placeholder="제목 또는 내용 검색">
+        <button type="submit">검색</button>
+      </form>
+    </div>
+
+    <!-- 공지사항 카드 리스트 -->
+    <div class="notice-board-card">
+      <table class="notice-table">
+        <thead>
+          <tr>
+            <th class="col-num">번호</th>
+            <th class="col-cat">분류</th>
+            <th class="col-title">제목</th>
+            <th class="col-date">작성일</th>
+            <th class="col-views">조회</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for notice in page_obj %}
+          <tr class="{% if notice.is_pinned %}pinned-row{% endif %}">
+            <td class="col-num">
+              {% if notice.is_pinned %}
+                <span class="badge-pin">중요</span>
+              {% else %}
+                {{ notice.id }}
+              {% endif %}
+            </td>
+            <td class="col-cat">
+              <span class="badge-cat">{{ notice.category }}</span>
+            </td>
+            <td class="col-title">
+              <a href="{% url 'notice_detail' notice.pk %}">{{ notice.title }}</a>
+            </td>
+            <td class="col-date">{{ notice.created_at|date:"Y.m.d" }}</td>
+            <td class="col-views">{{ notice.views }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="empty-row">등록된 공지사항이 없습니다.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 하단 페이지네이션 -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="pagination-bar">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="page-btn">&lsaquo;</a>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <span class="page-btn active">{{ num }}</span>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}" class="page-btn">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="page-btn">&rsaquo;</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}

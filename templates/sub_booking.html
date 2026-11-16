@@ -1,0 +1,148 @@
+<!-- 부모 틀을 가져와서 구멍을 채웁니다 -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}상담예약 | 대치플투스학원{% endblock %}
+
+{% block extra_css %}
+
+    <link rel="stylesheet" href="{% static 'css/style-booking.css' %}">    
+
+{% endblock %}
+
+{% block content %}
+<section class="consult-section">
+  <div class="consult-wrapper">
+    
+    <!-- 상단 타이틀 영역 -->
+    <div class="consult-header">
+      <span class="consult-eyebrow">1:1 ADMISSION CONSULTATION</span>
+      <h2 class="consult-title">방문 및 입시 상담 예약</h2>
+      <p class="consult-desc">
+        학생의 현재 학습 상황을 정밀하게 진단하고<br>
+        대치플투스만의 맞춤 학습 로드맵과 관리 시스템을 안내해 드립니다.
+      </p>
+    </div>
+
+    <!-- 접수 완료/오류 알림 메시지 -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert-box {{ message.tags }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- 상담 예약 입력 카드 -->
+    <div class="consult-card">
+      <form method="POST" action="" class="consult-form" autocomplete="off">
+        {% csrf_token %}
+
+        <div class="form-grid">
+          <!-- 1. 이메일 주소 -->
+          <div class="form-group">
+            <label for="email">이메일 주소 <span class="req">*</span></label>
+            <input type="email" id="email" name="email" placeholder="예: student@example.com" required>
+          </div>
+
+          <!-- 2. 학생 이름 -->
+          <div class="form-group">
+            <label for="student_name">학생 이름 <span class="req">*</span></label>
+            <input type="text" id="student_name" name="student_name" placeholder="예: 김플투" required>
+          </div>
+
+          <!-- 3. 나이 -->
+          <div class="form-group">
+            <label for="age">나이 <span class="req">*</span></label>
+            <input type="text" id="age" name="age" placeholder="예: 19세 (또는 2008년생)" required>
+          </div>
+
+          <!-- 4. 출신 고등학교 -->
+          <div class="form-group">
+            <label for="high_school">출신 고등학교 <span class="req">*</span></label>
+            <input type="text" id="high_school" name="high_school" placeholder="검정고시인 경우 '검정고시'라고 적어주세요" required>
+          </div>
+
+          <!-- 5. 전화번호 (학생/부모님 선택 + 번호 입력) -->
+          <div class="form-group">
+            <label for="phone">전화번호 <span class="req">*</span></label>
+            <div class="phone-input-group">
+              <select id="phone_owner" name="phone_owner" aria-label="연락처 대상 선택">
+                <option value="학생" selected>학생</option>
+                <option value="부모님">부모님</option>
+              </select>
+              <input type="tel" id="phone" name="phone" placeholder="예: 010-1234-5678" required>
+            </div>
+          </div>
+
+          <!-- 6. 사는 지역 -->
+          <div class="form-group">
+            <label for="region">사는 지역 <span class="req">*</span></label>
+            <input type="text" id="region" name="region" placeholder="예: 서울시 강남구 대치동" required>
+          </div>
+
+          <!-- 7. 올해 수능 등급 -->
+          <div class="form-group">
+            <label for="csat_grade">올해 수능 등급 <span class="req">*</span></label>
+            <input type="text" id="csat_grade" name="csat_grade" placeholder="미응시인 경우 '미응시'라고 적어주세요 (ex. 25315)" required>
+          </div>
+
+          <!-- 8. 희망 상담 날짜 및 시간 (오전 10:00 ~ 오후 8:00 1시간 단위) -->
+          <div class="form-group-row">
+            <div class="form-group">
+              <label for="consult_date">희망 상담일 <span class="req">*</span></label>
+              <input type="date" id="consult_date" name="consult_date" required>
+            </div>
+            <div class="form-group">
+              <label for="consult_time">희망 상담 시간 <span class="req">*</span></label>
+              <select id="consult_time" name="consult_time" required>
+                <option value="" disabled selected>시간 선택</option>
+                <option value="오전 10:00">오전 10:00</option>
+                <option value="오전 11:00">오전 11:00</option>
+                <option value="오후 12:00">오후 12:00</option>
+                <option value="오후 1:00">오후 1:00</option>
+                <option value="오후 2:00">오후 2:00</option>
+                <option value="오후 3:00">오후 3:00</option>
+                <option value="오후 4:00">오후 4:00</option>
+                <option value="오후 5:00">오후 5:00</option>
+                <option value="오후 6:00">오후 6:00</option>
+                <option value="오후 7:00">오후 7:00</option>
+                <option value="오후 8:00">오후 8:00</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 개인정보 동의 체크 (기존과 동일) -->
+        <div class="privacy-check">
+          <label>
+            <input type="checkbox" required>
+            <span>상담 예약 접수를 위한 개인정보(이메일, 이름, 나이, 출신고교, 연락처, 거주지역, 성적정보) 수집 및 이용에 동의합니다.</span>
+          </label>
+        </div>
+
+        <!-- 제출 버튼 -->
+        <div class="submit-wrapper">
+          <button type="submit" class="btn-submit">상담 예약 신청하기 &rsaquo;</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+{% if messages %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const successAlert = document.querySelector('.alert-box.success');
+    const consultForm = document.querySelector('.consult-form');
+    if (successAlert && consultForm) {
+      consultForm.reset();
+    }
+  });
+</script>
+{% endif %}
+
+</section>
+
+{% endblock %}
+

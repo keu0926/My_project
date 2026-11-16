@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}대치플투스학원{% endblock %}</title>
+
+    {% load static %}
+
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com" rel="stylesheet">
+
+    <!-- 전역 공통 스타일 -->
+    <link rel="stylesheet" href="{% static 'css/style-base.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- 상단 내비게이션 바 -->
+    {% include 'navbar.html' %}
+
+    <!-- 메인 화면 내용 영역 -->
+    <main class="main-content">
+        {% block content %} 
+        {% endblock %}
+    </main>
+
+    <!-- 홈페이지 최하단 안내 영역(푸터) -->
+    {% include 'footer.html' %}
+
+    <!-- ★ 추가: 문서 맨 아래에 인트로 배치 (z-index 충돌 원천 차단) -->
+    <div id="intro-screen">
+        <div class="intro-content">
+            <h3>CLICK TO ENTER FLTOOS</h3>
+        </div>
+    </div>
+
+    <!-- 공통 자바스크립트 -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

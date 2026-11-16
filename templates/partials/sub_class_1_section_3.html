@@ -1,0 +1,224 @@
+{% load static %} 
+
+    <section id="section3" class="section-type3">
+		<div class="wrapper">
+			<div class="contents-section reveal-left">
+				<div class="title">
+					<h2>재수종합반 주당 수업 시간</h2>
+				</div>
+			</div>
+        
+            <section class="cards reveal-up">
+                
+		    		<article class="card">
+			    		<h3>국어</h3>
+				    	<h4><br>정규 수업: 6시간<br>1:1 과외: 3시간</h4>
+					    <div class="card-image">
+						    <img src="{% static 'images/korean.png' %}" alt="국어" />
+				    	</div>
+    				</article>
+                
+    
+                
+	    			<article class="card">
+		    			<h3>수학</h3>
+			    		<h4><br>정규 수업: 6시간<br>1:1 과외: 3시간</h4>
+				    	<div class="card-image">
+					    	<img src="{% static 'images/math.png' %}" alt="수학" />
+		    			</div>
+			    	</article>
+                
+
+                
+		    		<article class="blackcard">
+			    		<h3>영어</h3>
+				    	<h4><br>정규 수업: 4시간<br>1:1 과외: 선택</h4>
+					    <div class="card-image">
+						    <img src="{% static 'images/english.png' %}" alt="영어" />
+	    				</div>
+		    		</article>
+                
+
+                
+			    	<article class="card">
+				    	<h3>통합 과학<br></h3>
+					    <h4><br>정규 수업: 4시간<br>1:1 과외: 질의응답<br><div style="padding-left: 54px;">및 클리닉</div></h4>
+    					<div class="card-image">
+	    					<img src="{% static 'images/science.png' %}" alt="통합 과학" />
+		    			</div>
+			    	</article>
+                
+
+                
+				    <article class="card">
+					    <h3>통합 사회</h3>
+    					<h4><br>정규 수업: 3시간<br>1:1 과외: 질의응답<br><div style="padding-left: 54px;">및 클리닉</div></h4>
+	    	    		<div class="card-image">
+				    		<img src="{% static 'images/society.png' %}" alt="통합 사회" />
+				    	</div>
+			        </article>
+                
+            </section>
+        	
+            <div class="contents-section reveal-up">
+		    	<div style="margin: 15px 0px 40px 0px;">
+			    	<p>♣ 부진한 과목 및 편차가 있는 과목에 따른 일대일 과외 시간을 조절 가능 (과목별 담당 선생님이 결정)</p>
+				    <p style="padding-left: 17px;">- &lt;예시&gt; 문학보다 <strong>독서</strong>가 약한 경우 &rarr; 일대일 과외 수업은 <strong>독서</strong>로 지정하여 보완이 될 때까지 진행</p>
+                    <p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>
+		    	</div>
+            </div>	
+
+            <article class="card" style="height: 900px;">
+                <div class="contents-section reveal-up">
+                    <h3>재수종합반 수업 시간표</h3>
+            		<p style="font-size: 18px; margin-bottom: 20px;">개인별 맞춤 시간표 예시</p>
+ 	       		</div>
+                <div class="contents-section reveal-up">
+	        		<table class="timetable">
+			            <thead>
+            				<tr class="row-header">
+			         			<th colspan="9" style="border-bottom: 1px solid #ccc;">
+					            	<div style="text-align: right;">
+					            		<div style="font-size: 16px; font-weight: bold; color: #c00000; margin-bottom: 3px;">극강의 시작! 최상의 결과! FLTOOS</div>
+                							<div style="font-size: 18px; font-weight: bold; text-align: center;">2028학년도 정시 수능 1등급을 위한 극강의 재수 성공반<br>
+				           					    <span style="color: #00a4b4; text-align: right">플투스 학생</span>
+                                        </div>
+						            </div>
+			           			</th>
+				           	</tr>
+			           	</thead>
+
+                        <tbody>
+            			    <!-- 요일 행 -->
+		           			<tr class="row-header">
+				            	<td colspan="2" class="title-bold">요일</td>
+	           					<td>월요일</td>
+			            		<td>화요일</td>
+			           			<td>수요일</td>
+			           			<td>목요일</td>
+					            <td>금요일</td>
+	           					<td>토요일</td>
+			            		<td>일요일</td>
+	           				</tr>
+			        	    <!-- 분반/관 행 -->
+            				<tr class="row-header">
+			           			<td colspan="2">재수종합반</td>
+			           			<td colspan="7">1관</td>
+	           				</tr>
+			       		    <!-- 교시/시간 헤더 -->
+			           		<tr class="bg-gray-dark">
+			           			<td style="width: 8%;">교시</td>
+			           			<td style="width: 12%;">시간</td>
+			           			<td colspan="7">플투스 학생</td>
+			            	</tr>
+	        			    <!-- 등원 행 -->
+			           		<tr class="row-special bg-gray-light">
+			            		<td>등원</td>
+			            		<td>8시</td>
+		           				<td colspan="7">출결 체크 / 플래너 작성 / 인원 체크 및 조회</td>
+	           				</tr>
+			       		    <!-- 1교시 -->
+				            <tr>
+            					<td class="bg-gray-light">1</td>
+			           			<td>08:20~09:20</td>
+            					<td rowspan="2">문학 A</td>
+			           			<td rowspan="2">독서 B</td>
+		           				<td rowspan="2">문법 C</td>
+			            		<td rowspan="2">대수 B</td>
+		           				<td rowspan="2">미적분1 D</td>
+	           					<td rowspan="4">
+	           						<span class="txt-red">플투스 자체<br>주간 모의고사</span><br><br>
+			           				<span class="txt-dark">국어/수학/영어</span>
+			           			</td>
+			            		<td rowspan="4">
+		           					의무 자습<br><br>국수영 질의응답<br><br>일대일 과외
+			           			</td>
+			           		</tr>
+			            	<!-- 2교시 -->
+			            	<tr>
+            					<td class="bg-gray-light">2</td>
+			           			<td style="border-right: 1px solid #ccc;">09:20~10:20</td>
+			           		</tr>
+			       		    <!-- 3교시 -->
+	    		        	<tr>
+            					<td class="bg-gray-light">3</td>
+			           			<td>10:20~11:20</td>
+            					<td rowspan="2">일대일 과외<br>(문학)</td>
+					            <td rowspan="2">인강 및 자습<br><span class="txt-small">질의응답/과제검사</span></td>
+			           			<td rowspan="2">일대일 과외<br>(대수)</td>
+            					<td rowspan="2">인강 및 자습<br><span class="txt-small">질의응답/과제검사</span></td>
+		           				<td rowspan="2" style="border-right: 1px solid #ccc;">일대일 과외<br>(미적분)</td>
+		           			</tr>
+                            <!-- 4교시 -->
+			            	<tr>
+	    			        	<td class="bg-gray-light">4</td>
+            					<td style="border-right: 1px solid #ccc;">11:20~12:20</td>
+	           				</tr>
+                            <!-- 식사 (점심) -->	
+	           				<tr class="row-special bg-gray-light">
+		           				<td>식사</td>
+			           			<td>12:20~13:20</td>
+			            		<td colspan="7">점심 / 인원 체크 및 조회 (13시 20분 자습실 대기)</td>
+		           			</tr>
+                            <!-- 5교시 -->
+	           				<tr>
+			           			<td class="bg-gray-light">5</td>
+		           				<td>13:30~14:30</td>
+			            		<td rowspan="2">영어 A</td>
+				            	<td rowspan="2">확률과 통계 C</td>
+		           				<td rowspan="2">영어 A</td>
+			            		<td rowspan="4">통합 사회</td>
+		           				<td rowspan="4">통합 과학</td>
+			            		<td rowspan="4">
+				            		<span class="txt-red">플투스 자체<br>주간 모의고사</span><br><br>
+			           				<span class="txt-dark">국어/수학/영어</span>
+				               	</td>
+            					<td rowspan="4">
+			           				의무 자습<br><br>국수영 질의응답<br><br>일대일 과외
+			            		</td>
+			            	</tr>
+                            <!-- 6교시 -->
+				            <tr>
+					            <td class="bg-gray-light">6</td>
+					            <td style="border-right: 1px solid #ccc;">14:30~15:30</td>
+				            </tr>
+                            <!-- 7교시 -->
+				            <tr>
+			    	            <td class="bg-gray-light">7</td>
+					            <td>15:30~16:30</td>
+					            <td rowspan="2">인강 및 자습<br><span class="txt-small">질의응답/과제검사</span></td>
+					            <td rowspan="2">일대일 과외<br>(확률과 통계)</td>
+					            <td rowspan="2" style="border-right: 1px solid #ccc;">인강 및 자습<br><span class="txt-small">질의응답/과제검사</span></td>
+				            </tr>
+                            <!-- 8교시 -->
+				            <tr>
+					            <td class="bg-gray-light">8</td>
+					            <td style="border-right: 1px solid #ccc;">16:30~17:30</td>
+				            </tr>
+                            <!-- 식사 (저녁) -->
+				            <tr class="row-special bg-gray-light">
+					            <td>식사</td>
+					            <td>17:30~18:20</td>
+					            <td colspan="7">저녁 식사 / 인원 체크 및 조회 (18시 20분 자습실 대기)</td>
+				            </tr>
+                            <!-- 야간 자습 세션 -->
+				            <tr>
+					            <td class="bg-gray-light">야간 수업<br>질의 응답</td>
+					            <td>18:30~22:00</td>
+					            <td colspan="7" style="line-height: 1.6;"> <!-- 줄간격 유지를 위해 line-height만 남김 -->
+						            인강 및 자습 / 질의 응답 / 과제 검사<br>
+						            과목별 학습 상담 / 학습 진도 / 학습량 체크
+					            </td>
+				            </tr>
+                            <!-- 하원 -->
+				            <tr>
+					            <td class="bg-gray-light">하원</td>
+					            <td>10시 하원</td>
+					            <td colspan="7" class="bg-gray-light">담임 종례 & 출석 체크 & 플래너 검사</td>
+				            </tr>
+			            </tbody>
+			        </table>
+                </div>
+	        </article>
+        </div>
+    </section>

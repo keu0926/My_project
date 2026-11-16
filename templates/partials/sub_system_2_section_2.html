@@ -1,0 +1,115 @@
+{% load static %} 
+
+<!-- 두 번째 섹션: 스마트한 관리 시스템 & 학습 현황 대시보드 -->
+<section id="system-detail" class="dashboard-section">
+  <div class="section-container">
+    
+    <!-- 왼쪽: 텍스트 설명 영역 -->
+    <div class="dashboard-info reveal-up">
+      <p class="section-eyebrow">보이지 않는 곳까지 관리하는</p>
+      <h2 class="section-title">스마트한 관리 시스템</h2>
+      <p class="section-desc">
+        AI와 데이터로 완성된 스마트한 관리 시스템이<br>
+        학생의 학습과 생활을 실시간으로 관리합니다.
+      </p>
+
+      <ul class="check-list">
+        <li>
+          <span class="check-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span>AI를 통해 태블릿 사용 기록(인강, 메신저, 동영상, 게임 등) 실시간 추적</span>
+        </li>
+        <li>
+          <span class="check-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span>강력한 방화벽으로 인강 이외의 사이트 원천 차단</span>
+        </li>
+        <li>
+          <span class="check-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </span>
+          <span>스마트폰은 학원에서 보관 (등원 시부터 하원 시까지)</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 오른쪽: 다채로운 컬러가 적용된 관제 대시보드 UI 카드 -->
+    <div class="dashboard-card reveal-up">
+      <div class="dash-header">
+        <div>
+          <span class="dash-badge">실시간 모니터링 중</span>
+          <h3 class="dash-title">오늘의 학습 관제 현황</h3>
+        </div>
+        <span class="dash-date">2026. 11. 14 기준</span>
+      </div>
+
+      <!-- 상단 차트 영역 (멀티 컬러 도넛 차트 + 추이 그래프) -->
+      <div class="dash-charts">
+        <!-- 인강 집중률 도넛 게이지 -->
+        <div class="donut-box">
+          <div class="donut-chart">
+            <div class="donut-inner">
+              <strong>98%</strong>
+              <span>인강 집중률</span>
+            </div>
+          </div>
+          <div class="donut-legend">
+            <span><i class="dot-blue"></i>인강 82%</span>
+            <span><i class="dot-purple"></i>문제풀이 16%</span>
+          </div>
+        </div>
+
+        <!-- 일자별 학습 몰입도 그래프 -->
+        <div class="trend-box">
+          <div class="trend-header">
+            <span>주간 학습 몰입 추이</span>
+            <span class="trend-tag">유해 사이트 0건</span>
+          </div>
+          <svg class="trend-svg" viewBox="0 0 260 90" fill="none">
+            <defs>
+              <linearGradient id="lineMultiGrad" x1="0" y1="0" x2="260" y2="0" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#0071E3"/>
+                <stop offset="50%" stop-color="#5856D6"/>
+                <stop offset="100%" stop-color="#34C759"/>
+              </linearGradient>
+              <linearGradient id="areaMultiGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0071E3" stop-opacity="0.18"/>
+                <stop offset="100%" stop-color="#5856D6" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- 배경 가이드 라인 -->
+            <line x1="0" y1="20" x2="260" y2="20" stroke="#E5E5EA" stroke-dasharray="3 3"/>
+            <line x1="0" y1="50" x2="260" y2="50" stroke="#E5E5EA" stroke-dasharray="3 3"/>
+            <line x1="0" y1="80" x2="260" y2="80" stroke="#E5E5EA" stroke-dasharray="3 3"/>
+            <!-- 영역 채우기 및 멀티 컬러 곡선 -->
+            <path d="M10 65 Q 55 55, 95 42 T 180 28 T 250 15 L 250 85 L 10 85 Z" fill="url(#areaMultiGrad)"/>
+            <path d="M10 65 Q 55 55, 95 42 T 180 28 T 250 15" stroke="url(#lineMultiGrad)" stroke-width="3" stroke-linecap="round"/>
+            <!-- 데이터 포인트 -->
+            <circle cx="95" cy="42" r="4.5" fill="#FFFFFF" stroke="#0071E3" stroke-width="2.5"/>
+            <circle cx="180" cy="28" r="4.5" fill="#FFFFFF" stroke="#5856D6" stroke-width="2.5"/>
+            <circle cx="250" cy="15" r="5" fill="#34C759"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 하단 3단 세부 지표 카드 -->
+      <div class="dash-stats">
+        <div class="stat-item">
+          <span class="stat-label">오늘 인강 시간</span>
+          <strong class="stat-value color-blue">6.5h</strong>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">연속 목표 달성</span>
+          <strong class="stat-value color-orange">24일</strong>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">비학습 차단율</span>
+          <strong class="stat-value color-green">100%</strong>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

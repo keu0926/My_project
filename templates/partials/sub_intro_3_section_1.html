@@ -1,0 +1,17 @@
+{% load static %} 
+
+    <!-- 1. 상단 영역 (기존 스타일 그대로 유지) -->
+    <section class="section-type1" style="background-color: #1e71a5;">
+        <div class="inner reveal-fadein">
+            <h1>우리가 함께 만들어 온 결과</h1>
+            <p><br>수많은 노력과 도전이 만들어 낸 빛나는 순간들<br>
+               대치플투스학원이 합격의 순간 함께 기뻐합니다.</p>
+            <div class="btn-wrapper">
+                <a href="#Certificate" class="btn btn-black" onclick="smoothScroll(event, '#Certificate')">합격증</a>
+                <a href="#Review" class="btn btn-black" onclick="smoothScroll(event, '#Review')">수강 후기</a>
+            </div>
+            <div class="image-wrapper">
+				<img class="image" src="{% static 'images/victory.png' %}" style="max-width: 380px; margin-top:-19px;" alt="합격">
+			</div>
+        </div>
+    </section>

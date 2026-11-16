@@ -1,0 +1,456 @@
+/* ==========================================================================
+   전역 공통 스타일 (style-base.css) - 최종 초슬림 다이어트 완성본
+   담당 범위: 시스템 초기화, 인트로 스크린, 상단 GNB(navbar.html), 
+             전역 타이포그래피/버튼/스크롤 애니메이션, 하단 푸터(footer.html)
+========================================================================== */
+
+/* ------------------------------------------
+   1. 시스템 초기화 및 전역 설정
+------------------------------------------ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: -0.02em;
+}
+
+body {
+    background-color: #f5f5f7;
+    caret-color: transparent !important;
+    color: #1d1d1f;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.main-content {
+    transition: filter 0.4s cubic-bezier(0.25, 1, 0.5, 1), 
+                opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: filter, opacity;
+}
+
+
+
+/* ------------------------------------------
+   3. 상단 유틸리티 바 & 메인 내비게이션 (navbar.html)
+------------------------------------------ */
+.top-bar {
+    width: 100%;
+    background-color: #1d1d1f;
+}
+
+.top-bar-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 22px;
+    font-size: 15px;
+    font-weight: 400;
+    color: #f5f5f7;
+}
+
+.top-left-menu a {
+    margin: 0 100px;
+}
+
+.top-left-menu a:hover {
+    color: #ffffff;
+}
+
+.top-right-menu a {
+    margin-left: 20px;
+}
+
+.btn-register {
+    background-color: #0071e3;
+    color: #fff !important;
+    padding: 4px 18px;
+    border-radius: 15px;
+    font-size: 15px;
+    font-weight: 300;
+}
+
+.btn-register:hover {
+    background-color: #0077ed;
+}
+
+.header-container {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 1);
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    border-bottom: 1px solid #d2d2d7;
+    transition: background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.header-container:hover {
+    background-color: #fbfbfd !important;
+}
+
+.header-container:hover + .main-content {
+    filter: blur(5px) brightness(0.8);
+    opacity: 0.6;
+}
+
+.grid-layout {
+    max-width: 1024px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 140px repeat(5, 1fr);
+    padding: 0 22px;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+}
+
+.logo-area a {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.logo-area img {
+    height: 18px;
+    width: auto;
+    object-fit: contain;
+    transition: opacity 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.logo-area img:hover {
+    opacity: 0.7;
+}
+
+.gnb-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    font-size: 12px;
+    font-weight: 450;
+    color: #1d1d1f;
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+.gnb-item:hover {
+    opacity: 1;
+    color: #0071e3;
+}
+
+/* 메가 드롭다운 */
+.mega-dropdown {
+    position: absolute;
+    top: 48px;
+    left: 0;
+    width: 100%;
+    background-color: #fbfbfd;
+    border-bottom: 1px solid #d2d2d7;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.03);
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+                opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+                visibility 0.4s;
+}
+
+.header-container:hover .mega-dropdown {
+    max-height: 450px;
+    opacity: 1;
+    visibility: visible;
+}
+
+.mega-dropdown-inner {
+    padding-top: 35px;
+    padding-bottom: 40px;
+}
+
+.mega-banner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #1d1d1f;
+    gap: 12px;
+}
+
+.mega-banner .book-dummy {
+    width: 120px;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #86868b;
+    font-size: 10px;
+    font-weight: 400;
+    overflow: visible;
+    box-sizing: border-box;
+}
+
+.mega-banner .book-dummy img {
+    max-width: 120%;
+    height: auto;
+}
+
+.mega-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.mega-column ul {
+    list-style: none;
+    width: 100%;
+}
+
+.mega-column ul li {
+    margin-bottom: 14px;
+}
+
+.mega-column ul li a {
+    font-size: 12px;
+    color: #1d1d1f;
+    font-weight: 400;
+}
+
+.mega-column ul li a:hover {
+    color: #0071e3;
+}
+
+.bottom-banner-bar {
+    width: 100%;
+    background-color: #ffffff;
+    border-top: 1px solid #d2d2d7;
+    color: #6e6e73;
+    text-align: center;
+    padding: 14px 0;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+
+/* ------------------------------------------
+   4. 전역 기본 타이포그래피 & 공통 버튼
+------------------------------------------ */
+span {
+    display: block;
+    font-size: 13px;
+    line-height: 1.6;
+    font-weight: 600;
+    color: #6e6e73;
+}
+
+p {
+    font-size: 17px;
+    letter-spacing: -0.03em;
+    line-height: 1.6;
+    color: #6e6e73;
+}
+
+.p-box {
+    border-left: 6px solid #6e6e73;
+    padding: 0 0 0 15px;
+    margin: 10px 0 0 6px;
+}
+
+h1 { font-size: 60px; line-height: 1.35; letter-spacing: -0.015em; font-weight: 700; color: #1d1d1f; }
+h2 { font-size: 44px; line-height: 1.35; letter-spacing: -0.015em; font-weight: 700; color: #1d1d1f; }
+h3 { font-size: 24px; line-height: 1.35; letter-spacing: -0.015em; font-weight: 700; color: #1d1d1f; }
+h4 { font-size: 17px; line-height: 1.35; letter-spacing: -0.015em; font-weight: 700; color: #1d1d1f; }
+
+.btn {
+    display: inline-block;
+    padding: 8px 32px;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.btn-wrapper {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 40px 0;
+}
+
+.btn-black { color: #1d1d1f; border: 1px solid #1d1d1f; }
+.btn-black:hover { color: #ffffff; background-color: #1d1d1f; }
+.btn-blue { color: #0071e3; border: 1px solid #0071e3; }
+.btn-blue:hover { color: #ffffff; background-color: #0071e3; }
+.btn-regular { color: #ffffff; background-color: #0071e3; border: 1px solid #0071e3; }
+.btn-regular:hover { background-color: #0077ed; border: 1px solid #0077ed; }
+.btn-regular2 { color: #ffffff; background-color: #1d1d1f; border: 1px solid #1d1d1f; }
+.btn-regular2:hover { background-color: #000000; border: 1px solid #000000; }
+
+
+/* ------------------------------------------
+   5. 전역 스크롤 등장 애니메이션 (.reveal-*)
+------------------------------------------ */
+.reveal-up, .reveal-left, .reveal-right {
+    opacity: 0;
+    transition: opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1), 
+                transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: opacity, transform;
+}
+
+@keyframes revealfadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.reveal-fadein { animation: revealfadeIn 1.2s ease-in-out forwards; }
+.reveal-up { transform: translateY(60px); }
+.reveal-left { transform: translateX(-100px); }
+.reveal-right { transform: translateX(100px); }
+
+.reveal-up.active, 
+.reveal-left.active, 
+.reveal-right.active {
+    opacity: 1;
+    transform: translate(0, 0);
+}
+
+
+/* ------------------------------------------
+   6. 애플 스타일 다크 푸터 (footer.html)
+------------------------------------------ */
+.apple-footer {
+    width: 100%;
+    background-color: #1d1d1f;
+    padding: 60px 0 50px 0;
+    border-top: 1px solid #333336;
+}
+
+.footer-container {
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 0 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    text-align: left;
+}
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0;
+}
+
+.footer-links a {
+    font-size: 13px;
+    font-weight: 500;
+    color: #86868b;
+    text-decoration: none;
+    transition: color 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.footer-links a:hover { color: #ffffff; }
+.footer-links a.highlight { color: #f5f5f7; font-weight: 600; }
+
+.footer-links .divider,
+.footer-info .divider {
+    font-size: 11px;
+    color: #424245;
+    margin: 0 12px;
+    display: inline-block;
+}
+
+.footer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.footer-info .info-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.footer-info span {
+    display: inline;
+    font-size: 12px;
+    font-weight: 400;
+    color: #86868b;
+    line-height: 1.5;
+}
+
+.footer-copyright {
+    border-top: 1px solid #333336;
+    padding-top: 20px;
+}
+
+.footer-copyright p {
+    font-size: 12px;
+    color: #6e6e73;
+    letter-spacing: 0;
+}
+
+
+/* ------------------------------------------
+   7. 전역 반응형 대응 (GNB & 푸터 & 기본 타이포)
+------------------------------------------ */
+@media (max-width: 1024px) {
+    .top-left-menu a { margin: 0 24px 0 0; }
+    .grid-layout { grid-template-columns: 120px repeat(5, 1fr); padding: 0 16px; }
+}
+
+@media (max-width: 768px) {
+    h1 { font-size: 30px; line-height: 1.3; }
+    h2 { font-size: 26px; line-height: 1.3; }
+    h3 { font-size: 19px; }
+    h4 { font-size: 15px; }
+    p  { font-size: 14.5px; }
+    span { font-size: 12px; }
+
+    .top-bar-inner { padding: 10px 16px; font-size: 13px; }
+    .top-left-menu { display: none; }
+    .top-right-menu { width: 100%; display: flex; justify-content: flex-end; align-items: center; }
+    .top-right-menu a { margin-left: 12px; }
+    .btn-register { padding: 4px 14px; font-size: 13px; }
+
+    .grid-layout {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        overflow-x: auto;
+        white-space: nowrap;
+        gap: 16px;
+        padding: 0 16px;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .grid-layout::-webkit-scrollbar { display: none; }
+    .logo-area { flex-shrink: 0; }
+    .gnb-item { flex-shrink: 0; font-size: 12px; }
+    .mega-dropdown { display: none !important; }
+
+    .btn { padding: 8px 22px; font-size: 14px; }
+    .btn-wrapper { padding: 24px 0; gap: 8px; }
+
+    .apple-footer { padding: 40px 0 30px 0; }
+    .footer-container { gap: 24px; }
+    .footer-info .info-row { flex-direction: column; align-items: flex-start; }
+    .footer-info .info-row .divider { display: none; }
+}

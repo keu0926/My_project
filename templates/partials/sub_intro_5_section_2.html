@@ -1,0 +1,26 @@
+{% load static %} 
+
+        <!-- 2. 지도 및 주소 영역 (카카오맵 실제 연동 버전) -->
+    <section class="section-type2" id="section-map">
+        <div class="title reveal-up">
+            <h2>학원 위치 및 지도</h2>
+            <div class="p-box">
+				<p>대치플투스학원 1관으로 오시는 길을<br>상세히 안내해 드립니다.</p>
+						
+			</div>
+        </div>
+        <div class="cards cards-col1 reveal-up">
+            <div class="card" style="display: flex; justify-content: space-between;">
+                <div>
+                    <h3>서울특별시 강남구 삼성로71길 19, 대치플투스학원</h3>
+                    <p>지번 주소: 대치동 914-1 우리빌딩, 3층<br>&nbsp;<br>&nbsp;</p>
+                    <h3>☎ 010-2653-3250</h3>
+                </div>
+            
+               <!-- [수정] 이미지를 걷어내고 카카오맵이 그려질 실제 사각형 박스를 배치했습니다 -->
+                <div class="map-wrapper" style="border-radius: 18px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); width: 100%; max-width: 500px;">
+                    <div id="daechi-kakao-map" style="width: 100%; height: 350px;"></div>
+                </div>
+            </div>    
+        </div>
+    </section>

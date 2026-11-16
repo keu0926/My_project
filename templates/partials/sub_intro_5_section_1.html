@@ -1,0 +1,18 @@
+{% load static %} 
+
+    <!-- 1. 상단 영역 (기존 스타일 그대로 유지) -->
+    <section class="section-type1 reveal-fadein" style="background-color: #c4b7ec;">
+        <div class="inner">
+            <h1>대치플투스로 가는 길</h1>
+            <p><br>더 높은 목표를 향해 치열하게 몰입할 수 있는 최적의 환경,<br>
+               대치플투스학원이 합격의 순간까지 함께 걷겠습니다.</p>
+            <div class="btn-wrapper">
+                <a href="#section-map" class="btn btn-black" onclick="smoothScroll(event, '#section-map')">위치 지도</a>
+                <a href="#station-routes" class="btn btn-black" onclick="smoothScroll(event, '#station-routes')">대중교통 안내</a>
+                <a href="#car-access" class="btn btn-black" onclick="smoothScroll(event, '#car-access')">자가용 안내</a>
+            </div>
+            <div class="image-wrapper">
+				<img  class="image" src="{% static 'images/skyline.png' %}" style="max-width: 625px; margin-top:-19px;" alt="도시">
+			</div>
+        </div>
+    </section>

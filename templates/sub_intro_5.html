@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}오시는 길 | 대치플투스학원{% endblock %}
+
+{% block extra_css %}
+
+    <link rel="stylesheet" href="{% static 'css/style-intro_5.css' %}">    
+
+{% endblock %}
+
+{% block content %}
+
+    {% include 'partials/sub_intro_5_section_1.html' %}
+    {% include 'partials/sub_intro_5_section_2.html' %}
+    {% include 'partials/sub_intro_5_section_3.html' %}
+    {% include 'partials/sub_intro_5_section_4.html' %}
+        
+{% endblock %}
+
+{% block extra_js %}
+
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=5f01549e30bd851c2c0663dedb0015ad"></script>
+    <script src="{% static 'js/intro_5.js' %}"></script>
+
+{% endblock %}
