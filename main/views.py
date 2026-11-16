@@ -3,32 +3,32 @@ from django.shortcuts import render
 def home(request):
     return render(request, 'home.html')  # 홈 페이지를 그려라!
 
-def sub_class_1(request):
-    return render(request, 'sub_class_1.html') # 서브 페이지 템플릿 반환
+def class_retake(request):
+    return render(request, 'class_retake.html') # 서브 페이지 템플릿 반환
 
-def sub_intro_1(request):
-    return render(request, 'sub_intro_1.html') 
+def intro_greeting(request):
+    return render(request, 'intro_greeting.html') 
 
-def sub_intro_2(request):
-    return render(request, 'sub_intro_2.html')
+def intro_teachers(request):
+    return render(request, 'intro_teachers.html')
 
-def sub_intro_3(request):
-    return render(request, 'sub_intro_3.html')
+def intro_results(request):
+    return render(request, 'intro_results.html')
 
-def sub_intro_4(request):
-    return render(request, 'sub_intro_4.html')
+def intro_facility(request):
+    return render(request, 'intro_facility.html')
 
-def sub_intro_5(request):
-    return render(request, 'sub_intro_5.html')
+def intro_location(request):
+    return render(request, 'intro_location.html')
 
-def sub_system_1(request):
-    return render(request, 'sub_system_1.html')
+def system_x10(request):
+    return render(request, 'system_x10.html')
 
-def sub_system_2(request):
-    return render(request, 'sub_system_2.html')
+def system_life(request):
+    return render(request, 'system_life.html')
 
-def sub_booking(request):
-    return render(request, 'sub_booking.html')
+def booking(request):
+    return render(request, 'booking.html')
 
 
 
@@ -78,11 +78,11 @@ def consult_view(request):
             )
             messages.success(request, "상담 예약이 정상적으로 접수되었습니다. 담당자가 확인 후 연락드리겠습니다.")
             # 반드시 redirect로 새 GET 요청을 보내야 입력값이 초기화됩니다
-            return redirect('sub_booking')  # urls.py에 등록한 name 사용 (또는 request.path)
+            return redirect('booking')  # urls.py에 등록한 name 사용 (또는 request.path)
         except Exception as e:
             messages.error(request, "메일 발송 중 오류가 발생했습니다. 학원으로 직접 문의해 주세요.")
 
-    return render(request, 'sub_booking.html')
+    return render(request, 'booking.html')
 
 
 
@@ -128,7 +128,7 @@ def notice_detail(request, pk):
 
 from django.shortcuts import render
 
-def sub_intro_2(request):
+def intro_teachers(request):
     # 1. 전체 강사진 마스터 데이터 (모달 생성용 & 카드 참조용)
     # 새 모달 사진이 생기면 김동주 선생님(teacher16)처럼 "modal_img" 키만 한 줄 추가하면 됩니다.
     teachers_dict = {
@@ -551,4 +551,4 @@ def sub_intro_2(request):
         "teacher_groups": teacher_groups,
         "all_teachers": teachers_dict.values(),
     }
-    return render(request, "sub_intro_2.html", context)
+    return render(request, "intro_teachers.html", context)
