@@ -6,9 +6,42 @@
             <div class="top-left-menu">
                 ☎ 010-2653-3250<a href="{% url 'intro_location' %}">֍ 서울시 강남구 삼성로 71길 19, 대치플투스학원 ֍</a>✚ 매일 오전 8시 ~ 오후 10시
             </div>
-            <div class="top-right-menu">
-                <a href="#">로그인</a> <a href="#" class="btn-register">회원 가입</a>
+            <!-- 상단 네비게이션 바 우측: 로그인 / 회원가입 자동 전환 영역 -->
+            <div class="nav-auth-area">
+                {% if user.is_authenticated %}
+                    <!-- 1. 로그인 된 상태 -->
+                    <div class="nav-user-chip">
+                        {% if user.profile %}
+                            {% if user.profile.user_role == 'parent' %}
+                                <span class="nav-role-badge parent">학부모</span>
+                            {% else %}
+                                <span class="nav-role-badge student">학생</span>
+                            {% endif %}
+                            <span><strong>{{ user.profile.name }}</strong>님 환영합니다</span>
+                        {% elif user.is_staff or user.is_superuser %}
+                            <span class="nav-role-badge admin">관리자</span>
+                            <span><strong>{{ user.first_name|default:user.username }}</strong>님</span>
+                        {% else %}
+                            <span class="nav-role-badge student">회원</span>
+                            <span><strong>{{ user.first_name|default:user.username }}</strong>님 환영합니다</span>
+                        {% endif %}
+                    </div>
+
+                    {% if user.is_staff or user.is_superuser %}
+                        <a href="/admin/" class="nav-auth-btn admin-btn">관리자</a>
+                    {% endif %}
+
+                    <a href="{% url 'logout' %}" class="nav-auth-btn logout-btn">로그아웃</a>
+
+                {% else %}
+                    <!-- 2. 로그아웃(비로그인) 상태 -->
+                    <a href="{% url 'login' %}" class="nav-auth-btn login-btn">로그인</a>
+                    <a href="{% url 'signup' %}" class="nav-auth-btn signup-btn">회원가입</a>
+                {% endif %}
             </div>
+
+
+
         </div>
     </div>
 

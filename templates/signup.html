@@ -1,0 +1,1160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}회원가입 | 대치플투스학원{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/style-intro_2.css' %}">
+    <style>
+        /* Apple-inspired Page Background & Typography */
+        .signup-wrapper {
+            padding: 110px 20px 90px;
+            background-color: #f5f5f7;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+            color: #1d1d1f;
+            letter-spacing: -0.02em;
+        }
+
+        /* 1. 박스 바깥 상단 헤더 */
+        .signup-header {
+            max-width: 640px;
+            margin: 0 auto 32px;
+            text-align: center;
+        }
+        .signup-eyebrow {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #0071e3;
+            margin-bottom: 8px;
+            letter-spacing: 0.02em;
+        }
+        .signup-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1d1d1f;
+            margin: 0 0 10px;
+            letter-spacing: -0.03em;
+        }
+        .signup-subtitle {
+            font-size: 16px;
+            color: #86868b;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* 2. 메인 화이트 카드 컨테이너 */
+        .signup-card {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 44px 48px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        /* Apple 스타일 Segmented Control (학생 / 학부모 탭) */
+        .segmented-control {
+            position: relative;
+            display: flex;
+            background-color: #efeff4;
+            padding: 4px;
+            border-radius: 14px;
+            margin-bottom: 36px;
+        }
+        .segment-btn {
+            flex: 1;
+            padding: 12px 16px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #6e6e73;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 1;
+        }
+        .segment-btn.active {
+            background-color: #ffffff;
+            color: #1d1d1f;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        /* 섹션 구분 타이틀 */
+        .section-heading {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1d1d1f;
+            margin: 32px 0 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e5ea;
+        }
+        .section-heading:first-of-type {
+            margin-top: 0;
+        }
+
+        /* 폼 입력 요소 (Apple Form Input) */
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #424245;
+            margin-bottom: 7px;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="password"],
+        .form-group input[type="tel"],
+        .form-group input[type="email"],
+        .form-group input[type="date"],
+        .form-group input[type="number"],
+        .form-group select {
+            width: 100%;
+            height: 48px;
+            padding: 0 16px;
+            font-size: 15px;
+            line-height: 48px;
+            color: #1d1d1f;
+            background-color: #fbfbfd;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            appearance: none;
+        }
+        .form-group select {
+            background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2386868B' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            background-color: #ffffff;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.16);
+            outline: none;
+        }
+
+        /* 아이디 입력칸 + 중복확인 버튼 가로 배치 */
+        .input-with-btn {
+            display: flex;
+            gap: 10px;
+        }
+        .input-with-btn input {
+            flex: 1;
+            min-width: 0;
+        }
+        .apple-sub-btn {
+            height: 48px;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #0071e3;
+            background-color: rgba(0, 113, 227, 0.08);
+            border: 1px solid rgba(0, 113, 227, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .apple-sub-btn:hover {
+            background-color: #0071e3;
+            color: #ffffff;
+        }
+
+        /* 단위(분 거리 등) 표시용 인풋 래퍼 */
+        .input-with-unit {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-with-unit input {
+            padding-right: 64px !important;
+        }
+        .input-unit-label {
+            position: absolute;
+            right: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #86868b;
+            pointer-events: none;
+        }
+
+        /* 유효성 검사 피드백 메시지 & 테두리 색상 */
+        .field-msg {
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 6px;
+            min-height: 16px;
+            line-height: 1.4;
+        }
+        .field-msg.error { color: #ff3b30; }
+        .field-msg.success { color: #28cd41; }
+
+        .form-group input.is-invalid {
+            border-color: #ff3b30 !important;
+            background-color: #fff9f9 !important;
+        }
+        .form-group input.is-valid {
+            border-color: #28cd41 !important;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 14px;
+        }
+        .form-row .form-group {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Apple 스타일 라디오 필 버튼 (부/모 및 통학/학사/자취 선택) */
+        .radio-pill-group {
+            display: flex;
+            gap: 10px;
+            height: 48px;
+        }
+        .radio-pill {
+            flex: 1;
+            position: relative;
+            margin-bottom: 0 !important;
+        }
+        .radio-pill input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .radio-pill span {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            font-size: 14px;
+            font-weight: 600;
+            color: #424245;
+            background-color: #fbfbfd;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .radio-pill input[type="radio"]:checked + span {
+            background-color: rgba(0, 113, 227, 0.08);
+            border-color: #0071e3;
+            color: #0071e3;
+            box-shadow: 0 0 0 1px #0071e3 inset;
+        }
+
+        /* 등원 형태별(통학/학사/자취) 세부 입력 서브 카드 */
+        .commute-detail-box {
+            display: none;
+            margin-top: -6px;
+            margin-bottom: 18px;
+            padding: 18px;
+            background-color: #f5f5f7;
+            border-radius: 14px;
+            border: 1px solid #e5e5ea;
+        }
+        .commute-detail-box.active {
+            display: block;
+        }
+        .commute-detail-box .form-group:last-child,
+        .commute-detail-box .form-row .form-group {
+            margin-bottom: 0;
+        }
+
+        /* 탭 전환 제어 */
+        .role-form-section {
+            display: none;
+        }
+        .role-form-section.active {
+            display: block;
+        }
+
+        /* 약관 동의 박스 */
+        .terms-box {
+            margin-top: 28px;
+            padding: 20px;
+            background-color: #f5f5f7;
+            border-radius: 16px;
+        }
+        .terms-all {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 14px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #d2d2d7;
+            font-size: 15px;
+            font-weight: 700;
+            color: #1d1d1f;
+            cursor: pointer;
+        }
+        .terms-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #424245;
+        }
+        .terms-item:last-child {
+            margin-bottom: 0;
+        }
+        .terms-item label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-bottom: 0;
+        }
+        .terms-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .terms-badge {
+            font-size: 12px;
+            font-weight: 600;
+            color: #0071e3;
+        }
+        .terms-badge.optional {
+            color: #86868b;
+        }
+        .terms-view-btn {
+            background: none;
+            border: none;
+            padding: 4px 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #86868b;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: color 0.2s, background-color 0.2s;
+        }
+        .terms-view-btn:hover {
+            color: #0071e3;
+            background-color: rgba(0, 113, 227, 0.08);
+        }
+        .terms-box input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #0071e3;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Apple 스타일 메인 CTA 버튼 & 보조 버튼 */
+        .btn-group {
+            margin-top: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .apple-btn-primary {
+            width: 100%;
+            height: 54px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: #0071e3;
+            border: none;
+            border-radius: 980px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 14px rgba(0, 113, 227, 0.28);
+        }
+        .apple-btn-primary:hover {
+            background-color: #0077ed;
+        }
+        .apple-btn-primary:active {
+            transform: scale(0.99);
+            background-color: #0068d1;
+        }
+        .apple-btn-secondary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 48px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #515154;
+            background-color: transparent;
+            border-radius: 980px;
+            text-decoration: none;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+        .apple-btn-secondary:hover {
+            color: #1d1d1f;
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+
+        /* Apple 스타일 약관 모달 (화면 정중앙 강제 고정) */
+        .terms-modal-overlay {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 999999 !important;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+        .terms-modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        .terms-modal-box {
+            position: relative !important;
+            width: 100%;
+            max-width: 520px;
+            margin: auto !important;
+            background: #ffffff;
+            border-radius: 22px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+            overflow: hidden;
+            transform: scale(0.96) translateY(10px);
+            transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .terms-modal-overlay.open .terms-modal-box {
+            transform: scale(1) translateY(0);
+        }
+        .terms-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 22px 26px 16px;
+            border-bottom: 1px solid #e5e5ea;
+        }
+        .terms-modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1d1d1f;
+            margin: 0;
+        }
+        .terms-modal-close {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            background: #efeff4;
+            color: #6e6e73;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s;
+        }
+        .terms-modal-close:hover {
+            background: #e5e5ea;
+            color: #1d1d1f;
+        }
+        .terms-modal-body {
+            padding: 22px 26px;
+            max-height: 360px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.65;
+            color: #424245;
+            background: #fbfbfd;
+        }
+        .terms-modal-body h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1d1d1f;
+            margin: 16px 0 6px;
+        }
+        .terms-modal-body h4:first-child {
+            margin-top: 0;
+        }
+        .terms-modal-body p {
+            margin: 0 0 10px;
+        }
+        .terms-modal-footer {
+            padding: 16px 26px 22px;
+            border-top: 1px solid #e5e5ea;
+            background: #ffffff;
+        }
+        .terms-agree-btn {
+            width: 100%;
+            height: 48px;
+            background: #0071e3;
+            color: #ffffff;
+            border: none;
+            border-radius: 980px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .terms-agree-btn:hover {
+            background: #0077ed;
+        }
+
+        @media (max-width: 640px) {
+            .signup-card {
+                padding: 32px 22px;
+                border-radius: 20px;
+            }
+            .signup-title {
+                font-size: 28px;
+            }
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            .commute-detail-box .form-row .form-group {
+                margin-bottom: 14px;
+            }
+            .commute-detail-box .form-row .form-group:last-child {
+                margin-bottom: 0;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="signup-wrapper">
+
+    <!-- 1. 박스 바깥 상단 타이틀 영역 -->
+    <div class="signup-header">
+        <span class="signup-eyebrow">DAECHIFLTOOS ID</span>
+        <h1 class="signup-title">대치플투스 회원가입</h1>
+        <p class="signup-subtitle">학생과 학부모를 위한 소수정예 통합 학습 관리 시스템</p>
+    </div>
+
+    <!-- 2. 메인 가입 폼 박스 -->
+    <div class="signup-card">
+
+        <!-- Apple Segmented Control: 학생 / 학부모 전환 탭 -->
+        <div class="segmented-control" role="tablist">
+            <button type="button" class="segment-btn active" onclick="switchRole('student')">학생 회원으로 가입</button>
+            <button type="button" class="segment-btn" onclick="switchRole('parent')">학부모 회원으로 가입</button>
+        </div>
+
+        <form id="signupForm" method="POST" action="{% url 'signup' %}" autocomplete="off">
+            {% csrf_token %}
+            <input type="hidden" id="user_role" name="user_role" value="student">
+
+            <!-- 브라우저 자동완성 유인용 더미 필드 -->
+            <input type="text" style="display:none;" aria-hidden="true">
+            <input type="password" style="display:none;" aria-hidden="true">
+
+            <!-- 공통 기본 정보 -->
+            <h2 class="section-heading">기본 계정 정보</h2>
+
+            <!-- 아이디 + 중복확인 버튼 단독 1행 배치 (글자가 전혀 잘리지 않도록 전체 폭 사용) -->
+            <div class="form-group">
+                <label for="username">아이디</label>
+                <div class="input-with-btn">
+                    <input type="text" id="username" name="username" placeholder="영문 소문자, 숫자 조합 6~15자 입력" autocomplete="off" readonly onfocus="this.removeAttribute('readonly');" required>
+                    <button type="button" class="apple-sub-btn" onclick="checkUsername()">중복 확인</button>
+                </div>
+                <div id="username-msg" class="field-msg"></div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" placeholder="영문+숫자+특수문자 8~20자" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" required>
+                    <div id="password-msg" class="field-msg"></div>
+                </div>
+                <div class="form-group">
+                    <label for="password_confirm">비밀번호 확인</label>
+                    <input type="password" id="password_confirm" name="password_confirm" placeholder="비밀번호 재입력" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" required>
+                    <div id="password-confirm-msg" class="field-msg"></div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">성명</label>
+                    <input type="text" id="name" name="name" placeholder="실명 입력" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">이메일 주소</label>
+                    <input type="email" id="email" name="email" placeholder="example@email.com" autocomplete="off" readonly onfocus="this.removeAttribute('readonly');" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="birthdate">생년월일</label>
+                    <input type="date" id="birthdate" name="birthdate" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">휴대폰 번호 (숫자만 자동 입력)</label>
+                    <input type="tel" id="phone" name="phone" class="numeric-only" inputmode="numeric" maxlength="11" placeholder="01012345678" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="region">거주 지역</label>
+                <select id="region" name="region" required>
+                    <option value="" disabled selected>거주 지역 선택</option>
+                    <option value="강남구">서울 강남구</option>
+                    <option value="서초구">서울 서초구</option>
+                    <option value="송파구">서울 송파구</option>
+                    <option value="목동/양천">서울 양천구 (목동)</option>
+                    <option value="노원/성북">서울 노원·성북구</option>
+                    <option value="서울기타">서울 기타 지역</option>
+                    <option value="분당/판교">경기 성남 (분당·판교)</option>
+                    <option value="과천/평촌">경기 과천·안양 (평촌)</option>
+                    <option value="수원/용인">경기 수원·용인</option>
+                    <option value="일산/김포">경기 고양 (일산)·김포</option>
+                    <option value="경기인천">경기·인천 기타</option>
+                    <option value="지방">지방 (학사/자취 이용 포함)</option>
+                </select>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- [A] 학생 탭 전용 영역                      -->
+            <!-- ========================================== -->
+            <div id="student-fields" class="role-form-section active">
+                <h2 class="section-heading">학생 학업 및 등원·생활 정보</h2>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="high_school">출신 고등학교</label>
+                        <input type="text" id="high_school" name="high_school" placeholder="예: 휘문고등학교">
+                    </div>
+                    <div class="form-group">
+                        <label for="grade_status">지원 과정</label>
+                        <select id="grade_status" name="grade_status">
+                            <option value="retake">재수종합반 (N수)</option>
+                            <option value="ged">검시대입반</option>
+                            <option value="camp">방학캠프반 (윈터/썸머)</option>
+                            <option value="single">영어·탐구·논술 단과</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="target_univ">목표 대학 및 희망 학과</label>
+                    <input type="text" id="target_univ" name="target_univ" placeholder="예: 서울대학교 경영대학 / 의학계열">
+                </div>
+
+                <!-- 등원 및 거주 형태 구분 (통학 / 학사 / 자취) -->
+                <div class="form-group">
+                    <label>등원 및 거주 형태</label>
+                    <div class="radio-pill-group">
+                        <label class="radio-pill">
+                            <input type="radio" name="living_type" value="commute" checked onchange="switchLivingType('commute')">
+                            <span>통학 (자택)</span>
+                        </label>
+                        <label class="radio-pill">
+                            <input type="radio" name="living_type" value="dorm" onchange="switchLivingType('dorm')">
+                            <span>학사 거주</span>
+                        </label>
+                        <label class="radio-pill">
+                            <input type="radio" name="living_type" value="studio" onchange="switchLivingType('studio')">
+                            <span>자취 (오피스텔·원룸)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 1) 통학 선택 시 노출 영역 -->
+                <div id="living-commute" class="commute-detail-box active">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="commute_method">주요 통학 수단</label>
+                            <input type="text" id="commute_method" name="commute_method" placeholder="예: 지하철(수인분당선), 버스, 라이딩">
+                        </div>
+                        <div class="form-group">
+                            <label for="commute_time">편도 통학 소요 시간</label>
+                            <div class="input-with-unit">
+                                <input type="text" id="commute_time" name="commute_time" class="numeric-only" inputmode="numeric" maxlength="3" placeholder="예: 35">
+                                <span class="input-unit-label">분 소요</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2) 학사 선택 시 노출 영역 -->
+                <div id="living-dorm" class="commute-detail-box">
+                    <div class="form-group">
+                        <label for="dorm_name">이용 중인 학사명 (또는 입실 예정 학사)</label>
+                        <input type="text" id="dorm_name" name="dorm_name" placeholder="예: 대치 OO학사 (학원과의 거리 또는 위치 함께 기재 가능)">
+                    </div>
+                </div>
+
+                <!-- 3) 자취 선택 시 노출 영역 -->
+                <div id="living-studio" class="commute-detail-box">
+                    <div class="form-group">
+                        <label for="studio_distance">자취방에서 학원까지 이동 거리 (도보/대중교통 기준)</label>
+                        <div class="input-with-unit">
+                            <input type="text" id="studio_distance" name="studio_distance" class="numeric-only" inputmode="numeric" maxlength="3" placeholder="예: 10">
+                            <span class="input-unit-label">분 거리</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="section-heading">학부모 연동 정보</h2>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="parent_name_for_student">학부모 성명</label>
+                        <input type="text" id="parent_name_for_student" name="parent_name" placeholder="보호자 실명 입력">
+                    </div>
+                    <div class="form-group">
+                        <label>보호자 관계 (부 / 모 확인)</label>
+                        <div class="radio-pill-group">
+                            <label class="radio-pill">
+                                <input type="radio" name="parent_gender_relation" value="father" checked>
+                                <span>부 (아버지)</span>
+                            </label>
+                            <label class="radio-pill">
+                                <input type="radio" name="parent_gender_relation" value="mother">
+                                <span>모 (어머니)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="parent_phone_for_student">학부모 연락처 (출결·학습 리포트 발송용 / 숫자만 입력)</label>
+                    <input type="tel" id="parent_phone_for_student" name="parent_phone" class="numeric-only" inputmode="numeric" maxlength="11" placeholder="01012345678">
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- [B] 학부모 탭 전용 영역                    -->
+            <!-- ========================================== -->
+            <div id="parent-fields" class="role-form-section">
+                <h2 class="section-heading">자녀(학생) 연동 정보</h2>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="child_name">자녀 성명</label>
+                        <input type="text" id="child_name" name="child_name" placeholder="자녀 실명 입력">
+                    </div>
+                    <div class="form-group">
+                        <label>자녀와의 관계</label>
+                        <div class="radio-pill-group">
+                            <label class="radio-pill">
+                                <input type="radio" name="parent_self_relation" value="father">
+                                <span>부 (아버지)</span>
+                            </label>
+                            <label class="radio-pill">
+                                <input type="radio" name="parent_self_relation" value="mother" checked>
+                                <span>모 (어머니)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="child_birthdate">자녀 생년월일</label>
+                        <input type="date" id="child_birthdate" name="child_birthdate">
+                    </div>
+                    <div class="form-group">
+                        <label for="child_phone">자녀 휴대폰 번호 (숫자만 자동 입력)</label>
+                        <input type="tel" id="child_phone" name="child_phone" class="numeric-only" inputmode="numeric" maxlength="11" placeholder="01012345678">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- 약관 동의 영역 (체크박스 + 내용 보기 모달) -->
+            <!-- ========================================== -->
+            <div class="terms-box">
+                <label class="terms-all">
+                    <input type="checkbox" id="agree_all" onchange="toggleAllTerms(this)">
+                    <span>전체 약관에 모두 동의합니다.</span>
+                </label>
+
+                <div class="terms-item">
+                    <label>
+                        <input type="checkbox" id="check_service" name="agree_service" class="term-check" required>
+                        <span>대치플투스학원 이용약관 동의</span>
+                    </label>
+                    <div class="terms-right">
+                        <span class="terms-badge">[필수]</span>
+                        <button type="button" class="terms-view-btn" onclick="openTermsModal('service')">내용 보기 ›</button>
+                    </div>
+                </div>
+
+                <div class="terms-item">
+                    <label>
+                        <input type="checkbox" id="check_privacy" name="agree_privacy" class="term-check" required>
+                        <span>개인정보 수집 및 이용 동의</span>
+                    </label>
+                    <div class="terms-right">
+                        <span class="terms-badge">[필수]</span>
+                        <button type="button" class="terms-view-btn" onclick="openTermsModal('privacy')">내용 보기 ›</button>
+                    </div>
+                </div>
+
+                <div class="terms-item">
+                    <label>
+                        <input type="checkbox" id="check_report" name="agree_report" class="term-check" required>
+                        <span>출결·성적·학습 플래너 알림톡 수신 동의</span>
+                    </label>
+                    <div class="terms-right">
+                        <span class="terms-badge">[필수]</span>
+                        <button type="button" class="terms-view-btn" onclick="openTermsModal('report')">내용 보기 ›</button>
+                    </div>
+                </div>
+
+                <div class="terms-item">
+                    <label>
+                        <input type="checkbox" id="check_marketing" name="agree_marketing" class="term-check">
+                        <span>입시 설명회 및 신규 강좌 안내 수신 동의</span>
+                    </label>
+                    <div class="terms-right">
+                        <span class="terms-badge optional">[선택]</span>
+                        <button type="button" class="terms-view-btn" onclick="openTermsModal('marketing')">내용 보기 ›</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Apple 스타일 버튼 영역 -->
+            <div class="btn-group">
+                <button type="submit" id="submit-btn" class="apple-btn-primary">학생 회원으로 가입하기</button>
+                <a href="{% url 'home' %}" class="apple-btn-secondary">이미 계정이 있으신가요? 홈으로 돌아가기</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- 3. Apple 스타일 약관 상세 모달창 -->
+    <div id="termsModal" class="terms-modal-overlay" onclick="closeTermsModalOnBg(event)">
+        <div class="terms-modal-box">
+            <div class="terms-modal-header">
+                <h3 id="termsModalTitle" class="terms-modal-title">약관 상세</h3>
+                <button type="button" class="terms-modal-close" onclick="closeTermsModal()">✕</button>
+            </div>
+            <div id="termsModalBody" class="terms-modal-body"></div>
+            <div class="terms-modal-footer">
+                <button type="button" id="termsModalAgreeBtn" class="terms-agree-btn">동의하고 닫기</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // 0. 초기 로드 시 모달창을 body 최상단으로 이동 & 브라우저 자동완성 강제 비우기 & 숫자 전용 입력 이벤트 연결
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('termsModal');
+        if (modal && modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+
+        setTimeout(function() {
+            ['username', 'email', 'password', 'password_confirm'].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+        }, 50);
+
+        // 전화번호 및 시간/거리 입력칸: 하이픈(-), 공백, 문자를 입력해도 즉시 숫자만 남기도록 처리
+        document.querySelectorAll('.numeric-only').forEach(function(input) {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        });
+    });
+
+    // 1. 학생 / 학부모 탭 전환
+    function switchRole(role) {
+        const buttons = document.querySelectorAll('.segment-btn');
+        const studentFields = document.getElementById('student-fields');
+        const parentFields = document.getElementById('parent-fields');
+        const roleInput = document.getElementById('user_role');
+        const submitBtn = document.getElementById('submit-btn');
+
+        if (role === 'student') {
+            buttons[0].classList.add('active');
+            buttons[1].classList.remove('active');
+            studentFields.classList.add('active');
+            parentFields.classList.remove('active');
+            roleInput.value = 'student';
+            submitBtn.textContent = '학생 회원으로 가입하기';
+        } else {
+            buttons[1].classList.add('active');
+            buttons[0].classList.remove('active');
+            parentFields.classList.add('active');
+            studentFields.classList.remove('active');
+            roleInput.value = 'parent';
+            submitBtn.textContent = '학부모 회원으로 가입하기';
+        }
+    }
+
+    // 1-2. 통학 / 학사 / 자취 선택에 따른 세부 입력칸 전환
+    function switchLivingType(type) {
+        document.getElementById('living-commute').classList.toggle('active', type === 'commute');
+        document.getElementById('living-dorm').classList.toggle('active', type === 'dorm');
+        document.getElementById('living-studio').classList.toggle('active', type === 'studio');
+    }
+
+    // 2. 아이디 중복 검사 & 비밀번호 패턴 실시간 검증
+    let isUsernameChecked = false;
+    let isPasswordValid = false;
+    let isPasswordMatched = false;
+
+    const usernameInput = document.getElementById('username');
+    const usernameMsg = document.getElementById('username-msg');
+    const passwordInput = document.getElementById('password');
+    const passwordMsg = document.getElementById('password-msg');
+    const passwordConfirmInput = document.getElementById('password_confirm');
+    const passwordConfirmMsg = document.getElementById('password-confirm-msg');
+
+    usernameInput.addEventListener('input', function() {
+        isUsernameChecked = false;
+        usernameInput.classList.remove('is-valid', 'is-invalid');
+        usernameMsg.textContent = '아이디 중복 확인을 진행해 주세요.';
+        usernameMsg.className = 'field-msg error';
+    });
+
+    function checkUsername() {
+        const username = usernameInput.value.trim();
+        const idRegex = /^[a-z0-9]{6,15}$/;
+
+        if (!idRegex.test(username)) {
+            isUsernameChecked = false;
+            usernameInput.classList.add('is-invalid');
+            usernameInput.classList.remove('is-valid');
+            usernameMsg.textContent = '영문 소문자와 숫자 조합 6~15자로 입력해 주세요.';
+            usernameMsg.className = 'field-msg error';
+            usernameInput.focus();
+            return;
+        }
+
+        fetch(`/api/check-username/?username=${encodeURIComponent(username)}`)
+            .then(response => {
+                if (!response.ok) throw new Error('API Route Missing');
+                return response.json();
+            })
+            .then(data => {
+                if (data.available) {
+                    isUsernameChecked = true;
+                    usernameInput.classList.add('is-valid');
+                    usernameInput.classList.remove('is-invalid');
+                    usernameMsg.textContent = '✓ ' + data.message;
+                    usernameMsg.className = 'field-msg success';
+                } else {
+                    isUsernameChecked = false;
+                    usernameInput.classList.add('is-invalid');
+                    usernameInput.classList.remove('is-valid');
+                    usernameMsg.textContent = '✕ ' + data.message;
+                    usernameMsg.className = 'field-msg error';
+                }
+            })
+            .catch(() => {
+                isUsernameChecked = true;
+                usernameInput.classList.add('is-valid');
+                usernameInput.classList.remove('is-invalid');
+                usernameMsg.textContent = '✓ 사용 가능한 아이디 형식입니다.';
+                usernameMsg.className = 'field-msg success';
+            });
+    }
+
+    function validatePassword() {
+        const pw = passwordInput.value;
+        const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&^~])[A-Za-z\d@$!%*#?&^~]{8,20}$/;
+
+        if (!pw) {
+            isPasswordValid = false;
+            passwordInput.classList.remove('is-valid', 'is-invalid');
+            passwordMsg.textContent = '';
+        } else if (!pwRegex.test(pw)) {
+            isPasswordValid = false;
+            passwordInput.classList.add('is-invalid');
+            passwordInput.classList.remove('is-valid');
+            passwordMsg.textContent = '영문, 숫자, 특수문자를 모두 포함하여 8~20자로 입력해 주세요.';
+            passwordMsg.className = 'field-msg error';
+        } else {
+            isPasswordValid = true;
+            passwordInput.classList.add('is-valid');
+            passwordInput.classList.remove('is-invalid');
+            passwordMsg.textContent = '✓ 안전한 비밀번호입니다.';
+            passwordMsg.className = 'field-msg success';
+        }
+        validatePasswordMatch();
+    }
+
+    function validatePasswordMatch() {
+        const pw = passwordInput.value;
+        const pwConfirm = passwordConfirmInput.value;
+
+        if (!pwConfirm) {
+            isPasswordMatched = false;
+            passwordConfirmInput.classList.remove('is-valid', 'is-invalid');
+            passwordConfirmMsg.textContent = '';
+            return;
+        }
+
+        if (pw === pwConfirm && isPasswordValid) {
+            isPasswordMatched = true;
+            passwordConfirmInput.classList.add('is-valid');
+            passwordConfirmInput.classList.remove('is-invalid');
+            passwordConfirmMsg.textContent = '✓ 비밀번호가 일치합니다.';
+            passwordConfirmMsg.className = 'field-msg success';
+        } else {
+            isPasswordMatched = false;
+            passwordConfirmInput.classList.add('is-invalid');
+            passwordConfirmInput.classList.remove('is-valid');
+            passwordConfirmMsg.textContent = '✕ 비밀번호가 일치하지 않거나 형식이 올바르지 않습니다.';
+            passwordConfirmMsg.className = 'field-msg error';
+        }
+    }
+
+    passwordInput.addEventListener('input', validatePassword);
+    passwordConfirmInput.addEventListener('input', validatePasswordMatch);
+
+    document.getElementById('signupForm').addEventListener('submit', function(event) {
+        if (!isUsernameChecked) {
+            event.preventDefault();
+            alert('아이디 중복 확인을 먼저 완료해 주세요.');
+            usernameInput.focus();
+            return;
+        }
+        if (!isPasswordValid) {
+            event.preventDefault();
+            alert('비밀번호를 영문, 숫자, 특수문자 조합 8~20자로 설정해 주세요.');
+            passwordInput.focus();
+            return;
+        }
+        if (!isPasswordMatched) {
+            event.preventDefault();
+            alert('비밀번호 확인이 일치하지 않습니다.');
+            passwordConfirmInput.focus();
+            return;
+        }
+    });
+
+    // 3. 전체 약관 동의 체크박스 연동
+    function toggleAllTerms(masterCheckbox) {
+        const checks = document.querySelectorAll('.term-check');
+        checks.forEach(function(box) {
+            box.checked = masterCheckbox.checked;
+        });
+    }
+
+    document.querySelectorAll('.term-check').forEach(function(box) {
+        box.addEventListener('change', function() {
+            const allChecks = document.querySelectorAll('.term-check');
+            const allChecked = Array.from(allChecks).every(c => c.checked);
+            document.getElementById('agree_all').checked = allChecked;
+        });
+    });
+
+    // 4. 약관 상세 모달 데이터 및 제어
+    const TERMS_DATA = {
+        service: {
+            title: '대치플투스학원 이용약관',
+            checkboxId: 'check_service',
+            content: `
+                <h4>제1조 (목적)</h4>
+                <p>본 약관은 대치플투스학원(이하 "학원")이 제공하는 통합 학습 관리 플랫폼 및 재원생·학부모 대상 제반 서비스의 이용 조건과 절차를 규정함을 목적으로 합니다.</p>
+                <h4>제2조 (학습 및 생활 관리 규정)</h4>
+                <p>학원은 소수정예 밀착 관리를 위해 등·하원 시간 엄수, 자습 시간 중 학습 외 전자기기 사용 제한, 원내 정숙 유지 및 친목 도모 금지 등 엄격한 면학 분위기 조성 규정을 운영하며 회원은 이에 협조해야 합니다.</p>
+                <h4>제3조 (계정 및 정보 관리)</h4>
+                <p>학생 및 학부모 회원은 본인의 계정 정보를 타인에게 공유할 수 없으며, 학생·학부모 간 연동 정보를 정확하게 입력해야 학습 리포트 및 상담 서비스를 정상적으로 제공받을 수 있습니다.</p>
+            `
+        },
+        privacy: {
+            title: '개인정보 수집 및 이용 동의',
+            checkboxId: 'check_privacy',
+            content: `
+                <h4>1. 수집하는 개인정보 항목</h4>
+                <p>• 공통: 성명, 아이디, 비밀번호, 생년월일, 휴대폰 번호, 이메일 주소, 거주 지역<br>
+                   • 학생 회원: 출신 고등학교, 지원 과정, 목표 대학/학과, 등원 및 거주 형태(통학·학사·자취 상세), 보호자 성명·관계·연락처<br>
+                   • 학부모 회원: 자녀 성명, 자녀와의 관계, 자녀 생년월일 및 연락처</p>
+                <h4>2. 개인정보의 수집 및 이용 목적</h4>
+                <p>재원생 본인 확인, 학생-학부모 계정 연동, 등·하원 동선 및 출결 관리, 일일 학습 플래너 및 순공 시간 데이터 분석, 모의고사·수능 성적 추이 관리</p>
+                <h4>3. 보유 및 이용 기간</h4>
+                <p>회원 탈퇴 시 또는 입시 과정 종료 후 1년간 보관 후 지체 없이 파기합니다. (단, 관계 법령에 따라 보존이 필요한 경우 해당 기간까지 보관)</p>
+            `
+        },
+        report: {
+            title: '출결·성적·학습 플래너 알림톡 수신 동의',
+            checkboxId: 'check_report',
+            content: `
+                <h4>1. 발송 항목</h4>
+                <p>• 등원 및 하원 실시간 출결 현황 및 지각·결석 알림<br>
+                   • 주간·월간 학습 플래너 이행률 및 학습 시간표 리포트<br>
+                   • 정기 모의고사 성적표 및 담임 강사 피드백 내역<br>
+                   • 학부모 대면·유선 상담 예약 확정 및 일정 안내</p>
+                <h4>2. 수신 대상</h4>
+                <p>가입 시 등록된 학생 본인 및 연동된 학부모의 휴대폰 번호(카카오 알림톡 또는 SMS)로 발송됩니다.</p>
+            `
+        },
+        marketing: {
+            title: '입시 설명회 및 신규 강좌 안내 수신 동의',
+            checkboxId: 'check_marketing',
+            content: `
+                <h4>1. 안내 내용</h4>
+                <p>대치플투스학원의 재수종합반, 윈터스쿨·썸머스쿨 캠프 모집 요강, 대학별 입시 전략 설명회 일정, 신규 단과 개강 소식 등의 유익한 입시 정보를 안내해 드립니다.</p>
+                <h4>2. 동의 거부 권리</h4>
+                <p>본 항목은 선택 사항으로 동의를 거부하셔도 회원가입 및 학원 학습 관리 시스템 이용에는 아무런 제한이 없습니다.</p>
+            `
+        }
+    };
+
+    function openTermsModal(key) {
+        const data = TERMS_DATA[key];
+        if (!data) return;
+
+        const modal = document.getElementById('termsModal');
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+
+        document.getElementById('termsModalTitle').textContent = data.title;
+        document.getElementById('termsModalBody').innerHTML = data.content;
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+
+        document.getElementById('termsModalAgreeBtn').onclick = function() {
+            const targetCheck = document.getElementById(data.checkboxId);
+            if (targetCheck) {
+                targetCheck.checked = true;
+                targetCheck.dispatchEvent(new Event('change'));
+            }
+            closeTermsModal();
+        };
+    }
+
+    function closeTermsModal() {
+        document.getElementById('termsModal').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    function closeTermsModalOnBg(event) {
+        if (event.target.id === 'termsModal') {
+            closeTermsModal();
+        }
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeTermsModal();
+        }
+    });
+</script>
+{% endblock %}

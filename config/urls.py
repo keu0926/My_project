@@ -36,4 +36,14 @@ urlpatterns = [
 
     # 5. 입시 실적 (Results)
     path('intro/results/', views.intro_results, name='intro_results'),      # 명예의 전당
+
+    # 6. 회원 가입 (Signup)
+    path('signup/', views.signup_view, name='signup'),
+    path('api/check-username/', views.check_username_view, name='check_username'),
+
+
+    path('signup/', views.signup_view, name='signup'),
+    path('api/check-username/', views.check_username_view, name='check_username'),
+    path('login/', views.login_view, name='login'),     # 추가
+    path('logout/', views.logout_view, name='logout'),  # 추가
 ]

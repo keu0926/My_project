@@ -1,3 +1,5 @@
+import re
+from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.mail import send_mail
 from django.conf import settings
@@ -5,7 +7,12 @@ from django.contrib import messages
 from django.views.decorators.cache import never_cache
 from django.core.paginator import Paginator
 from django.db.models import Q
-from .models import Notice
+from django.http import JsonResponse
+from django.contrib.auth.models import User
+from django.db import transaction
+from .models import Notice, MemberProfile
+# 파일 상단에 아래 임포트 1줄 추가
+from django.contrib.auth import authenticate, login, logout
 
 
 # ==========================================
@@ -576,3 +583,151 @@ def guide_info(request):
 # ==========================================
 def intro_results(request):
     return render(request, 'intro_results.html')    # 명예의 전당
+
+
+# ==========================================
+# 6. 회원가입 (Signup & ID 중복확인 API)
+# ==========================================
+def _parse_date(date_str):
+    if not date_str:
+        return None
+    try:
+        return datetime.strptime(date_str, '%Y-%m-%d').date()
+    except ValueError:
+        return None
+
+
+def _parse_int(int_str):
+    if not int_str:
+        return None
+    digits = re.sub(r'[^0-9]', '', int_str)
+    return int(digits) if digits else None
+
+
+def check_username_view(request):
+    username = request.GET.get('username', '').strip()
+
+    if not re.match(r'^[a-z0-9]{6,15}$', username):
+        return JsonResponse({
+            'available': False,
+            'message': '영문 소문자와 숫자 조합 6~15자로 입력해 주세요.'
+        })
+
+    if User.objects.filter(username=username).exists():
+        return JsonResponse({
+            'available': False,
+            'message': '이미 사용 중인 아이디입니다.'
+        })
+
+    return JsonResponse({
+        'available': True,
+        'message': '사용 가능한 아이디입니다.'
+    })
+
+
+def signup_view(request):
+    if request.method == 'POST':
+        user_role = request.POST.get('user_role', 'student').strip()
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        name = request.POST.get('name', '').strip()
+        birthdate = _parse_date(request.POST.get('birthdate', ''))
+        phone = re.sub(r'[^0-9]', '', request.POST.get('phone', ''))
+        region = request.POST.get('region', '').strip()
+
+        if User.objects.filter(username=username).exists():
+            return render(request, 'signup.html', {'error': '이미 사용 중인 아이디입니다.'})
+
+        with transaction.atomic():
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=name
+            )
+
+            profile = MemberProfile(
+                user=user,
+                user_role=user_role,
+                name=name,
+                birthdate=birthdate,
+                phone=phone,
+                region=region,
+                agree_service=bool(request.POST.get('agree_service')),
+                agree_privacy=bool(request.POST.get('agree_privacy')),
+                agree_report=bool(request.POST.get('agree_report')),
+                agree_marketing=bool(request.POST.get('agree_marketing')),
+            )
+
+            if user_role == 'student':
+                living_type = request.POST.get('living_type', 'commute')
+                profile.high_school = request.POST.get('high_school', '').strip()
+                profile.grade_status = request.POST.get('grade_status', 'retake')
+                profile.target_univ = request.POST.get('target_univ', '').strip()
+                profile.living_type = living_type
+
+                if living_type == 'commute':
+                    profile.commute_method = request.POST.get('commute_method', '').strip()
+                    profile.commute_time = _parse_int(request.POST.get('commute_time', ''))
+                elif living_type == 'dorm':
+                    profile.dorm_name = request.POST.get('dorm_name', '').strip()
+                elif living_type == 'studio':
+                    profile.studio_distance = _parse_int(request.POST.get('studio_distance', ''))
+
+                profile.parent_name = request.POST.get('parent_name', '').strip()
+                profile.parent_gender_relation = request.POST.get('parent_gender_relation', 'father')
+                profile.parent_phone = re.sub(r'[^0-9]', '', request.POST.get('parent_phone', ''))
+            else:
+                profile.child_name = request.POST.get('child_name', '').strip()
+                profile.parent_self_relation = request.POST.get('parent_self_relation', 'mother')
+                profile.child_birthdate = _parse_date(request.POST.get('child_birthdate', ''))
+                profile.child_phone = re.sub(r'[^0-9]', '', request.POST.get('child_phone', ''))
+
+            profile.save()
+
+        print(f"✅ [회원가입 DB 저장 완료] 아이디: {username} / 이름: {name} / 구분: {user_role}")
+        return redirect('home')
+
+    return render(request, 'signup.html')
+
+
+
+# 파일 맨 아래(signup_view 아래)에 추가
+# ==========================================
+# 7. 로그인 및 로그아웃 (Login & Logout)
+# ==========================================
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+        remember_me = request.POST.get('remember_me')
+        next_url = request.POST.get('next', '').strip()
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            # '로그인 상태 유지' 미체크 시 브라우저 닫으면 로그아웃 처리
+            if not remember_me:
+                request.session.set_expiry(0)
+            else:
+                request.session.set_expiry(60 * 60 * 24 * 14)  # 14일 유지
+
+            if next_url:
+                return redirect(next_url)
+            return redirect('home')
+        else:
+            return render(request, 'login.html', {
+                'error': '아이디 또는 비밀번호가 일치하지 않습니다. 다시 확인해 주세요.',
+                'entered_username': username,
+            })
+
+    return render(request, 'login.html')
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('home')
