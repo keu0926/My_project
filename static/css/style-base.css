@@ -94,7 +94,9 @@ a {
     background-color: #fbfbfd !important;
 }
 
-.header-container:hover + .main-content {
+/* 헤더에 마우스를 올리면 본문이 흐려지는 효과
+   (~ : 헤더 뒤에 오는 모든 형제 요소. navbar.html 안의 <script> 등이 사이에 끼어 있어도 동작) */
+.header-container:hover ~ .main-content {
     filter: blur(5px) brightness(0.8);
     opacity: 0.6;
 }
@@ -569,7 +571,7 @@ h4 { font-size: 17px; line-height: 1.35; letter-spacing: -0.015em; font-weight: 
     .mega-dropdown { display: none !important; }
 
     /* 터치 화면에서 hover가 남아 본문이 흐려지는 현상 방지 */
-    .header-container:hover + .main-content {
+    .header-container:hover ~ .main-content {
         filter: none;
         opacity: 1;
     }
