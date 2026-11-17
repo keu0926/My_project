@@ -27,6 +27,11 @@
                         {% endif %}
                     </div>
 
+                    <!-- ★ 학습플래너 권한자 또는 관리자 전용 상단 입장 버튼 추가 -->
+                    {% if user.is_staff or user.is_superuser or user.profile.can_use_planner %}
+                        <a href="{% url 'planner:dashboard' %}" class="nav-auth-btn signup-btn" style="background-color: #30d5c8 !important; border-color: #30d5c8 !important; color: #1d1d1f !important; font-weight: 700;">학습플래너</a>
+                    {% endif %}
+
                     {% if user.is_staff or user.is_superuser %}
                         <a href="/admin/" class="nav-auth-btn admin-btn">관리자</a>
                     {% endif %}
@@ -205,6 +210,10 @@
                         </div>
 
                         <div class="mm-logged-btns">
+                            <!-- ★ 모바일 햄버거 메뉴 안쪽 학습플래너 버튼 -->
+                            {% if user.is_staff or user.is_superuser or user.profile.can_use_planner %}
+                                <a href="{% url 'planner:dashboard' %}" class="mm-register" style="background-color: #30d5c8 !important; border-color: #30d5c8 !important; color: #1d1d1f !important; font-weight: 700;">학습플래너</a>
+                            {% endif %}
                             {% if user.is_staff or user.is_superuser %}
                                 <a href="/admin/" class="mm-register">관리자 페이지</a>
                             {% endif %}

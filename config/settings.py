@@ -114,3 +114,17 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 
 DEFAULT_FROM_EMAIL = "kangromin@gmail.com"
 ADMIN_CONSULT_EMAIL = "puppytk@naver.com"
+
+
+# config/settings.py
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'main',
+    'planner',  # ★ 새로 만든 플래너 전용 앱 등록
+]

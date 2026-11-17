@@ -94,6 +94,9 @@ class MemberProfile(models.Model):
     agree_marketing = models.BooleanField('마케팅 수신 동의(선택)', default=False)
     created_at = models.DateTimeField('가입일시', auto_now_add=True)
 
+    # main/models.py 의 MemberProfile 클래스 내부 맨 아래에 추가
+    can_use_planner = models.BooleanField("학습플래너 사용 권한", default=False)
+
     class Meta:
         verbose_name = '대치플투스 회원 프로필'
         verbose_name_plural = '대치플투스 회원 프로필 목록'

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from main import views
 
 urlpatterns = [
@@ -46,4 +46,7 @@ urlpatterns = [
     path('api/check-username/', views.check_username_view, name='check_username'),
     path('login/', views.login_view, name='login'),     # 추가
     path('logout/', views.logout_view, name='logout'),  # 추가
+
+    # ★ 학습 플래너 전용 독립 URL 연결
+    path('planner/', include('planner.urls')),
 ]
