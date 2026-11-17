@@ -182,10 +182,42 @@
                 </ul>
             </details>
 
+            <!-- 햄버거 모바일 메뉴 내부: 로그인 / 회원가입 자동 전환 영역 -->
             <div class="mm-auth">
-                <a href="#" class="mm-login">로그인</a>
-                <a href="#" class="mm-register">회원 가입</a>
+                {% if user.is_authenticated %}
+                    <!-- 1. 로그인 된 상태: 환영 배지 카드 + 로그아웃(및 관리자) 버튼 -->
+                    <div class="mm-auth-logged-in">
+                        <div class="mm-user-card">
+                            {% if user.profile %}
+                                {% if user.profile.user_role == 'parent' %}
+                                    <span class="nav-role-badge parent">학부모</span>
+                                {% else %}
+                                    <span class="nav-role-badge student">학생</span>
+                                {% endif %}
+                                <span class="mm-user-name"><strong>{{ user.profile.name }}</strong>님 환영합니다</span>
+                            {% elif user.is_staff or user.is_superuser %}
+                                <span class="nav-role-badge admin">관리자</span>
+                                <span class="mm-user-name"><strong>{{ user.first_name|default:user.username }}</strong>님</span>
+                            {% else %}
+                                <span class="nav-role-badge student">회원</span>
+                                <span class="mm-user-name"><strong>{{ user.first_name|default:user.username }}</strong>님 환영합니다</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="mm-logged-btns">
+                            {% if user.is_staff or user.is_superuser %}
+                                <a href="/admin/" class="mm-register">관리자 페이지</a>
+                            {% endif %}
+                            <a href="{% url 'logout' %}" class="mm-login mm-logout-btn">로그아웃</a>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- 2. 비로그인 상태: 기존 하드코딩된 클래스(.mm-login / .mm-register) 그대로 유지 -->
+                    <a href="{% url 'login' %}" class="mm-login">로그인</a>
+                    <a href="{% url 'signup' %}" class="mm-register">회원가입</a>
+                {% endif %}
             </div>
+
 
             <!-- 모바일 메뉴 하단 학원 연락처 & 주소 안내 (스타일을 직접 지정해 캐시된 CSS에 영향받지 않게 함) -->
             <div class="mm-contact" style="margin-top:28px;padding:20px 24px 0;border-top:1px solid #e8e8ed;display:flex;flex-direction:column;gap:6px;text-align:center;">

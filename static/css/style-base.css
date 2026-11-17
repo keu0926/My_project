@@ -34,6 +34,63 @@ a {
 }
 
 
+/* ------------------------------------------
+   2. 인트로 스크린 (#intro-screen) - PC 가로형 / 모바일 세로형 자동 전환
+------------------------------------------ */
+#intro-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    background: #1d1d1f url("../images/logo-home.jpg") no-repeat center center / cover;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 10vh;
+    z-index: 99999;
+    cursor: pointer;
+    transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1),
+                visibility 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+#intro-screen.hidden,
+#intro-screen.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+#intro-screen .intro-content h3 {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    padding: 12px 28px;
+    background-color: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 980px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* 스마트폰 화면(768px 이하)일 때 세로형 로고 이미지로 교체 */
+@media (max-width: 768px) {
+    #intro-screen {
+        background-image: url("../images/logo-home-mobile.png") !important;
+        background-position: center center !important;
+        background-size: cover !important;
+        padding-bottom: 12vh;
+    }
+    #intro-screen .intro-content h3 {
+        font-size: 14px;
+        letter-spacing: 0.14em;
+        padding: 10px 22px;
+    }
+}
+
 
 /* ------------------------------------------
    3. 상단 유틸리티 바 & 메인 내비게이션 (navbar.html)
@@ -49,7 +106,7 @@ a {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 22px;
+    padding: 10px 22px;
     font-size: 15px;
     font-weight: 400;
     color: #f5f5f7;
@@ -63,8 +120,13 @@ a {
     color: #ffffff;
 }
 
+.top-right-menu {
+    display: flex;
+    align-items: center;
+}
+
 .top-right-menu a {
-    margin-left: 20px;
+    margin-left: 12px;
 }
 
 .btn-register {
@@ -73,7 +135,7 @@ a {
     padding: 4px 18px;
     border-radius: 15px;
     font-size: 15px;
-    font-weight: 300;
+    font-weight: 500;
 }
 
 .btn-register:hover {
@@ -94,8 +156,7 @@ a {
     background-color: #fbfbfd !important;
 }
 
-/* 헤더에 마우스를 올리면 본문이 흐려지는 효과
-   (~ : 헤더 뒤에 오는 모든 형제 요소. navbar.html 안의 <script> 등이 사이에 끼어 있어도 동작) */
+/* 헤더에 마우스를 올리면 본문이 흐려지는 효과 */
 .header-container:hover ~ .main-content {
     filter: blur(5px) brightness(0.8);
     opacity: 0.6;
@@ -161,46 +222,68 @@ a {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Pretendard", sans-serif;
 }
 
+.nav-auth-area a {
+    margin-left: 0 !important;
+}
+
+/* 전역 span { display: block } 충돌 방지 */
+.nav-auth-area span {
+    display: inline-flex !important;
+    align-items: center;
+    line-height: 1 !important;
+}
+
 /* 로그인 후: 회원 이름 + 역할 배지 캡슐 */
 .nav-user-chip {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    height: 36px;
+    gap: 8px;
+    height: 34px;
     padding: 0 14px;
-    background-color: #f5f5f7;
-    border: 1px solid rgba(0, 0, 0, 0.06);
+    background-color: #ffffff !important;
+    border: 1px solid #d2d2d7 !important;
     border-radius: 980px;
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 500;
-    color: #1d1d1f;
+    color: #1d1d1f !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     white-space: nowrap;
 }
+
+.nav-user-chip span {
+    color: #1d1d1f !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+
 .nav-user-chip strong {
     font-weight: 700;
-    color: #1d1d1f;
+    color: #0071e3 !important;
+    margin-right: 2px;
 }
 
 /* 역할 구분 배지 (학생 / 학부모 / 관리자) */
 .nav-role-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    font-size: 11px;
-    font-weight: 700;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    font-size: 11px !important;
+    font-weight: 700 !important;
     border-radius: 980px;
     letter-spacing: -0.01em;
 }
 .nav-role-badge.student {
-    background-color: rgba(0, 113, 227, 0.12);
-    color: #0071e3;
+    background-color: rgba(0, 113, 227, 0.14) !important;
+    color: #0071e3 !important;
 }
 .nav-role-badge.parent {
-    background-color: rgba(40, 205, 65, 0.14);
-    color: #1d832b;
+    background-color: rgba(40, 205, 65, 0.16) !important;
+    color: #1d832b !important;
 }
 .nav-role-badge.admin {
-    background-color: rgba(29, 29, 31, 0.1);
-    color: #1d1d1f;
+    background-color: #1d1d1f !important;
+    color: #ffffff !important;
 }
 
 /* 공통 네비게이션 인증 버튼 */
@@ -208,9 +291,9 @@ a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 36px;
-    padding: 0 18px;
-    font-size: 13.5px;
+    height: 34px;
+    padding: 0 16px;
+    font-size: 13px;
     font-weight: 600;
     border-radius: 980px;
     text-decoration: none !important;
@@ -219,19 +302,17 @@ a {
     box-sizing: border-box;
 }
 
-/* 1. 로그인 버튼: 어두운/밝은 배경 어디서나 선명하게 보이는 화이트 필 버튼 */
+/* 1. 로그인 버튼: 어두운 상단바(.top-bar) 위에서 선명하게 빛나는 순백색 필 버튼 */
 .nav-auth-btn.login-btn {
     color: #1d1d1f !important;
     background-color: #ffffff !important;
-    border: 1px solid #d2d2d7 !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    border: 1px solid #ffffff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 .nav-auth-btn.login-btn:hover {
     color: #0071e3 !important;
     background-color: #f5f5f7 !important;
-    border-color: #0071e3 !important;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 113, 227, 0.2);
 }
 
 /* 2. 회원가입 버튼: 선명한 Apple System Blue 필 버튼 */
@@ -247,23 +328,7 @@ a {
     transform: translateY(-1px);
 }
 
-/* 3. 로그인 후: 사용자 이름 캡슐 및 로그아웃/관리자 버튼도 선명하게 보정 */
-.nav-user-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    height: 36px;
-    padding: 0 14px;
-    background-color: #ffffff !important;
-    border: 1px solid #d2d2d7 !important;
-    border-radius: 980px;
-    font-size: 13.5px;
-    font-weight: 500;
-    color: #1d1d1f !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    white-space: nowrap;
-}
-
+/* 3. 로그아웃 및 관리자 버튼 */
 .nav-auth-btn.logout-btn {
     color: #1d1d1f !important;
     background-color: #ffffff !important;
@@ -278,27 +343,10 @@ a {
 .nav-auth-btn.admin-btn {
     color: #ffffff !important;
     background-color: #0071e3 !important;
+    border: 1px solid #0071e3 !important;
 }
 .nav-auth-btn.admin-btn:hover {
     background-color: #0077ed !important;
-}
-
-
-/* 로그아웃 및 관리자 버튼 */
-.nav-auth-btn.logout-btn {
-    color: #6e6e73;
-    background-color: #efeff4;
-}
-.nav-auth-btn.logout-btn:hover {
-    color: #d70015;
-    background-color: #fff2f2;
-}
-.nav-auth-btn.admin-btn {
-    color: #0071e3;
-    background-color: rgba(0, 113, 227, 0.08);
-}
-.nav-auth-btn.admin-btn:hover {
-    background-color: rgba(0, 113, 227, 0.15);
 }
 
 /* 모바일 메뉴 내부용 정렬 보정 */
@@ -520,7 +568,44 @@ a {
     border: 1px solid #0071e3;
 }
 
-/* ★ 338번째 줄: 중복된 .bottom-banner-bar 자리에 교체하여 추가 */
+
+/* 모바일 햄버거 메뉴: 로그인 완료 상태 전용 스타일 (기존 .mm-auth 코드는 유지) */
+.mm-auth-logged-in {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.mm-user-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 16px;
+    background-color: #f5f5f7;
+    border: 1px solid #e5e5ea;
+    border-radius: 16px;
+}
+.mm-user-card .mm-user-name {
+    display: inline !important;
+    font-size: 15px;
+    font-weight: 500;
+    color: #1d1d1f;
+}
+.mm-user-card .mm-user-name strong {
+    font-weight: 700;
+    color: #0071e3;
+}
+.mm-logged-btns {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+.mm-logged-btns .mm-logout-btn {
+    border-color: #d2d2d7;
+    color: #424245;
+}
+
 .mm-contact {
     margin-top: 28px;
     padding: 20px 24px 0;
