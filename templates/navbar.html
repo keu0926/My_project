@@ -19,11 +19,11 @@
             <div class="logo-area">
                 <a href="{% url 'home' %}"><img src="{% static 'images/logo-round.png' %}" alt="FLTOOS"></a>
             </div>
-            <div class="gnb-item">Intro</div>
-            <div class="gnb-item">System</div>
-            <div class="gnb-item">Class</div>
-            <div class="gnb-item">Board</div>
-            <div class="gnb-item">Booking</div>
+            <div class="gnb-item">학원 소개</div>
+            <div class="gnb-item">학습 안내</div>
+            <div class="gnb-item">모집 요강</div>
+            <div class="gnb-item">상담실</div>
+            <div class="gnb-item">입시 실적</div>
 
             <!-- 태블릿/모바일 햄버거 버튼 (PC에서는 숨김) -->
             <button type="button" class="menu-toggle" id="menu-toggle" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobile-menu">
@@ -37,59 +37,56 @@
                 
                 <!-- 1열: 왼쪽 북 배너 영역 -->
                 <div class="mega-banner">
-                    <div class="book-dummy"><img src="{% static 'images/logo_249_88.png' %}" alt="대치플투스"></img></div>
+                    <div class="book-dummy"><img src="{% static 'images/logo_249_88.png' %}" alt="대치플투스"></div>
                     <span>나를 이끌어 주는 곳<br>대치플투스 학원!</span>
                 </div>
 
-                <!-- 2열 -->
+                <!-- 2열: 학원 소개 -->
                 <div class="mega-column">
                     <ul>
-                        <li><a href="{% url 'intro_greeting' %}">인사말</a></li>
-                        <li><a href="{% url 'intro_teachers' %}">강사진</a></li>
-                        <li><a href="{% url 'intro_results' %}">입시 실적</a></li>
+                        <li><a href="{% url 'intro_greeting' %}">학원 소개</a></li>
+                        <li><a href="{% url 'intro_teachers' %}">코칭 스텝</a></li>
                         <li><a href="{% url 'intro_facility' %}">학원 시설</a></li>
+                        <li><a href="{% url 'intro_meal' %}">급식 예고</a></li>
                         <li><a href="{% url 'intro_location' %}">오시는 길</a></li>
                     </ul>
                 </div>
 
-                <!-- 3열 -->
+                <!-- 3열: 학습 안내 -->
                 <div class="mega-column">
                     <ul>
-                        <li><a href="{% url 'system_x10' %}">X10 학습법</a></li>
+                        <li><a href="{% url 'system_x10' %}">학습 관리</a></li>
                         <li><a href="{% url 'system_life' %}">생활 관리</a></li>
-                        <li><a href="#">영단어 시험</a></li>
-                        <li><a href="#">주간 모의고사</a></li>
-                        <li><a href="#">식단 관리</a></li>
+                        <li><a href="{% url 'system_voca' %}">단어 시험</a></li>
+                        <li><a href="{% url 'system_mock' %}">주간 모고</a></li>
                     </ul>
                 </div>
 
-                <!-- 4열 -->
+                <!-- 4열: 모집 요강 -->
                 <div class="mega-column">
                     <ul>
-                        <li><a href="{% url 'class_retake' %}">재수종합반</a></li>
-                        <li><a href="#">검시대입반</a></li>
-                        <li><a href="#">방학캠프반</a></li>
-                        <li><a href="#">영어단과반</a></li>
-                        <li><a href="#">통합탐구반</a></li>
-                        <li><a href="#">수시논술반</a></li>
+                        <li><a href="{% url 'class_retake' %}">재수종합</a></li>
+                        <li><a href="{% url 'class_ged' %}">검시대입</a></li>
+                        <li><a href="{% url 'class_camp' %}">방학캠프</a></li>
+                        <li><a href="{% url 'class_english' %}">영어단과</a></li>
+                        <li><a href="{% url 'class_inquiry' %}">탐구단과</a></li>
+                        <li><a href="{% url 'class_essay' %}">대입논술</a></li>
                     </ul>
                 </div>
 
-                <!-- 5열 -->
-                <div class="mega-column">
-                    <ul>
-                        <li><a href="{% url 'notice_list' %}">공지 사항</a></li>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">입시 자료</a></li>
-                        <li><a href="#">안내 사항</a></li>
-
-                    </ul>
-                </div>
-
-                <!-- 6열 -->
+                <!-- 5열: 상담실 -->
                 <div class="mega-column">
                     <ul>
                         <li><a href="{% url 'booking' %}">상담 예약</a></li>
+                        <li><a href="{% url 'notice_list' %}">공지 사항</a></li>
+                        <li><a href="{% url 'guide_info' %}">안내 사항</a></li>
+                    </ul>
+                </div>
+
+                <!-- 6열: 입시 실적 -->
+                <div class="mega-column">
+                    <ul>
+                        <li><a href="{% url 'intro_results' %}">명예의 전당</a></li>
                     </ul>
                 </div>
 
@@ -104,50 +101,53 @@
         <!-- 태블릿/모바일 전체 화면 메뉴 패널 (PC에서는 숨김) -->
         <nav class="mobile-menu" id="mobile-menu" aria-label="모바일 메뉴">
             <details class="mm-group" name="mm">
-                <summary>Intro</summary>
+                <summary>학원 소개</summary>
                 <ul>
-                    <li><a href="{% url 'intro_greeting' %}">인사말</a></li>
-                    <li><a href="{% url 'intro_teachers' %}">강사진</a></li>
-                    <li><a href="{% url 'intro_results' %}">입시 실적</a></li>
+                    <li><a href="{% url 'intro_greeting' %}">학원 소개</a></li>
+                    <li><a href="{% url 'intro_teachers' %}">코칭 스텝</a></li>
                     <li><a href="{% url 'intro_facility' %}">학원 시설</a></li>
+                    <li><a href="{% url 'intro_meal' %}">급식 예고</a></li>
                     <li><a href="{% url 'intro_location' %}">오시는 길</a></li>
                 </ul>
             </details>
 
             <details class="mm-group" name="mm">
-                <summary>System</summary>
+                <summary>학습 안내</summary>
                 <ul>
-                    <li><a href="{% url 'system_x10' %}">X10 학습법</a></li>
+                    <li><a href="{% url 'system_x10' %}">학습 관리</a></li>
                     <li><a href="{% url 'system_life' %}">생활 관리</a></li>
-                    <li><a href="#">영단어 시험</a></li>
-                    <li><a href="#">주간 모의고사</a></li>
-                    <li><a href="#">식단 관리</a></li>
+                    <li><a href="{% url 'system_voca' %}">단어 시험</a></li>
+                    <li><a href="{% url 'system_mock' %}">주간 모고</a></li>
                 </ul>
             </details>
 
             <details class="mm-group" name="mm">
-                <summary>Class</summary>
+                <summary>모집 요강</summary>
                 <ul>
-                    <li><a href="{% url 'class_retake' %}">재수종합반</a></li>
-                    <li><a href="#">검시대입반</a></li>
-                    <li><a href="#">방학캠프반</a></li>
-                    <li><a href="#">영어단과반</a></li>
-                    <li><a href="#">통합탐구반</a></li>
-                    <li><a href="#">수시논술반</a></li>
+                    <li><a href="{% url 'class_retake' %}">재수종합</a></li>
+                    <li><a href="{% url 'class_ged' %}">검시대입</a></li>
+                    <li><a href="{% url 'class_camp' %}">방학캠프</a></li>
+                    <li><a href="{% url 'class_english' %}">영어단과</a></li>
+                    <li><a href="{% url 'class_inquiry' %}">탐구단과</a></li>
+                    <li><a href="{% url 'class_essay' %}">대입논술</a></li>
                 </ul>
             </details>
 
             <details class="mm-group" name="mm">
-                <summary>Board</summary>
+                <summary>상담실</summary>
                 <ul>
+                    <li><a href="{% url 'booking' %}">상담 예약</a></li>
                     <li><a href="{% url 'notice_list' %}">공지 사항</a></li>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">입시 자료</a></li>
-                    <li><a href="#">안내 사항</a></li>
+                    <li><a href="{% url 'guide_info' %}">안내 사항</a></li>
                 </ul>
             </details>
 
-            <a class="mm-link" href="{% url 'booking' %}">Booking</a>
+            <details class="mm-group" name="mm">
+                <summary>입시 실적</summary>
+                <ul>
+                    <li><a href="{% url 'intro_results' %}">명예의 전당</a></li>
+                </ul>
+            </details>
 
             <div class="mm-auth">
                 <a href="#" class="mm-login">로그인</a>

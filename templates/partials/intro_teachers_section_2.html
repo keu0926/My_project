@@ -20,7 +20,7 @@
                 <p>{{ t.subject }}</p>
                 <h3 style="margin-bottom:16px;">{{ t.name }} 선생님</h3>
                 <div class="card-image">
-                    <img src="{% static 'images/' %}{{ t.card_img }}" alt="{{ t.name }}" />
+                    <img src="{% static 'images/'|add:t.card_img %}" alt="{{ t.name }}" />
                 </div>
                 <!-- 버튼에서는 data-modal을 제거하여 중복 실행 방지 -->
                 <button class="open-btn" type="button" aria-label="{{ t.name }} 선생님 약력 보기"></button>

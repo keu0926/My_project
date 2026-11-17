@@ -20,7 +20,7 @@
                 <hr>
             </span>
         </div>
-        <img class="animate-image" src="{% static 'images/' %}{{ t.modal_img|default:t.card_img }}" alt="{{ t.name }} 선생님">
+        <img class="animate-image" src="/static/images/{{ t.modal_img|default:t.card_img }}" alt="{{ t.name }} 선생님">
     </div>
 </template>
 {% endfor %}
