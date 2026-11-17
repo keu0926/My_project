@@ -34,8 +34,8 @@
         </div>
     </div>
 
-    <!-- 공통 자바스크립트 (main.js를 수정할 때마다 v= 뒤의 값을 바꿔 주세요) -->
-    <script src="{% static 'js/main.js' %}?v=20261117-1"></script>
+    <!-- 공통 자바스크립트 (주소 끝의 ?v= 버전은 static 저장소가 자동으로 붙입니다) -->
+    <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
