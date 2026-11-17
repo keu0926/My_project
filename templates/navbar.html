@@ -154,11 +154,11 @@
                 <a href="#" class="mm-register">회원 가입</a>
             </div>
 
-            <!-- 모바일 메뉴 하단 학원 연락처 & 주소 안내 -->
-            <div class="mm-contact">
-                <a href="tel:010-2653-3250" class="mm-phone">☎ 010-2653-3250</a>
-                <a href="{% url 'intro_location' %}" class="mm-address">서울시 강남구 삼성로 71길 19, 대치플투스학원 ➔</a>
-                <p class="mm-hours">매일 오전 8시 ~ 오후 10시</p>
+            <!-- 모바일 메뉴 하단 학원 연락처 & 주소 안내 (스타일을 직접 지정해 캐시된 CSS에 영향받지 않게 함) -->
+            <div class="mm-contact" style="margin-top:28px;padding:20px 24px 0;border-top:1px solid #e8e8ed;display:flex;flex-direction:column;gap:6px;text-align:center;">
+                <a href="tel:010-2653-3250" class="mm-phone" style="display:block;text-align:center;font-size:17px;font-weight:700;color:#1d1d1f;">☎ 010-2653-3250</a>
+                <a href="{% url 'intro_location' %}" class="mm-address" style="display:block;text-align:center;font-size:13.5px;font-weight:500;color:#0071e3;">서울시 강남구 삼성로 71길 19, 대치플투스학원 ➔</a>
+                <p class="mm-hours" style="text-align:center;font-size:13px;color:#86868b;">매일 오전 8시 ~ 오후 10시</p>
             </div>
         </nav>
     </div>
