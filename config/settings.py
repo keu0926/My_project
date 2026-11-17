@@ -94,6 +94,16 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
+# {% static %} 주소 끝에 ?v=<수정시간> 을 붙여 인앱 브라우저의 예전 캐시를 무력화
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'config.storage.VersionedStaticFilesStorage',
+    },
+}
+
 # Email Configuration (Django 표준 설정 방식)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
