@@ -898,11 +898,3 @@ h4 { font-size: 17px; line-height: 1.35; letter-spacing: -0.015em; font-weight: 
     .footer-info .info-row .divider { display: none; }
 }
 
-/* 키보드가 올라온 상태에서 스크롤 시 생기는 상단 선/잔상 방지 */
-.header-container, .top-bar, .planner-header {
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    will-change: transform;
-}
