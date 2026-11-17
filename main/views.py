@@ -1,136 +1,37 @@
-from django.shortcuts import render
-
-def home(request):
-    return render(request, 'home.html')  # 홈 페이지를 그려라!
-
-def class_retake(request):
-    return render(request, 'class_retake.html') # 서브 페이지 템플릿 반환
-
-def intro_greeting(request):
-    return render(request, 'intro_greeting.html') 
-
-def intro_teachers(request):
-    return render(request, 'intro_teachers.html')
-
-def intro_results(request):
-    return render(request, 'intro_results.html')
-
-def intro_facility(request):
-    return render(request, 'intro_facility.html')
-
-def intro_location(request):
-    return render(request, 'intro_location.html')
-
-def system_x10(request):
-    return render(request, 'system_x10.html')
-
-def system_life(request):
-    return render(request, 'system_life.html')
-
-def booking(request):
-    return render(request, 'booking.html')
-
-
-
-
-
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib import messages
 from django.views.decorators.cache import never_cache
-
-@never_cache
-def consult_view(request):
-    if request.method == 'POST':
-        email = request.POST.get('email', '').strip()
-        student_name = request.POST.get('student_name', '').strip()
-        age = request.POST.get('age', '').strip()
-        high_school = request.POST.get('high_school', '').strip()
-        phone_owner = request.POST.get('phone_owner', '').strip()
-        phone = request.POST.get('phone', '').strip()
-        region = request.POST.get('region', '').strip()
-        csat_grade = request.POST.get('csat_grade', '').strip()
-        consult_date = request.POST.get('consult_date', '').strip()
-        consult_time = request.POST.get('consult_time', '').strip()
-
-        # 메일 제목 및 본문 구성
-        subject = f"[대치플투스 상담예약] {student_name} ({age}) - {consult_date} {consult_time}"
-        message = (
-            f"새로운 방문/입시 상담 예약이 접수되었습니다.\n\n"
-            f"■ 학생 이름: {student_name}\n"
-            f"■ 나이: {age}\n"
-            f"■ 이메일 주소: {email}\n"
-            f"■ 출신 고등학교: {high_school}\n"
-            f"■ 전화번호: [{phone_owner}] {phone}\n"
-            f"■ 사는 지역: {region}\n"
-            f"■ 올해 수능 등급: {csat_grade}\n"
-            f"■ 희망 상담 일시: {consult_date} / {consult_time}\n"
-        )
-
-        try:
-            send_mail(
-                subject=subject,
-                message=message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[settings.ADMIN_CONSULT_EMAIL],
-                fail_silently=False,
-            )
-            messages.success(request, "상담 예약이 정상적으로 접수되었습니다. 담당자가 확인 후 연락드리겠습니다.")
-            # 반드시 redirect로 새 GET 요청을 보내야 입력값이 초기화됩니다
-            return redirect('booking')  # urls.py에 등록한 name 사용 (또는 request.path)
-        except Exception as e:
-            messages.error(request, "메일 발송 중 오류가 발생했습니다. 학원으로 직접 문의해 주세요.")
-
-    return render(request, 'booking.html')
-
-
-
-from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q
 from .models import Notice
 
-# 1. 공지사항 목록 페이지
-def notice_list(request):
-    query = request.GET.get("q", "").strip()
-    notices = Notice.objects.all()
 
-    if query:
-        notices = notices.filter(Q(title__icontains=query) | Q(content__icontains=query))
+# ==========================================
+# 0. 메인 홈
+# ==========================================
+def home(request):
+    return render(request, 'home.html')
 
-    paginator = Paginator(notices, 10)  # 한 페이지당 10개씩 표시
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
 
-    return render(request, "notice_list.html", {
-        "page_obj": page_obj,
-        "query": query,
-    })
+# ==========================================
+# 1. 학원 소개 (Intro)
+# ==========================================
+def intro_greeting(request):
+    return render(request, 'intro_greeting.html')
 
-# 2. 공지사항 상세 보기 페이지
-def notice_detail(request, pk):
-    notice = get_object_or_404(Notice, pk=pk)
-    
-    # 조회수 1 증가
-    notice.views += 1
-    notice.save(update_fields=["views"])
+def intro_facility(request):
+    return render(request, 'intro_facility.html')
 
-    # 이전글 / 다음글 찾기
-    prev_notice = Notice.objects.filter(id__lt=notice.id).order_by("-id").first()
-    next_notice = Notice.objects.filter(id__gt=notice.id).order_by("id").first()
+def intro_meal(request):
+    return render(request, 'intro_meal.html')       # ★ 신규: 급식 예고
 
-    return render(request, "notice_detail.html", {
-        "notice": notice,
-        "prev_notice": prev_notice,
-        "next_notice": next_notice,
-    })
-
-from django.shortcuts import render
+def intro_location(request):
+    return render(request, 'intro_location.html')
 
 def intro_teachers(request):
     # 1. 전체 강사진 마스터 데이터 (모달 생성용 & 카드 참조용)
-    # 새 모달 사진이 생기면 김동주 선생님(teacher16)처럼 "modal_img" 키만 한 줄 추가하면 됩니다.
     teachers_dict = {
         "teacher1": {
             "modal_id": "teacher1",
@@ -364,7 +265,7 @@ def intro_teachers(request):
             "modal_id": "teacher16",
             "name": "김동주",
             "card_img": "sci_kim.png",
-            "modal_img": "sci_kim2.png",  # 모달 전용 사진 별도 지정
+            "modal_img": "sci_kim2.png",
             "slogan": "마술 같은 1등급<br>기적의 신화!!",
             "careers": [
                 "서울아카데미(강동)",
@@ -476,7 +377,6 @@ def intro_teachers(request):
         },
     }
 
-    # 2. 과목별 섹션 구성 (장민호 선생님처럼 여러 섹션에 다른 과목명으로 배치 가능)
     def make_card(modal_id, subject):
         t = teachers_dict[modal_id]
         return {
@@ -541,7 +441,7 @@ def intro_teachers(request):
             "title": "논술 선생님",
             "desc": "좋은 선생님을 만나는 것은 아이의 인생을 바꾸는 가장 큰 행운입니다.<br>대한민국 교육의 기준을 높이는 최고의 선생님들이 이곳에 모여 있습니다.",
             "teachers": [
-                make_card("teacher10", "수리논술"),  # 수학/논술 겸임
+                make_card("teacher10", "수리논술"),
                 make_card("teacher22", "인문논술"),
             ],
         },
@@ -552,3 +452,127 @@ def intro_teachers(request):
         "all_teachers": teachers_dict.values(),
     }
     return render(request, "intro_teachers.html", context)
+
+
+# ==========================================
+# 2. 학습 안내 (System)
+# ==========================================
+def system_x10(request):
+    return render(request, 'system_x10.html')
+
+def system_life(request):
+    return render(request, 'system_life.html')
+
+def system_voca(request):
+    return render(request, 'system_voca.html')      # ★ 신규: 단어 시험
+
+def system_mock(request):
+    return render(request, 'system_mock.html')      # ★ 신규: 주간 모고
+
+
+# ==========================================
+# 3. 모집 요강 (Class)
+# ==========================================
+def class_retake(request):
+    return render(request, 'class_retake.html')
+
+def class_ged(request):
+    return render(request, 'class_ged.html')        # ★ 신규: 검시대입
+
+def class_camp(request):
+    return render(request, 'class_camp.html')       # ★ 신규: 방학캠프
+
+def class_english(request):
+    return render(request, 'class_english.html')    # ★ 신규: 영어단과
+
+def class_inquiry(request):
+    return render(request, 'class_inquiry.html')    # ★ 신규: 탐구단과
+
+def class_essay(request):
+    return render(request, 'class_essay.html')      # ★ 신규: 대입논술
+
+
+# ==========================================
+# 4. 상담실 (Consult & Notice & Guide)
+# ==========================================
+@never_cache
+def consult_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        student_name = request.POST.get('student_name', '').strip()
+        age = request.POST.get('age', '').strip()
+        high_school = request.POST.get('high_school', '').strip()
+        phone_owner = request.POST.get('phone_owner', '').strip()
+        phone = request.POST.get('phone', '').strip()
+        region = request.POST.get('region', '').strip()
+        csat_grade = request.POST.get('csat_grade', '').strip()
+        consult_date = request.POST.get('consult_date', '').strip()
+        consult_time = request.POST.get('consult_time', '').strip()
+
+        subject = f"[대치플투스 상담예약] {student_name} ({age}) - {consult_date} {consult_time}"
+        message = (
+            f"새로운 방문/입시 상담 예약이 접수되었습니다.\n\n"
+            f"■ 학생 이름: {student_name}\n"
+            f"■ 나이: {age}\n"
+            f"■ 이메일 주소: {email}\n"
+            f"■ 출신 고등학교: {high_school}\n"
+            f"■ 전화번호: [{phone_owner}] {phone}\n"
+            f"■ 사는 지역: {region}\n"
+            f"■ 올해 수능 등급: {csat_grade}\n"
+            f"■ 희망 상담 일시: {consult_date} / {consult_time}\n"
+        )
+
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.ADMIN_CONSULT_EMAIL],
+                fail_silently=False,
+            )
+            messages.success(request, "상담 예약이 정상적으로 접수되었습니다. 담당자가 확인 후 연락드리겠습니다.")
+            return redirect('booking')
+        except Exception as e:
+            messages.error(request, "메일 발송 중 오류가 발생했습니다. 학원으로 직접 문의해 주세요.")
+
+    return render(request, 'booking.html')
+
+def notice_list(request):
+    query = request.GET.get("q", "").strip()
+    notices = Notice.objects.all()
+
+    if query:
+        notices = notices.filter(Q(title__icontains=query) | Q(content__icontains=query))
+
+    paginator = Paginator(notices, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "notice_list.html", {
+        "page_obj": page_obj,
+        "query": query,
+    })
+
+def notice_detail(request, pk):
+    notice = get_object_or_404(Notice, pk=pk)
+    notice.views += 1
+    notice.save(update_fields=["views"])
+
+    prev_notice = Notice.objects.filter(id__lt=notice.id).order_by("-id").first()
+    next_notice = Notice.objects.filter(id__gt=notice.id).order_by("id").first()
+
+    return render(request, "notice_detail.html", {
+        "notice": notice,
+        "prev_notice": prev_notice,
+        "next_notice": next_notice,
+    })
+
+def guide_info(request):
+    return render(request, 'guide_info.html')       # ★ 신규: 안내 사항
+
+
+# ==========================================
+# 5. 입시 실적 (Results)
+# ==========================================
+def intro_results(request):
+    return render(request, 'intro_results.html')    # 명예의 전당
