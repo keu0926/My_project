@@ -1,3 +1,8 @@
+// 서버에서 Django 템플릿을 통해 전달받은 저장된 타이머 데이터를 안전하게 파싱
+const savedData = JSON.parse(
+    (document.getElementById('server-timer-data') || document.getElementById('saved-timer-data'))?.textContent || '{}'
+);
+
 document.addEventListener('DOMContentLoaded', function () {
     const display = document.getElementById('stopwatch-display');
     const btnStart = document.getElementById('btn-timer-start');
@@ -7,27 +12,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!display) return;
 
-    // 오늘 날짜 키로 브라우저에 누적 시간 임시 보존 (새로고침 방지)
-    // (상단 todayKey 부분을 아래 두 줄로 교체하면 정확히 밤 12시 자정에 자동 리셋됩니다)
     const tzOffset = new Date().getTimezoneOffset() * 60000;
     const todayKey = 'planner_timer_' + new Date(Date.now() - tzOffset).toISOString().slice(0, 10);
+    const stateKey = 'planner_timer_state_' + todayKey;
 
-    // 과목별 누적 시간(초 단위) 전역 객체 (나중에 서버 전송 시 활용)
+    const localSaved = JSON.parse(localStorage.getItem(todayKey));
     window.subjectAccumSeconds = {
-        '국어': savedData['국어'] || 0,
-        '수학': savedData['수학'] || 0,
-        '영어': savedData['영어'] || 0,
-        '과탐': savedData['과탐'] || 0,
-        '사탐': savedData['사탐'] || 0
+        '국어': (localSaved && localSaved['국어'] !== undefined) ? localSaved['국어'] : (savedData['국어'] || 0),
+        '수학': (localSaved && localSaved['수학'] !== undefined) ? localSaved['수학'] : (savedData['수학'] || 0),
+        '영어': (localSaved && localSaved['영어'] !== undefined) ? localSaved['영어'] : (savedData['영어'] || 0),
+        '과탐': (localSaved && localSaved['과탐'] !== undefined) ? localSaved['과탐'] : (savedData['과탐'] || 0),
+        '사탐': (localSaved && localSaved['사탐'] !== undefined) ? localSaved['사탐'] : (savedData['사탐'] || 0)
     };
 
     let currentSubject = '국어';
     let timerState = 'idle'; // 'idle' | 'running' | 'paused'
-    let startTimestamp = 0;  // 시작 버튼 누른 시각(ms)
-    let elapsedBeforePause = 0; // 일시정지 전까지 누적된 시간(ms)
+    let sessionFirstStartTime = 0; // 이번 타이머 세션의 최초 시작 시각(ms)
+    let startTimestamp = 0;
+    let elapsedBeforePause = 0;
     let intervalId = null;
 
-    // 초(sec)를 HH:MM:SS 포맷으로 변환
     function formatHMS(totalSeconds) {
         const hrs = Math.floor(totalSeconds / 3600);
         const mins = Math.floor((totalSeconds % 3600) / 60);
@@ -35,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return [hrs, mins, secs].map(v => String(v).padStart(2, '0')).join(':');
     }
 
-    // 현재까지 흐른 초(sec) 계산
     function getCurrentElapsedSeconds() {
         if (timerState === 'running') {
             return Math.floor((elapsedBeforePause + (Date.now() - startTimestamp)) / 1000);
@@ -43,7 +46,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return Math.floor(elapsedBeforePause / 1000);
     }
 
-    // 하단 과목별 누적 시간 및 TOTAL TIME UI 갱신
     function renderAccumulatedTimes() {
         let total = 0;
         Object.keys(window.subjectAccumSeconds).forEach(subj => {
@@ -56,7 +58,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (totalEl) totalEl.textContent = formatHMS(total);
     }
 
-    // 과목 선택 버튼 제어 (타이머 작동 중에는 변경 불가)
     function setSubjectButtonsDisabled(disabled) {
         subjButtons.forEach(btn => {
             btn.disabled = disabled;
@@ -72,10 +73,25 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    function saveTimerStateToLocal() {
+        const stateData = {
+            timerState,
+            sessionFirstStartTime,
+            startTimestamp,
+            elapsedBeforePause,
+            currentSubject
+        };
+        localStorage.setItem(stateKey, JSON.stringify(stateData));
+    }
+
     // 1. 시작 (또는 재개) 버튼
     btnStart.addEventListener('click', () => {
         if (timerState === 'running') return;
 
+        // 처음 시작할 때만 최초 시작 시각 기록
+        if (timerState === 'idle') {
+            sessionFirstStartTime = Date.now();
+        }
         timerState = 'running';
         startTimestamp = Date.now();
         setSubjectButtonsDisabled(true);
@@ -87,6 +103,8 @@ document.addEventListener('DOMContentLoaded', function () {
         btnStart.textContent = '시작';
         btnPause.disabled = false;
         btnStop.disabled = false;
+
+        saveTimerStateToLocal();
 
         intervalId = setInterval(() => {
             display.textContent = formatHMS(getCurrentElapsedSeconds());
@@ -107,26 +125,35 @@ document.addEventListener('DOMContentLoaded', function () {
         btnStart.disabled = false;
         btnStart.textContent = '계속';
         btnPause.disabled = true;
+
+        saveTimerStateToLocal();
     });
 
-    // 3. 종료 (리셋 및 과목별 누적 합산) 버튼
+    // 3. 종료 (리셋, 누적 합산 및 타임테이블 테두리 표시) 버튼
     btnStop.addEventListener('click', () => {
         if (timerState === 'idle') return;
 
         clearInterval(intervalId);
         const sessionSeconds = getCurrentElapsedSeconds();
+        const endTimestamp = Date.now();
 
-        // 1초 이상 측정된 경우 해당 과목 누적 시간에 합산
         if (sessionSeconds > 0) {
             window.subjectAccumSeconds[currentSubject] += sessionSeconds;
             localStorage.setItem(todayKey, JSON.stringify(window.subjectAccumSeconds));
             renderAccumulatedTimes();
+
+            // 타임테이블에 10분 단위 반올림으로 진한 테두리 그리기
+            if (typeof window.markActualStudyTime === 'function') {
+                const startMs = sessionFirstStartTime || (endTimestamp - sessionSeconds * 1000);
+                window.markActualStudyTime(startMs, endTimestamp, currentSubject);
+            }
         }
 
-        // 상태 및 화면 리셋
         timerState = 'idle';
+        sessionFirstStartTime = 0;
         startTimestamp = 0;
         elapsedBeforePause = 0;
+        localStorage.removeItem(stateKey);
 
         display.textContent = '00:00:00';
         display.classList.remove('running', 'paused');
@@ -138,11 +165,42 @@ document.addEventListener('DOMContentLoaded', function () {
         setSubjectButtonsDisabled(false);
     });
 
-    // 초기 누적 시간 표시
-    renderAccumulatedTimes();
-});
+    // 페이지 이동 후 복귀 시 상태 복원
+    const savedState = JSON.parse(localStorage.getItem(stateKey));
+    if (savedState) {
+        timerState = savedState.timerState;
+        sessionFirstStartTime = savedState.sessionFirstStartTime || savedState.startTimestamp || 0;
+        startTimestamp = savedState.startTimestamp || 0;
+        elapsedBeforePause = savedState.elapsedBeforePause || 0;
+        currentSubject = savedState.currentSubject || '국어';
 
-// (planner_timer.js 맨 아래에 추가: 외부에서 전체 초기화 시 타이머도 즉시 0으로 리셋)
+        subjButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.subj === currentSubject);
+        });
+
+        if (timerState === 'running' || timerState === 'paused') {
+            display.textContent = formatHMS(getCurrentElapsedSeconds());
+            setSubjectButtonsDisabled(true);
+            btnStop.disabled = false;
+
+            if (timerState === 'running') {
+                display.classList.add('running');
+                btnStart.disabled = true;
+                btnPause.disabled = false;
+                btnStart.textContent = '시작';
+                intervalId = setInterval(() => {
+                    display.textContent = formatHMS(getCurrentElapsedSeconds());
+                }, 250);
+            } else {
+                display.classList.add('paused');
+                btnStart.disabled = false;
+                btnPause.disabled = true;
+                btnStart.textContent = '계속';
+            }
+        }
+    }
+
+    // 외부에서 전체 초기화 시 타이머도 즉시 0으로 리셋
     window.resetTimerAll = function () {
         clearInterval(intervalId);
         timerState = 'idle';
@@ -154,6 +212,7 @@ document.addEventListener('DOMContentLoaded', function () {
             window.subjectAccumSeconds[k] = 0;
         });
         localStorage.removeItem(todayKey);
+        localStorage.removeItem(stateKey);
         renderAccumulatedTimes();
 
         display.textContent = '00:00:00';
@@ -164,3 +223,6 @@ document.addEventListener('DOMContentLoaded', function () {
         btnStop.disabled = true;
         setSubjectButtonsDisabled(false);
     };
+
+    renderAccumulatedTimes();
+});

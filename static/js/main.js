@@ -269,3 +269,38 @@ function smoothScroll(event, targetId) {
       revealElements.forEach(el => observer.observe(el));
     });
     
+
+    // ==========================================
+// 태블릿/모바일 상단 메뉴 터치 토글 처리
+// ==========================================
+document.addEventListener('DOMContentLoaded', function () {
+    // 사이트의 드롭다운 메뉴 클래스명에 맞춰 선택자를 확인해 주세요 (예: .dropdown, .nav-item-dropdown 등)
+    const dropdowns = document.querySelectorAll('.dropdown, .nav-item-dropdown, .dropdown-menu');
+
+    dropdowns.forEach(dropdown => {
+        const toggleBtn = dropdown.querySelector('a, .dropdown-toggle');
+        
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function (e) {
+                // 모바일/태블릿에서 상위 메뉴를 터치했을 때 바로 링크로 이동하지 않고 메뉴를 펼치게 하려면 아래 주석을 해제하세요
+                // e.preventDefault();
+                
+                // 다른 열려있는 메뉴들은 닫고 현재 메뉴만 토글
+                dropdowns.forEach(item => {
+                    if (item !== dropdown) item.classList.remove('active');
+                });
+                
+                dropdown.classList.toggle('active');
+            });
+        }
+    });
+
+    // 화면의 다른 곳을 터치하면 열려있던 메뉴가 닫히도록 처리
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.dropdown, .nav-item-dropdown, .dropdown-menu')) {
+            dropdowns.forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+        }
+    });
+});

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{% block title %}FLTOOS+ 학습플래너{% endblock %}</title>
+    <title>{% block title %}학습플래너|대치플투스{% endblock %}</title>
     {% load static %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
     <link rel="icon" type="image/png" href="{% static 'images/logo-round.png' %}">
@@ -27,8 +27,12 @@
 </head>
 <body>
     <header class="planner-header">
+        <!-- 상단 왼쪽 로고 영역 -->
+        <a href="{% url 'home' %}" class="logo-link">
+            <img src="{% static 'images/logo_249_88.png' %}" alt="학원 로고" style="height: 40px; width: auto;">
+        </a>
         <a href="{% url 'planner:dashboard' %}" class="planner-brand">
-            <span class="planner-brand-badge">FLTOOS<span class="planner-brand-BadgePlus">+</span></span>
+            
             <span class="planner-brand-title">STUDY PLANNER</span>
         </a>
         <div class="planner-header-right">

@@ -400,7 +400,8 @@ a {
                 visibility 0.4s;
 }
 
-.header-container:hover .mega-dropdown {
+.header-container:hover .mega-dropdown,
+.header-container.active .mega-dropdown {
     max-height: 450px;
     opacity: 1;
     visibility: visible;
