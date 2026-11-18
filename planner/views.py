@@ -7,6 +7,17 @@ from django.utils import timezone
 
 from .models import DailyPlanner
 
+# 할 일 목록에 허용하는 과목 -> 뱃지 클래스 (정해진 5과목 외에는 저장하지 않음)
+TODO_SUBJECT_BADGES = {
+    '국어': 'badge-kor',
+    '수학': 'badge-math',
+    '영어': 'badge-eng',
+    '과탐': 'badge-sci',
+    '사탐': 'badge-soc',
+}
+TODO_MAX_ITEMS = 200
+TODO_MAX_TEXT_LENGTH = 300
+
 
 def planner_permission_required(view_func):
     """로그인 여부 및 관리자의 '학습플래너 사용 권한' 승인 여부를 검사하는 보안 데코레이터.
@@ -49,6 +60,41 @@ def _json_for_script(data):
     )
 
 
+def _clean_todo_items(items):
+    """화면에서 받은 할 일 목록을 검증해서 정해진 형태로만 저장합니다.
+    - 과목은 국어/수학/영어/과탐/사탐만 허용하고, 뱃지 클래스는 서버가 직접 정합니다.
+    - 글은 그대로(태그 변환 없이) 저장하며, 화면에 그릴 때 이스케이프합니다."""
+    cleaned = []
+    for item in items[:TODO_MAX_ITEMS]:
+        if not isinstance(item, dict):
+            continue
+
+        subject = item.get('subject')
+        if subject not in TODO_SUBJECT_BADGES:
+            continue
+
+        text = str(item.get('text', '')).strip()[:TODO_MAX_TEXT_LENGTH]
+        if not text:
+            continue
+
+        is_done = item.get('status') == 'complete'
+        try:
+            rate = int(item.get('rate', 0))
+        except (TypeError, ValueError):
+            rate = 0
+        rate = max(0, min(100, rate))
+
+        cleaned.append({
+            'id': len(cleaned) + 1,
+            'subject': subject,
+            'badgeClass': TODO_SUBJECT_BADGES[subject],
+            'text': text,
+            'status': 'complete' if is_done else 'incomplete',
+            'rate': 100 if is_done else rate,
+        })
+    return cleaned
+
+
 def _save_daily_planner(request):
     """'일과 전송' 버튼(POST, JSON)으로 오늘의 플래너를 DB에 저장합니다."""
     try:
@@ -63,6 +109,8 @@ def _save_daily_planner(request):
 
         if not isinstance(timetable_data, dict) or not isinstance(todo_data, list) or not isinstance(timer_data, dict):
             raise ValueError('shape')
+
+        todo_data = _clean_todo_items(todo_data)
 
         total_seconds = sum(
             max(0, int(v)) for v in timer_data.values()
