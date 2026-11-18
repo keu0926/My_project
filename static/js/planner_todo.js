@@ -17,6 +17,49 @@ document.addEventListener('DOMContentLoaded', function () {
         { key: 'soc', name: '사탐', badgeClass: 'badge-soc', inputId: 'input-todo-soc' }
     ];
 
+    // 과목 이름 -> 뱃지 클래스 (정해진 5과목만 허용)
+    const SUBJECT_BADGES = new Map(subjects.map(s => [s.name, s.badgeClass]));
+
+    // HTML 특수문자 이스케이프 (사용자가 입력한 글이 태그로 해석되지 않게 함)
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // 서버(DB)에서 불러온 할 일 목록을 검증해서 안전한 형태로 정리
+    function sanitizeTodoItems(items) {
+        if (!Array.isArray(items)) return [];
+        const cleaned = [];
+
+        items.forEach(item => {
+            if (!item || typeof item !== 'object') return;
+
+            const badgeClass = SUBJECT_BADGES.get(item.subject);
+            const text = String(item.text == null ? '' : item.text).trim();
+            if (!badgeClass || !text) return;
+
+            const isDone = item.status === 'complete';
+            let rate = parseInt(item.rate, 10);
+            if (isNaN(rate) || rate < 0) rate = 0;
+            if (rate > 100) rate = 100;
+
+            cleaned.push({
+                id: cleaned.length + 1,
+                subject: item.subject,
+                badgeClass: badgeClass,
+                text: text,
+                status: isDone ? 'complete' : 'incomplete',
+                rate: isDone ? 100 : rate
+            });
+        });
+
+        return cleaned;
+    }
+
     // 현재 등록된 할 일 배열
     window.todoItems = [];
 
@@ -87,13 +130,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         window.todoItems.forEach((item, idx) => {
             const isDone = item.status === 'complete';
-            const rateValue = isDone ? 100 : item.rate;
+            const rateValue = isDone ? 100 : (parseInt(item.rate, 10) || 0);
+            const badgeClass = SUBJECT_BADGES.get(item.subject) || '';
 
             html += `
                 <div class="todo-row" data-index="${idx}">
                     <div class="todo-left">
-                        <span class="todo-subj-badge ${item.badgeClass}">${item.subject}</span>
-                        <span class="todo-text ${isDone ? 'done' : ''}" id="todo-text-${idx}">${item.text}</span>
+                        <span class="todo-subj-badge ${badgeClass}">${escapeHtml(item.subject)}</span>
+                        <span class="todo-text ${isDone ? 'done' : ''}" id="todo-text-${idx}">${escapeHtml(item.text)}</span>
                     </div>
                     <div class="todo-controls">
                         <label class="radio-label">
@@ -115,6 +159,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         listContainer.innerHTML = html;
     }
+
+    // 서버(DB)에 저장돼 있던 할 일을 화면에 복원 (dashboard.html 에서 호출)
+    window.restoreTodoItems = function (items) {
+        window.todoItems = sanitizeTodoItems(items);
+        renderTodoList();
+    };
 
     // 4. 완료 / 미완료 라디오 버튼 상태 변경 및 100% 비활성화 제어
     window.updateTodoStatus = function (index, status) {
