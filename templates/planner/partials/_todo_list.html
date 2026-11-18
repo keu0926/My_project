@@ -1,0 +1,280 @@
+<style>
+    .todo-card {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 20px 24px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        height: 100%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+    .todo-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #1d1d1f;
+    }
+    .todo-title {
+        font-size: 14px;
+        font-weight: 800;
+        color: #1d1d1f;
+        letter-spacing: 0.04em;
+        margin: 0;
+    }
+    .todo-hint {
+        font-size: 12px;
+        color: #0071e3;
+        font-weight: 600;
+    }
+
+    /* 밑줄이 있는 빈 종이 콘셉트 영역 */
+    .todo-lined-paper {
+        flex: 1;
+        background-color: #fbfbfd;
+        border: 1px solid #e5e5ea;
+        border-radius: 14px;
+        padding: 8px 20px;
+        /* 36px 간격의 노트 밑줄 패턴 */
+        background-image: repeating-linear-gradient(
+            to bottom,
+            transparent,
+            transparent 35px,
+            #e5e5ea 35px,
+            #e5e5ea 36px
+        );
+        background-attachment: local;
+        overflow-y: auto;
+        cursor: pointer;
+        transition: border-color 0.2s ease;
+    }
+    .todo-lined-paper.edit-clickable:hover {
+        border-color: #0071e3;
+    }
+
+    /* 빈 상태 안내 문구 */
+    .todo-empty-guide {
+        line-height: 36px;
+        color: #86868b;
+        font-size: 13.5px;
+        user-select: none;
+    }
+
+    /* 밑줄 한 칸(36px)에 딱 맞게 들어가는 할 일 행 */
+    .todo-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 36px;
+        gap: 12px;
+        font-size: 13.5px;
+    }
+    .todo-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1;
+        min-width: 0;
+    }
+    .todo-subj-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 6px;
+        color: #1d1d1f;
+        flex-shrink: 0;
+    }
+    .badge-kor { background: rgba(255, 235, 59, 0.75); }
+    .badge-math { background: rgba(0, 229, 255, 0.65); }
+    .badge-eng { background: rgba(255, 152, 0, 0.65); }
+    .badge-sci { background: rgba(105, 240, 174, 0.75); }
+    .badge-soc { background: rgba(255, 128, 171, 0.75); }
+
+    .todo-text {
+        color: #1d1d1f;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .todo-text.done {
+        text-decoration: line-through;
+        color: #86868b;
+    }
+
+    /* 우측 완료/미완료 라디오 및 수행률(%) 컨트롤 */
+    .todo-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+    .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #48484a;
+        cursor: pointer;
+    }
+    .radio-label input[type="radio"] {
+        accent-color: #0071e3;
+        cursor: pointer;
+        margin: 0;
+    }
+    .rate-box {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #1d1d1f;
+    }
+    .rate-input {
+        width: 46px;
+        height: 24px;
+        border: 1px solid #d2d2d7;
+        border-radius: 6px;
+        text-align: right;
+        padding: 0 4px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #1d1d1f;
+        background: #ffffff;
+        outline: none;
+    }
+    .rate-input:focus {
+        border-color: #0071e3;
+    }
+    .rate-input:disabled {
+        background: #f2f2f7;
+        color: #86868b;
+        border-color: #e5e5ea;
+        cursor: not-allowed;
+    }
+
+    /* 과목별 할 일 입력 모달 창 (수정 모드에서 종이 클릭 시 열림) */
+    .todo-modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(4px);
+        z-index: 999;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    .todo-modal-backdrop.open {
+        display: flex;
+    }
+    .todo-modal {
+        background: #ffffff;
+        border-radius: 24px;
+        width: 100%;
+        max-width: 560px;
+        padding: 28px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+    .modal-title {
+        font-size: 18px;
+        font-weight: 800;
+        color: #1d1d1f;
+        margin: 0 0 6px 0;
+    }
+    .modal-sub {
+        font-size: 13px;
+        color: #6e6e73;
+        margin: 0 0 20px 0;
+    }
+    .subject-input-group {
+        margin-bottom: 14px;
+    }
+    .subject-input-label {
+        font-size: 13px;
+        font-weight: 700;
+        color: #1d1d1f;
+        margin-bottom: 6px;
+        display: block;
+    }
+    .subject-textarea {
+        width: 100%;
+        min-height: 64px;
+        border: 1px solid #d2d2d7;
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-size: 13.5px;
+        font-family: inherit;
+        resize: vertical;
+        box-sizing: border-box;
+        outline: none;
+    }
+    .subject-textarea:focus {
+        border-color: #0071e3;
+    }
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+    }
+</style>
+
+<div class="todo-card">
+    <div class="todo-header">
+        <h2 class="todo-title">TO DO LIST</h2>
+        <span class="todo-hint" id="todo-mode-hint">종이를 클릭하여 과목별 할 일 입력</span>
+    </div>
+
+    <!-- 밑줄 쳐진 빈 종이 영역 -->
+    <div class="todo-lined-paper edit-clickable" id="todo-paper-area">
+        <div class="todo-empty-guide" id="todo-empty-msg">
+            수정 모드에서 이 종이를 클릭하면 과목별(국·수·영·과탐·사탐) 할 일을 작성할 수 있습니다.
+        </div>
+        <div id="todo-list-container"></div>
+    </div>
+</div>
+
+<!-- 수정 모드에서 클릭 시 열리는 과목별 할 일 입력 모달 -->
+<div class="todo-modal-backdrop" id="todo-modal-backdrop">
+    <div class="todo-modal">
+        <h3 class="modal-title">과목별 할 일 작성</h3>
+        <p class="modal-sub">각 과목 칸에 오늘 해야 할 일을 한 줄에 한 문장씩 입력해 주세요.</p>
+
+        <div class="subject-input-group">
+            <label class="subject-input-label">국어</label>
+            <textarea class="subject-textarea" id="input-todo-kor" placeholder="예: 수능특강 독서 3지문 구조 분석&#10;문학 기출 오답 정리"></textarea>
+        </div>
+        <div class="subject-input-group">
+            <label class="subject-input-label">수학</label>
+            <textarea class="subject-textarea" id="input-todo-math" placeholder="예: 수Ⅰ 삼각함수 4점 기출 15문제 풀이"></textarea>
+        </div>
+        <div class="subject-input-group">
+            <label class="subject-input-label">영어</label>
+            <textarea class="subject-textarea" id="input-todo-eng" placeholder="예: 영단어 Day 12~13 암기 및 테스트"></textarea>
+        </div>
+        <div class="subject-input-group">
+            <label class="subject-input-label">과탐</label>
+            <textarea class="subject-textarea" id="input-todo-sci" placeholder="예: 생명과학 유전 파트 기출 10제"></textarea>
+        </div>
+        <div class="subject-input-group">
+            <label class="subject-input-label">사탐</label>
+            <textarea class="subject-textarea" id="input-todo-soc" placeholder="예: 생활과 윤리 사상가 비교 노트 정리"></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="plan-btn" id="btn-todo-cancel">취소</button>
+            <button type="button" class="btn-submit-day" id="btn-todo-confirm">확인</button>
+        </div>
+    </div>
+</div>
+
+{% load static %}
+<script src="{% static 'js/planner_todo.js' %}"></script>

@@ -1,0 +1,208 @@
+<style>
+    .timetable-card {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 20px 18px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        width: 240px;
+        height: 100%; /* 우측 투두리스트와 높이 동일하게 맞춤 */
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        user-select: none;
+    }
+    .tt-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #1d1d1f;
+    }
+    .tt-title {
+        font-size: 14px;
+        font-weight: 800;
+        color: #1d1d1f;
+        letter-spacing: 0.04em;
+    }
+    .mode-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 980px;
+        background: #fff3e0;
+        color: #ff9500;
+    }
+
+    /* 실제 플래너 표 (시간 열 + 10분 단위 6칸) */
+    .tt-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        border: 1px solid #d2d2d7;
+    }
+    .tt-table th, .tt-table td {
+        border: 1px solid #e5e5ea;
+        height: 26px;
+        padding: 0;
+        text-align: center;
+    }
+    .tt-table thead th {
+        height: 20px;
+        font-size: 10px;
+        font-weight: 600;
+        color: #86868b;
+        background: #fbfbfd;
+    }
+    .tt-table .hour-cell {
+        width: 32px;
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #86868b;
+        background: #fbfbfd;
+        border-right: 1.5px solid #d2d2d7;
+    }
+    .tt-slot {
+        cursor: pointer;
+        background: #ffffff;
+        transition: background 0.05s ease;
+        position: relative;
+    }
+    .tt-slot:hover {
+        outline: 1.5px solid #0071e3;
+        z-index: 1;
+    }
+
+    /* 기존 스타일 유지 ... */
+
+    /* 타이머 측정 시 형광색 배경 한가운데에 덧칠되는 진한 가로줄 */
+    .tt-slot::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 6px; /* 가운데 줄 두께 */
+        background: transparent;
+        pointer-events: none;
+        transition: background 0.15s ease;
+    }
+
+    /* 과목별 진한 가운데 줄 색상 (타이머 자동 기록 또는 실행 모드 체크 시 표시) */
+    .tt-slot[data-actual="국어"]::after { background: #d4a000; } /* 진한 노랑/황토 */
+    .tt-slot[data-actual="수학"]::after { background: #00838f; } /* 진한 청록/블루 */
+    .tt-slot[data-actual="영어"]::after { background: #e65100; } /* 진한 주황 */
+    .tt-slot[data-actual="과탐"]::after { background: #008943; } /* 진한 초록 */
+    .tt-slot[data-actual="사탐"]::after { background: #c2185b; } /* 진한 자주/핑크 */
+
+    /* 범례용 가운데 줄 아이콘 */
+    .swatch-line {
+        background: #ffffff;
+        position: relative;
+    }
+    .swatch-line::after {
+        content: '';
+        position: absolute;
+        left: 1px;
+        right: 1px;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 4px;
+        background: #1d1d1f;
+    }
+
+    /* 하단 과목별/유형별 범례 스타일 */
+    .tt-legend {
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid #e5e5ea;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .legend-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 10px;
+        align-items: center;
+    }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #48484a;
+    }
+    .legend-swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        display: inline-block;
+    }
+    /* 과목별 형광 색상 */
+    .swatch-kor { background: rgba(255, 235, 59, 0.75); }
+    .swatch-math { background: rgba(0, 229, 255, 0.65); }
+    .swatch-eng { background: rgba(255, 152, 0, 0.65); }
+    .swatch-sci { background: rgba(105, 240, 174, 0.75); }
+    .swatch-soc { background: rgba(255, 128, 171, 0.75); }
+    /* 유형별(단색 vs 빗금) 구분 */
+    .swatch-study { background: #e5e5ea; }
+    .swatch-class {
+        background: repeating-linear-gradient(45deg, #d2d2d7, #d2d2d7 3px, #ffffff 3px, #ffffff 6px);
+    }
+</style>
+
+<div class="timetable-card">
+    <div>
+        <div class="tt-header">
+            <span class="tt-title">TIMETABLE</span>
+            <span class="mode-badge" id="current-mode-label">수정 모드</span>
+        </div>
+
+        <table class="tt-table">
+            <thead>
+                <tr>
+                    <th>H</th>
+                    <th>10</th>
+                    <th>20</th>
+                    <th>30</th>
+                    <th>40</th>
+                    <th>50</th>
+                    <th>60</th>
+                </tr>
+            </thead>
+            <tbody id="timetable-body">
+                <!-- JS가 08시~21시 행 x 10분 단위 6칸을 자동 생성 -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 하단 과목 및 공부 유형 범례 -->
+    <div class="tt-legend">
+        <div class="legend-row">
+            <span class="legend-item"><i class="legend-swatch swatch-kor"></i>국어</span>
+            <span class="legend-item"><i class="legend-swatch swatch-math"></i>수학</span>
+            <span class="legend-item"><i class="legend-swatch swatch-eng"></i>영어</span>
+            <span class="legend-item"><i class="legend-swatch swatch-sci"></i>과탐</span>
+            <span class="legend-item"><i class="legend-swatch swatch-soc"></i>사탐</span>
+        </div>
+        <div class="legend-row" style="padding-top: 2px;">
+            <span class="legend-item"><i class="legend-swatch swatch-study"></i>개별공부(형광)</span>
+            <span class="legend-item"><i class="legend-swatch swatch-class"></i>정규수업(빗금)</span>
+        </div>
+        <!-- _timetable.html 하단 범례 두 번째 줄 수정 -->
+        <div class="legend-row" style="padding-top: 2px;">
+            <span class="legend-item"><i class="legend-swatch swatch-study"></i>개별(형광)</span>
+            <span class="legend-item"><i class="legend-swatch swatch-class"></i>수업(빗금)</span>
+            <span class="legend-item"><i class="legend-swatch swatch-line"></i>실행(중앙선)</span>
+        </div>
+    </div>
+</div>
+
+{% load static %}
+<script src="{% static 'js/planner_timetable.js' %}"></script>

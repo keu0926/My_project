@@ -1,0 +1,216 @@
+<style>
+    .timer-card {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 22px 28px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        margin-bottom: 24px;
+    }
+    .timer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #1d1d1f;
+    }
+    .timer-title {
+        font-size: 14px;
+        font-weight: 800;
+        color: #1d1d1f;
+        letter-spacing: 0.04em;
+        margin: 0;
+    }
+    .timer-top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid #e5e5ea;
+    }
+    .timer-subj-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .timer-label {
+        font-size: 13px;
+        font-weight: 700;
+        color: #86868b;
+        margin-right: 4px;
+    }
+    .timer-subj-btn {
+        padding: 6px 14px;
+        border-radius: 980px;
+        font-size: 13px;
+        font-weight: 600;
+        border: 1px solid #d2d2d7;
+        background: #ffffff;
+        color: #1d1d1f;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .timer-subj-btn.active {
+        background: #1d1d1f;
+        color: #ffffff;
+        border-color: #1d1d1f;
+    }
+    .timer-subj-btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+
+    /* 중앙 디지털 시계 및 제어 버튼 */
+    .timer-main-controls {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .timer-display {
+        font-size: 32px;
+        font-weight: 800;
+        color: #1d1d1f;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
+        min-width: 145px;
+        text-align: center;
+    }
+    .timer-display.running {
+        color: #0071e3;
+    }
+    .timer-display.paused {
+        color: #ff9500;
+    }
+    .timer-btn-wrap {
+        display: flex;
+        gap: 8px;
+    }
+    .t-btn {
+        padding: 8px 16px;
+        border-radius: 980px;
+        font-size: 13px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .t-btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+    .t-btn-start { background: #0071e3; color: #ffffff; }
+    .t-btn-pause { background: #fff3e0; color: #ff9500; }
+    .t-btn-stop  { background: #ffeceb; color: #ff3b30; }
+
+    /* 하단 과목별 누적 시간 대시보드 */
+    .timer-accum-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 10px;
+        padding-top: 16px;
+    }
+    .accum-box {
+        background: #fbfbfd;
+        border: 1px solid #e5e5ea;
+        border-radius: 12px;
+        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+    .accum-box.total-box {
+        background: #f0f7ff;
+        border-color: #cce4ff;
+    }
+    .accum-subj {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #6e6e73;
+    }
+    .accum-box.total-box .accum-subj {
+        color: #0071e3;
+    }
+    .accum-time {
+        font-size: 14px;
+        font-weight: 800;
+        color: #1d1d1f;
+        font-variant-numeric: tabular-nums;
+    }
+
+    @media (max-width: 900px) {
+        .timer-accum-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .timer-top-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .timer-main-controls {
+            justify-content: space-between;
+        }
+    }
+</style>
+
+<section class="timer-card">
+    <!-- 여기에 소제목 헤더 추가 -->
+    <div class="timer-header">
+        <h2 class="timer-title">STUDY TIMER (순공 시간 타이머)</h2>
+    </div>
+
+    <div class="timer-top-bar">        <!-- 측정할 과목 선택 -->
+        <div class="timer-subj-group" id="timer-subject-buttons">
+            <span class="timer-label">측정 과목</span>
+            <button type="button" class="timer-subj-btn active" data-subj="국어">국어</button>
+            <button type="button" class="timer-subj-btn" data-subj="수학">수학</button>
+            <button type="button" class="timer-subj-btn" data-subj="영어">영어</button>
+            <button type="button" class="timer-subj-btn" data-subj="과탐">과탐</button>
+            <button type="button" class="timer-subj-btn" data-subj="사탐">사탐</button>
+        </div>
+
+        <!-- 현재 타이머 표시 및 시작/일시정지/종료 버튼 -->
+        <div class="timer-main-controls">
+            <div class="timer-display" id="stopwatch-display">00:00:00</div>
+            <div class="timer-btn-wrap">
+                <button type="button" class="t-btn t-btn-start" id="btn-timer-start">시작</button>
+                <button type="button" class="t-btn t-btn-pause" id="btn-timer-pause" disabled>잠시 멈춤</button>
+                <button type="button" class="t-btn t-btn-stop" id="btn-timer-stop" disabled>종료</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 과목별 누적 시간 및 TOTAL TIME -->
+    <div class="timer-accum-grid">
+        <div class="accum-box">
+            <span class="accum-subj">국어 누적</span>
+            <span class="accum-time" id="accum-국어">00:00:00</span>
+        </div>
+        <div class="accum-box">
+            <span class="accum-subj">수학 누적</span>
+            <span class="accum-time" id="accum-수학">00:00:00</span>
+        </div>
+        <div class="accum-box">
+            <span class="accum-subj">영어 누적</span>
+            <span class="accum-time" id="accum-영어">00:00:00</span>
+        </div>
+        <div class="accum-box">
+            <span class="accum-subj">과탐 누적</span>
+            <span class="accum-time" id="accum-과탐">00:00:00</span>
+        </div>
+        <div class="accum-box">
+            <span class="accum-subj">사탐 누적</span>
+            <span class="accum-time" id="accum-사탐">00:00:00</span>
+        </div>
+        <div class="accum-box total-box">
+            <span class="accum-subj">TOTAL TIME</span>
+            <span class="accum-time" id="accum-total">00:00:00</span>
+        </div>
+    </div>
+</section>
+
+{% load static %}
+<script src="{% static 'js/planner_timer.js' %}"></script>

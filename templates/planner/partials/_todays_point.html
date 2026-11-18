@@ -1,0 +1,100 @@
+<style>
+    /* 페이지 전체 상단 타이틀 영역 (카드 밖) */
+    .planner-page-header {
+        margin-bottom: 28px;
+        padding: 0 4px;
+    }
+    .planner-date-small {
+        font-size: 14px;
+        font-weight: 600;
+        color: #0071e3;
+        margin-bottom: 8px;
+        display: block;
+        letter-spacing: -0.01em;
+    }
+    .planner-page-title {
+        font-size: 34px; /* 대제목 크기 대폭 확대 */
+        font-weight: 800;
+        color: #1d1d1f;
+        letter-spacing: -0.03em;
+        margin-bottom: 10px;
+        line-height: 1.2;
+    }
+    .planner-page-desc {
+        font-size: 16px; /* 설명 글자 크기 확대 및 가독성 향상 */
+        color: #48484a;
+        line-height: 1.6;
+        margin: 0;
+        font-weight: 400;
+    }
+
+    /* Today's Point 입력 카드 */
+    .todays-point-card {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 24px 28px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        margin-bottom: 24px;
+    }
+.todays-point-label {
+        font-size: 14px;
+        font-weight: 800;
+        color: #1d1d1f;
+        letter-spacing: 0.04em;
+        margin-bottom: 14px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #1d1d1f;
+        display: block;
+    } 
+    .todays-point-box {
+        background: #fbfbfd;
+        border: 1px solid #e5e5ea;
+        border-radius: 16px;
+        padding: 16px 20px;
+        transition: all 0.2s ease;
+    }
+    .todays-point-box:focus-within {
+        background: #ffffff;
+        border-color: #0071e3;
+        box-shadow: 0 4px 16px rgba(0, 113, 227, 0.08);
+    }
+    .todays-point-input {
+        width: 100%;
+        font-size: 18px;
+        font-weight: 600;
+        color: #1d1d1f;
+        border: none;
+        background: transparent;
+        outline: none;
+    }
+    .todays-point-input::placeholder {
+        color: #c7c7cc;
+        font-weight: 400;
+    }
+
+    @media (max-width: 768px) {
+        .planner-page-header { padding: 0; }
+        .planner-page-title { font-size: 26px; } /* 모바일 화면 기준 대제목 크기 조정 */
+        .planner-page-desc { font-size: 15px; }  /* 모바일 화면 기준 설명 크기 조정 */
+        .todays-point-card { padding: 20px; }
+        .todays-point-input { font-size: 16px; }
+    }
+</style>
+
+<!-- 페이지 전체 상단 타이틀 영역 (카드 밖) -->
+<div class="planner-page-header">
+    <span class="planner-date-small">{{ today|date:"Y년 m월 d일 (l)" }}</span>
+    <h1 class="planner-page-title">{{ user_display_name }}님의 학습플래너</h1>
+    <p class="planner-page-desc">
+        오늘 하루의 핵심 목표를 설정하고, 10분 단위 타임테이블과 과목별 투두 리스트로 순공 시간을 체계적으로 관리하세요.
+    </p>
+</div>
+
+<!-- Today's Point 입력 카드 -->
+<section class="todays-point-card">
+    <span class="todays-point-label">TODAY'S POINT (오늘의 핵심 목표)</span>
+    <div class="todays-point-box">
+        <input type="text" id="todays-point-input" class="todays-point-input" placeholder="오늘 반드시 달성할 핵심 목표를 입력하세요 (예: 수학 수Ⅰ 미적분 기출 2세트 완파)" value="{{ todays_point }}">
+    </div>
+</section>
