@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import shutil
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -15,13 +16,14 @@ CSRF_TRUSTED_ORIGINS = ['https://*.mycafe24.ai']
 
 # Application definition
 INSTALLED_APPS = [
-    'main',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'main',
+    'planner',  # ★ 학습 플래너 전용 앱
 ]
 
 MIDDLEWARE = [
@@ -56,10 +58,27 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
+# 서버(카페24 AI 스페이스)에서는 재배포해도 보존되는 폴더(/app/user_data)에 DB 파일을 둡니다.
+# 서버에 SQLITE_DIR 환경변수가 설정되어 있으며, 내 컴퓨터(환경변수 없음)에서는 기존처럼 프로젝트 폴더의 db.sqlite3 를 씁니다.
+_sqlite_dir = os.environ.get('SQLITE_DIR')
+if _sqlite_dir:
+    _sqlite_dir = Path(_sqlite_dir)
+    _sqlite_dir.mkdir(parents=True, exist_ok=True)
+    DB_FILE = _sqlite_dir / 'db.sqlite3'
+
+    # 서버에 DB 파일이 아직 없을 때만(최초 1회) 저장소의 db.sqlite3(기존 회원·공지 등)를 복사해 시작합니다.
+    _seed = BASE_DIR / 'db.sqlite3'
+    if not DB_FILE.exists() and _seed.exists():
+        _tmp = DB_FILE.with_name(DB_FILE.name + '.seeding')
+        shutil.copy2(_seed, _tmp)
+        os.replace(_tmp, DB_FILE)
+else:
+    DB_FILE = BASE_DIR / 'db.sqlite3'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DB_FILE,
     }
 }
 
@@ -82,7 +101,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# 플래너의 '오늘' 날짜와 화면에 보이는 시각이 한국 시간 기준이 되도록 설정 (DB에는 UTC로 저장됨)
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
@@ -114,17 +134,3 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 
 DEFAULT_FROM_EMAIL = "kangromin@gmail.com"
 ADMIN_CONSULT_EMAIL = "puppytk@naver.com"
-
-
-# config/settings.py
-
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'main',
-    'planner',  # ★ 새로 만든 플래너 전용 앱 등록
-]
