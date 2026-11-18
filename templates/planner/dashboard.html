@@ -226,41 +226,9 @@
             }
         });
 
-        if (Array.isArray(savedTodo) && savedTodo.length > 0) {
-            window.todoItems = savedTodo;
-            const emptyMsg = document.getElementById('todo-empty-msg');
-            const listContainer = document.getElementById('todo-list-container');
-            if (emptyMsg && listContainer) {
-                emptyMsg.style.display = 'none';
-                let html = '';
-                window.todoItems.forEach((item, idx) => {
-                    const isDone = item.status === 'complete';
-                    const rateValue = isDone ? 100 : item.rate;
-                    html += `
-                        <div class="todo-row" data-index="${idx}">
-                            <div class="todo-left">
-                                <span class="todo-subj-badge ${item.badgeClass}">${item.subject}</span>
-                                <span class="todo-text ${isDone ? 'done' : ''}" id="todo-text-${idx}">${item.text}</span>
-                            </div>
-                            <div class="todo-controls">
-                                <label class="radio-label">
-                                    <input type="radio" name="todo-status-${idx}" value="incomplete" ${!isDone ? 'checked' : ''} onchange="updateTodoStatus(${idx}, 'incomplete')">
-                                    미완료
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="todo-status-${idx}" value="complete" ${isDone ? 'checked' : ''} onchange="updateTodoStatus(${idx}, 'complete')">
-                                    완료
-                                </label>
-                                <div class="rate-box">
-                                    <input type="number" class="rate-input" id="todo-rate-${idx}" min="0" max="100" value="${rateValue}" ${isDone ? 'disabled' : ''} oninput="updateTodoRate(${idx}, this.value)">
-                                    <span>%</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                listContainer.innerHTML = html;
-            }
+        // 저장된 할 일 복원 (planner_todo.js 의 이스케이프 처리된 렌더러를 사용)
+        if (Array.isArray(savedTodo) && savedTodo.length > 0 && typeof window.restoreTodoItems === 'function') {
+            window.restoreTodoItems(savedTodo);
         }
 
         if (savedTimer && Object.keys(savedTimer).length > 0 && window.subjectAccumSeconds) {
