@@ -45,4 +45,5 @@ urlpatterns = [
 
     # 7. ★ 학습 플래너 (planner/urls.py로 완벽하게 위임)
     path('planner/', include('planner.urls')),
+    path('admin-center/', include('academy_admin.urls')),
 ]

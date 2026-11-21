@@ -100,7 +100,6 @@ document.addEventListener('DOMContentLoaded', function () {
         display.classList.remove('paused');
 
         btnStart.disabled = true;
-        btnStart.textContent = '시작';
         btnPause.disabled = false;
         btnStop.disabled = false;
 
@@ -123,7 +122,6 @@ document.addEventListener('DOMContentLoaded', function () {
         display.classList.add('paused');
 
         btnStart.disabled = false;
-        btnStart.textContent = '계속';
         btnPause.disabled = true;
 
         saveTimerStateToLocal();
@@ -159,7 +157,6 @@ document.addEventListener('DOMContentLoaded', function () {
         display.classList.remove('running', 'paused');
 
         btnStart.disabled = false;
-        btnStart.textContent = '시작';
         btnPause.disabled = true;
         btnStop.disabled = true;
         setSubjectButtonsDisabled(false);
@@ -187,7 +184,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 display.classList.add('running');
                 btnStart.disabled = true;
                 btnPause.disabled = false;
-                btnStart.textContent = '시작';
                 intervalId = setInterval(() => {
                     display.textContent = formatHMS(getCurrentElapsedSeconds());
                 }, 250);
@@ -195,7 +191,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 display.classList.add('paused');
                 btnStart.disabled = false;
                 btnPause.disabled = true;
-                btnStart.textContent = '계속';
             }
         }
     }
@@ -218,7 +213,6 @@ document.addEventListener('DOMContentLoaded', function () {
         display.textContent = '00:00:00';
         display.classList.remove('running', 'paused');
         btnStart.disabled = false;
-        btnStart.textContent = '시작';
         btnPause.disabled = true;
         btnStop.disabled = true;
         setSubjectButtonsDisabled(false);

@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>학원 관리자 센터 · 토탈스케줄 편성</title>
+    <style>
+        body {
+            margin: 0;
+            background: #f5f5f7;
+            font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", sans-serif;
+            color: #1d1d1f;
+        }
+        .admin-navbar {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 14px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .admin-brand {
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .admin-badge {
+            background: #1d1d1f;
+            color: #ffffff;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+        .admin-nav-tabs {
+            display: inline-flex;
+            background: #e5e5ea;
+            padding: 3px;
+            border-radius: 980px;
+            gap: 2px;
+        }
+        .admin-nav-tab {
+            padding: 6px 16px;
+            border-radius: 980px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #6e6e73;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .admin-nav-tab.active {
+            background: #ffffff;
+            color: #1d1d1f;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        .admin-container {
+            max-width: 1440px;
+            margin: 24px auto;
+            padding: 0 24px 60px;
+        }
+        .control-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 22px 26px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+        .page-title { font-size: 20px; font-weight: 800; margin: 0 0 4px 0; }
+        .page-sub { font-size: 13px; color: #86868b; margin: 0; }
+        .season-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .apple-select, .apple-input {
+            padding: 8px 14px;
+            border-radius: 12px;
+            border: 1px solid #d2d2d7;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #1d1d1f;
+            background: #ffffff;
+        }
+        .pill-btn {
+            padding: 8px 16px;
+            border-radius: 980px;
+            font-size: 13px;
+            font-weight: 700;
+            border: 1px solid #d2d2d7;
+            background: #ffffff;
+            color: #1d1d1f;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .pill-btn:hover { border-color: #0071e3; color: #0071e3; }
+        .pill-btn.primary { background: #0071e3; color: #ffffff; border-color: #0071e3; }
+        .pill-btn.dark { background: #1d1d1f; color: #ffffff; border-color: #1d1d1f; }
+        .board-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 22px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            overflow-x: auto;
+        }
+        .guide-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+            font-size: 13px;
+            color: #6e6e73;
+        }
+        .schedule-table {
+            width: 100%;
+            min-width: 1020px;
+            border-collapse: collapse;
+            table-layout: fixed;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .schedule-table th {
+            background: #f5f5f7;
+            font-size: 13px;
+            font-weight: 800;
+            padding: 12px 6px;
+            border: 1px solid #e5e5ea;
+            text-align: center;
+        }
+        .schedule-table th.col-period { width: 130px; }
+        .period-cell {
+            background: #fafafa;
+            border: 1px solid #e5e5ea;
+            padding: 8px 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+        .period-cell:hover { background: #eef6ff; }
+        .period-name { font-size: 12.5px; font-weight: 800; }
+        .period-time { font-size: 11px; color: #86868b; margin-top: 2px; }
+        .row-break td { background: #fcfcfd; }
+        .slot-cell {
+            border: 1px solid #e5e5ea;
+            padding: 6px;
+            vertical-align: top;
+            height: 70px;
+            cursor: pointer;
+            transition: background-color 0.12s ease;
+            touch-action: none;
+        }
+        .slot-cell:hover { background: #f0f7ff; }
+        .slot-cell.selecting {
+            background: rgba(0, 113, 227, 0.16) !important;
+            outline: 2px solid #0071e3;
+            outline-offset: -2px;
+        }
+        .slot-list { display: flex; flex-direction: column; gap: 4px; }
+        .slot-chip {
+            border-radius: 8px;
+            padding: 4px 7px;
+            font-size: 11.5px;
+            line-height: 1.35;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            word-break: keep-all;
+        }
+        .slot-chip[data-subj="국어"] { background: #fff59d; border-left: 3px solid #fbc02d; }
+        .slot-chip[data-subj="수학"] { background: #b2ebf2; border-left: 3px solid #00acc1; }
+        .slot-chip[data-subj="영어"] { background: #ffe0b2; border-left: 3px solid #fb8c00; }
+        .slot-chip[data-subj="과탐"] { background: #c8e6c9; border-left: 3px solid #43a047; }
+        .slot-chip[data-subj="사탐"] { background: #f8bbd0; border-left: 3px solid #e91e63; }
+        .slot-chip[data-subj="비교과"] { background: #e5e5ea; border-left: 3px solid #636366; }
+        .slot-chip-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 800;
+        }
+        .slot-del-btn {
+            border: none;
+            background: transparent;
+            color: rgba(0,0,0,0.45);
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            padding: 0 2px;
+        }
+        .slot-del-btn:hover { color: #ff3b30; }
+        .merge-badge {
+            display: inline-block;
+            background: #1d1d1f;
+            color: #fff;
+            font-size: 9.5px;
+            padding: 1px 4px;
+            border-radius: 4px;
+            margin-left: 3px;
+        }
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.42);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-backdrop.open { display: flex; }
+        .modal-box {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 26px;
+            width: 100%;
+            max-width: 480px;
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+        .modal-title { font-size: 18px; font-weight: 800; margin: 0 0 16px 0; }
+        .form-row { margin-bottom: 14px; }
+        .form-row label { display: block; font-size: 12.5px; font-weight: 700; color: #6e6e73; margin-bottom: 6px; }
+        .quick-presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+        .preset-chip {
+            border: 1px solid #d2d2d7;
+            background: #f5f5f7;
+            border-radius: 980px;
+            padding: 4px 10px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .preset-chip:hover { background: #e5e5ea; }
+        .period-edit-row {
+            display: grid;
+            grid-template-columns: 110px 1fr 16px 1fr;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<header class="admin-navbar">
+    <div class="admin-brand">
+        <span>학원 관리자 센터</span>
+        <span class="admin-badge">ADMIN</span>
+    </div>
+
+    <nav class="admin-nav-tabs">
+        <a href="{% url 'academy_admin:schedule_manage' %}?season={{ current_season.id }}" class="admin-nav-tab active">1. 학원 토탈스케줄 편성</a>
+        <a href="{% url 'academy_admin:student_enroll' %}?season={{ current_season.id }}" class="admin-nav-tab">2. 학생별 수강 배정</a>
+    </nav>
+
+    <div>
+        <a href="/admin/" class="pill-btn">Django Admin</a>
+    </div>
+</header>
+
+<main class="admin-container">
+    <section class="control-card">
+        <div>
+            <h1 class="page-title">학원 토탈스케줄 편성</h1>
+            <p class="page-sub">빈 칸을 클릭하거나 드래그(스와이프)해 과목·강사·반명을 배정하세요. 좌측 교시 칸을 누르면 시간을 자유롭게 수정할 수 있습니다.</p>
+        </div>
+
+        <div class="season-bar">
+            <select id="season-selector" class="apple-select" onchange="location.href='?season=' + this.value">
+                {% for s in seasons %}
+                <option value="{{ s.id }}" {% if s.id == current_season.id %}selected{% endif %}>
+                    {{ s.name }}{% if s.is_active %} ★적용중{% endif %}
+                </option>
+                {% endfor %}
+            </select>
+
+            {% if not current_season.is_active %}
+            <button type="button" class="pill-btn" onclick="activateCurrentSeason()">이 시즌 적용하기</button>
+            {% endif %}
+            <button type="button" class="pill-btn" onclick="openModal('season-modal')">+ 새 시즌 저장</button>
+            <button type="button" class="pill-btn" onclick="openModal('add-period-modal')">+ 교시 행 추가</button>
+            <button type="button" class="pill-btn dark" onclick="openModal('period-modal')">전체 교시 시간표</button>
+        </div>
+    </section>
+
+    <section class="board-card">
+        <div class="guide-bar">
+            <span>💡 <b>입력 방법:</b> 칸을 클릭하거나 여러 교시를 드래그/스와이프한 뒤 손을 떼면 입력창이 열립니다. (좌측 교시 클릭 시 시간 즉시 수정)</span>
+            <button type="button" class="pill-btn primary" id="btn-open-selected" style="display:none;" onclick="openSlotInputModal()">
+                선택한 <span id="selected-count-badge">0</span>칸 입력하기
+            </button>
+        </div>
+
+        <table class="schedule-table" id="admin-timetable-grid">
+            <thead>
+                <tr>
+                    <th class="col-period">교시 / 시간</th>
+                    {% for d in days %}
+                    <th>{{ d.name }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in grid_rows %}
+                <tr class="{% if row.is_break %}row-break{% endif %}">
+                    <td class="period-cell" title="클릭하여 시간 및 교시명 수정"
+                        onclick="openSinglePeriodModal({{ row.period.id }}, '{{ row.period.name|escapejs }}', '{{ row.period.start_time|time:'H:i' }}', '{{ row.period.end_time|time:'H:i' }}')">
+                        <div class="period-name">{{ row.period.name }}</div>
+                        <div class="period-time">{{ row.period.start_time|time:"H:i" }}~{{ row.period.end_time|time:"H:i" }}</div>
+                        <div style="font-size: 10px; color: #0071e3; font-weight: 700; margin-top: 2px;">({{ row.period.duration_minutes }}분)</div>
+                    </td>
+                    {% for cell in row.cells %}
+                    <td class="slot-cell"
+                        data-day="{{ cell.day_idx }}"
+                        data-period-id="{{ row.period.id }}">
+                        <div class="slot-list">
+                            {% for sl in cell.slots %}
+                            <div class="slot-chip" data-subj="{{ sl.subject }}">
+                                <div class="slot-chip-top">
+                                    <span>{{ sl.subject }}{% if sl.teacher_name %} · {{ sl.teacher_name }}{% endif %}{% if sl.is_merged %}<span class="merge-badge">합반</span>{% endif %}</span>
+                                    <button type="button" class="slot-del-btn" title="삭제" onclick="deleteClassSlot(event, {{ sl.id }})">×</button>
+                                </div>
+                                <div>{{ sl.class_name }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</main>
+
+<!-- 1. 수업 입력 모달 -->
+<div class="modal-backdrop" id="slot-modal">
+    <div class="modal-box">
+        <h3 class="modal-title">수업 / 비교과 일정 배정 (<span id="modal-target-summary"></span>)</h3>
+        <div class="form-row">
+            <label>과목 선택</label>
+            <select id="input-subject" class="apple-select" style="width:100%;">
+                <option value="국어">국어</option>
+                <option value="수학">수학</option>
+                <option value="영어">영어</option>
+                <option value="과탐">과탐</option>
+                <option value="사탐">사탐</option>
+                <option value="비교과">비교과 (모의고사 / 질의응답 / 일대일)</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <label>강사명 (비교과일 경우 비워두셔도 됩니다)</label>
+            <input type="text" id="input-teacher" class="apple-input" style="width:100%; box-sizing:border-box;" placeholder="예: 전호범, 이우준">
+        </div>
+        <div class="form-row">
+            <label>반명 (번호) 또는 활동명</label>
+            <input type="text" id="input-classname" class="apple-input" style="width:100%; box-sizing:border-box;" placeholder="예: 1반, 2반, 심화A반">
+            <div class="quick-presets">
+                <button type="button" class="preset-chip" onclick="applyQuickPreset('비교과', '주간 모의고사')">+ 주간 모의고사</button>
+                <button type="button" class="preset-chip" onclick="applyQuickPreset('비교과', '일대일 수업')">+ 일대일 수업</button>
+                <button type="button" class="preset-chip" onclick="applyQuickPreset('비교과', '질의 응답 시간')">+ 질의 응답 시간</button>
+            </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
+            <button type="button" class="pill-btn" onclick="closeModal('slot-modal')">취소</button>
+            <button type="button" class="pill-btn primary" onclick="submitClassSlots(false)">배정 저장</button>
+        </div>
+    </div>
+</div>
+
+<!-- 2. 개별 교시 유동 시간 수정 모달 -->
+<div class="modal-backdrop" id="single-period-modal">
+    <div class="modal-box">
+        <h3 class="modal-title">교시 시간 유동 설정</h3>
+        <input type="hidden" id="sp-id">
+        <div class="form-row">
+            <label>교시 / 구간 이름</label>
+            <input type="text" id="sp-name" class="apple-input" style="width:100%; box-sizing:border-box;">
+        </div>
+        <div class="form-row">
+            <label>시작 시각 ~ 종료 시각 <span id="sp-duration-badge" style="color:#0071e3; margin-left:6px;"></span></label>
+            <div style="display:grid; grid-template-columns: 1fr 20px 1fr; align-items:center; gap:8px;">
+                <input type="time" id="sp-start" class="apple-input" oninput="calcSpDuration()">
+                <span style="text-align:center;">~</span>
+                <input type="time" id="sp-end" class="apple-input" oninput="calcSpDuration()">
+            </div>
+        </div>
+        <div class="form-row">
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; color:#1d1d1f;">
+                <input type="checkbox" id="sp-cascade" checked>
+                종료 시각 변경 시, 뒤에 이어지는 교시 시간도 자동으로 함께 밀기
+            </label>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+            <button type="button" class="pill-btn" style="color:#ff3b30; border-color:#ffd5d2;" onclick="deleteSinglePeriod()">이 행 삭제</button>
+            <div style="display:flex; gap:8px;">
+                <button type="button" class="pill-btn" onclick="closeModal('single-period-modal')">취소</button>
+                <button type="button" class="pill-btn primary" onclick="saveSinglePeriod()">적용 저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3. 새 교시 행 추가 모달 -->
+<div class="modal-backdrop" id="add-period-modal">
+    <div class="modal-box">
+        <h3 class="modal-title">새 교시 / 시간대 행 추가</h3>
+        <div class="form-row">
+            <label>교시 / 구간 이름</label>
+            <input type="text" id="new-period-name" class="apple-input" style="width:100%; box-sizing:border-box;" placeholder="예: 13교시, 클리닉 시간">
+        </div>
+        <div class="form-row">
+            <label>시작 시각 ~ 종료 시각</label>
+            <div style="display:grid; grid-template-columns: 1fr 20px 1fr; align-items:center; gap:8px;">
+                <input type="time" id="new-period-start" class="apple-input" value="23:00">
+                <span style="text-align:center;">~</span>
+                <input type="time" id="new-period-end" class="apple-input" value="23:50">
+            </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:18px;">
+            <button type="button" class="pill-btn" onclick="closeModal('add-period-modal')">취소</button>
+            <button type="button" class="pill-btn primary" onclick="addNewPeriodRow()">행 추가</button>
+        </div>
+    </div>
+</div>
+
+<!-- 4. 전체 교시 일괄 수정 모달 -->
+<div class="modal-backdrop" id="period-modal">
+    <div class="modal-box">
+        <h3 class="modal-title">전체 교시 시간 설정 ({{ current_season.name }})</h3>
+        <div id="period-rows-container">
+            {% for p in periods %}
+            <div class="period-edit-row" data-period-id="{{ p.id }}">
+                <span>{{ p.name }}</span>
+                <input type="time" class="apple-input p-start" value="{{ p.start_time|time:'H:i' }}">
+                <span style="text-align:center;">~</span>
+                <input type="time" class="apple-input p-end" value="{{ p.end_time|time:'H:i' }}">
+            </div>
+            {% endfor %}
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:18px;">
+            <button type="button" class="pill-btn" onclick="closeModal('period-modal')">닫기</button>
+            <button type="button" class="pill-btn primary" onclick="savePeriodConfigs()">일괄 저장</button>
+        </div>
+    </div>
+</div>
+
+<!-- 5. 새 시즌 생성 모달 -->
+<div class="modal-backdrop" id="season-modal">
+    <div class="modal-box">
+        <h3 class="modal-title">새 시즌 스케줄 만들기</h3>
+        <div class="form-row">
+            <label>새 시즌 이름</label>
+            <input type="text" id="new-season-name" class="apple-input" style="width:100%; box-sizing:border-box;" placeholder="예: 2026 겨울방학 특강반">
+        </div>
+        <div class="form-row">
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+                <input type="checkbox" id="copy-current-season" checked>
+                현재 보고 있는 [{{ current_season.name }}]의 교시 및 시간표 틀 복사하기
+            </label>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:18px;">
+            <button type="button" class="pill-btn" onclick="closeModal('season-modal')">취소</button>
+            <button type="button" class="pill-btn primary" onclick="createNewSeason()">시즌 생성</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const CSRF_TOKEN = '{{ csrf_token }}';
+    const CURRENT_SEASON_ID = {{ current_season.id }};
+    let isDragging = false;
+    let selectedCells = new Map();
+
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    function clearSelection() {
+        selectedCells.clear();
+        document.querySelectorAll('.slot-cell.selecting').forEach(el => el.classList.remove('selecting'));
+        updateSelectionBadge();
+    }
+
+    function toggleCellSelection(cell) {
+        const key = `${cell.dataset.day}-${cell.dataset.periodId}`;
+        if (!selectedCells.has(key)) {
+            selectedCells.set(key, { day: parseInt(cell.dataset.day), period_id: parseInt(cell.dataset.periodId) });
+            cell.classList.add('selecting');
+        }
+        updateSelectionBadge();
+    }
+
+    function updateSelectionBadge() {
+        const btn = document.getElementById('btn-open-selected');
+        const badge = document.getElementById('selected-count-badge');
+        badge.textContent = selectedCells.size;
+        btn.style.display = selectedCells.size > 0 ? 'inline-block' : 'none';
+    }
+
+    const grid = document.getElementById('admin-timetable-grid');
+    grid.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('.slot-del-btn')) return;
+        const cell = e.target.closest('.slot-cell');
+        if (!cell) return;
+        isDragging = true;
+        clearSelection();
+        toggleCellSelection(cell);
+    });
+
+    grid.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const el = document.elementFromPoint(e.clientX, e.clientY);
+        const cell = el ? el.closest('.slot-cell') : null;
+        if (cell) toggleCellSelection(cell);
+    });
+
+    window.addEventListener('pointerup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        if (selectedCells.size > 0) {
+            openSlotInputModal();
+        }
+    });
+
+    function openSlotInputModal() {
+        document.getElementById('modal-target-summary').textContent = `선택된 ${selectedCells.size}개 교시`;
+        openModal('slot-modal');
+    }
+
+    function applyQuickPreset(subj, className) {
+        document.getElementById('input-subject').value = subj;
+        document.getElementById('input-teacher').value = '';
+        document.getElementById('input-classname').value = className;
+    }
+
+    async function postAdminAction(payload) {
+        payload.season_id = CURRENT_SEASON_ID;
+        const res = await fetch(window.location.pathname, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+            body: JSON.stringify(payload)
+        });
+        return res.json();
+    }
+
+    async function submitClassSlots(confirmMerged) {
+        const subject = document.getElementById('input-subject').value;
+        const teacherName = document.getElementById('input-teacher').value.trim();
+        const className = document.getElementById('input-classname').value.trim();
+        const targets = Array.from(selectedCells.values());
+
+        const data = await postAdminAction({
+            action: 'add_slots',
+            targets: targets,
+            subject: subject,
+            teacher_name: teacherName,
+            class_name: className,
+            confirm_merged: confirmMerged
+        });
+
+        if (data.status === 'confirm_merge') {
+            if (confirm(data.message)) {
+                return submitClassSlots(true);
+            }
+            return;
+        }
+        if (data.status === 'success') location.reload();
+        else alert(data.message);
+    }
+
+    async function deleteClassSlot(e, slotId) {
+        e.stopPropagation();
+        if (!confirm('이 수업을 시간표에서 삭제하시겠습니까?')) return;
+        const data = await postAdminAction({ action: 'delete_slot', slot_id: slotId });
+        if (data.status === 'success') location.reload();
+    }
+
+    function calcSpDuration() {
+        const s = document.getElementById('sp-start').value;
+        const e = document.getElementById('sp-end').value;
+        const badge = document.getElementById('sp-duration-badge');
+        if (!s || !e) return;
+        const [sh, sm] = s.split(':').map(Number);
+        const [eh, em] = e.split(':').map(Number);
+        const diff = (eh * 60 + em) - (sh * 60 + sm);
+        badge.textContent = diff > 0 ? `(총 ${diff}분)` : '(시간 확인 필요)';
+    }
+
+    function openSinglePeriodModal(id, name, start, end) {
+        document.getElementById('sp-id').value = id;
+        document.getElementById('sp-name').value = name;
+        document.getElementById('sp-start').value = start;
+        document.getElementById('sp-end').value = end;
+        calcSpDuration();
+        openModal('single-period-modal');
+    }
+
+    async function saveSinglePeriod() {
+        const data = await postAdminAction({
+            action: 'update_single_period',
+            period_id: parseInt(document.getElementById('sp-id').value),
+            name: document.getElementById('sp-name').value,
+            start_time: document.getElementById('sp-start').value,
+            end_time: document.getElementById('sp-end').value,
+            cascade: document.getElementById('sp-cascade').checked
+        });
+        if (data.status === 'success') location.reload();
+        else alert(data.message);
+    }
+
+    async function deleteSinglePeriod() {
+        if (!confirm('이 교시 행을 삭제하시겠습니까? 해당 교시에 배정된 수업도 함께 삭제됩니다.')) return;
+        const data = await postAdminAction({
+            action: 'delete_period',
+            period_id: parseInt(document.getElementById('sp-id').value)
+        });
+        if (data.status === 'success') location.reload();
+    }
+
+    async function addNewPeriodRow() {
+        const data = await postAdminAction({
+            action: 'add_period',
+            name: document.getElementById('new-period-name').value,
+            start_time: document.getElementById('new-period-start').value,
+            end_time: document.getElementById('new-period-end').value
+        });
+        if (data.status === 'success') location.reload();
+        else alert(data.message);
+    }
+
+    async function savePeriodConfigs() {
+        const rows = document.querySelectorAll('#period-rows-container .period-edit-row');
+        const periods = Array.from(rows).map(r => ({
+            id: parseInt(r.dataset.periodId),
+            start_time: r.querySelector('.p-start').value,
+            end_time: r.querySelector('.p-end').value
+        }));
+        const data = await postAdminAction({ action: 'save_periods', periods: periods });
+        if (data.status === 'success') location.reload();
+        else alert(data.message);
+    }
+
+    async function createNewSeason() {
+        const name = document.getElementById('new-season-name').value.trim();
+        const copyFrom = document.getElementById('copy-current-season').checked ? CURRENT_SEASON_ID : null;
+        const data = await postAdminAction({
+            action: 'create_season',
+            name: name,
+            copy_from_id: copyFrom,
+            set_active: true
+        });
+        if (data.status === 'success') location.href = '?season=' + data.season_id;
+        else alert(data.message);
+    }
+
+    async function activateCurrentSeason() {
+        const data = await postAdminAction({ action: 'activate_season' });
+        if (data.status === 'success') {
+            alert(data.message);
+            location.reload();
+        }
+    }
+</script>
+</body>
+</html>

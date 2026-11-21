@@ -1,0 +1,255 @@
+<style>
+    .today-class-card {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 24px 28px;
+        margin-top: 24px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .today-class-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .today-class-title {
+        font-size: 16px;
+        font-weight: 800;
+        color: #1d1d1f;
+        margin: 0;
+    }
+    .today-class-sub {
+        font-size: 12.5px;
+        color: #86868b;
+        margin-top: 3px;
+    }
+    .btn-reflect-timetable {
+        background: #1d1d1f;
+        color: #ffffff;
+        border: none;
+        padding: 9px 18px;
+        border-radius: 980px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .btn-reflect-timetable:hover {
+        background: #0071e3;
+    }
+    .class-chips-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 12px;
+    }
+    .class-schedule-item {
+        border-radius: 16px;
+        padding: 14px 16px;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        border: 1px solid rgba(0,0,0,0.06);
+        position: relative;
+    }
+    .class-schedule-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+    .class-schedule-item[data-subj="국어"] { background: #fff59d; }
+    .class-schedule-item[data-subj="수학"] { background: #b2ebf2; }
+    .class-schedule-item[data-subj="영어"] { background: #ffe0b2; }
+    .class-schedule-item[data-subj="과탐"] { background: #c8e6c9; }
+    .class-schedule-item[data-subj="사탐"] { background: #f8bbd0; }
+    .class-schedule-item[data-subj="비교과"] { background: #e5e5ea; }
+
+    .cs-time-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11.5px;
+        font-weight: 700;
+        color: rgba(29, 29, 31, 0.7);
+        margin-bottom: 6px;
+    }
+    .cs-main-row {
+        font-size: 15px;
+        font-weight: 800;
+        color: #1d1d1f;
+    }
+    .cs-hint {
+        font-size: 11px;
+        color: rgba(29, 29, 31, 0.65);
+        margin-top: 6px;
+    }
+
+    /* 지난주 수업 내용 & 과제 팝업 모달 */
+    .lesson-log-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.42);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+    }
+    .lesson-log-backdrop.open { display: flex; }
+    .lesson-log-box {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 26px;
+        width: 100%;
+        max-width: 460px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    }
+    .log-section-label {
+        font-size: 12px;
+        font-weight: 800;
+        color: #0071e3;
+        margin: 14px 0 6px 0;
+    }
+    .log-content-box {
+        background: #f5f5f7;
+        border-radius: 14px;
+        padding: 12px 14px;
+        font-size: 13.5px;
+        line-height: 1.5;
+        color: #1d1d1f;
+        white-space: pre-wrap;
+    }
+</style>
+
+<section class="today-class-card">
+    <div class="today-class-header">
+        <div>
+            <h3 class="today-class-title">오늘의 수업 시간표</h3>
+            <div class="today-class-sub">수업 카드를 클릭하면 지난주 수업 내용과 과제를 확인할 수 있습니다.</div>
+        </div>
+        {% if today_classes %}
+        <button type="button" class="btn-reflect-timetable" onclick="reflectClassesToTimetable()">
+            수업 시간 플래너 반영
+        </button>
+        {% endif %}
+    </div>
+
+    {% if today_classes %}
+    <div class="class-chips-grid">
+        {% for cls in today_classes %}
+        <div class="class-schedule-item" data-subj="{{ cls.subject }}" onclick="openLessonLogModal({{ forloop.counter0 }})">
+            <div class="cs-time-row">
+                <span>{{ cls.period_name }}</span>
+                <span>{{ cls.start_time }} ~ {{ cls.end_time }}</span>
+            </div>
+            <div class="cs-main-row">
+                {{ cls.subject }}{% if cls.teacher_name %} · {{ cls.teacher_name }}{% endif %} ({{ cls.class_name }})
+            </div>
+            <div class="cs-hint">클릭하여 지난주 수업·과제 보기 →</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="font-size: 13.5px; color: #86868b; padding: 12px 0;">
+        오늘 배정된 학원 수업이 없습니다. 자기주도 학습 계획을 자유롭게 세워보세요!
+    </div>
+    {% endif %}
+</section>
+
+<!-- 지난주 수업 내용 및 과제 조회 모달 -->
+<div class="lesson-log-backdrop" id="lesson-log-modal" onclick="if(event.target===this) closeLessonLogModal()">
+    <div class="lesson-log-box">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 id="ll-modal-title" style="margin:0; font-size:18px; font-weight:800;"></h3>
+            <button type="button" onclick="closeLessonLogModal()" style="border:none; background:transparent; font-size:20px; cursor:pointer;">×</button>
+        </div>
+        <div id="ll-modal-date" style="font-size:12px; color:#86868b; margin-top:4px;"></div>
+
+        <div class="log-section-label">지난주 수업 내용</div>
+        <div class="log-content-box" id="ll-modal-content"></div>
+
+        <div class="log-section-label">과제 안내</div>
+        <div class="log-content-box" id="ll-modal-homework"></div>
+
+        <div style="text-align:right; margin-top:18px;">
+            <button type="button" class="btn-reflect-timetable" onclick="closeLessonLogModal()">확인</button>
+        </div>
+    </div>
+</div>
+
+<script id="today-classes-data" type="application/json">{{ today_classes_json|default:"[]"|safe }}</script>
+
+<script>
+    const TODAY_CLASSES_LIST = JSON.parse(document.getElementById('today-classes-data').textContent || '[]');
+
+    function openLessonLogModal(idx) {
+        const item = TODAY_CLASSES_LIST[idx];
+        if (!item) return;
+        const teacherText = item.teacher_name ? ` · ${item.teacher_name} 선생님` : '';
+        document.getElementById('ll-modal-title').textContent = `${item.subject}${teacherText} (${item.class_name})`;
+        document.getElementById('ll-modal-date').textContent = item.last_lesson_date
+            ? `최근 수업일: ${item.last_lesson_date}`
+            : '등록된 지난주 수업 일지가 아직 없습니다.';
+        document.getElementById('ll-modal-content').textContent = item.last_content || '선생님이 아직 지난주 수업 내용을 입력하지 않았습니다.';
+        document.getElementById('ll-modal-homework').textContent = item.last_homework || '등록된 과제가 없습니다.';
+        document.getElementById('lesson-log-modal').classList.add('open');
+    }
+
+    function closeLessonLogModal() {
+        document.getElementById('lesson-log-modal').classList.remove('open');
+    }
+
+    function timeToMinutes(hhmm) {
+        const [h, m] = hhmm.split(':').map(Number);
+        return h * 60 + m;
+    }
+
+    function reflectClassesToTimetable() {
+        if (!TODAY_CLASSES_LIST.length) return;
+
+        const stripeBaseColors = {
+            '국어': '#fff59d',
+            '수학': '#b2ebf2',
+            '영어': '#ffe0b2',
+            '과탐': '#c8e6c9',
+            '사탐': '#f8bbd0'
+        };
+
+        let appliedCount = 0;
+
+        TODAY_CLASSES_LIST.forEach(cls => {
+            // 비교과(자습/모의고사 등)가 아닌 정규 과목(국·수·영·과탐·사탐) 반영
+            if (!stripeBaseColors[cls.subject]) return;
+
+            const startMin = timeToMinutes(cls.start_time);
+            const endMin = timeToMinutes(cls.end_time);
+
+            document.querySelectorAll('#timetable-body .tt-slot').forEach(slot => {
+                const slotTime = slot.dataset.time; // 예: "09:00", "09:10"
+                if (!slotTime) return;
+                let slotMin = timeToMinutes(slotTime);
+                // 새벽 시간대(00:00~05:50) 처리 보정
+                if (slotMin < 360) slotMin += 1440;
+
+                if (slotMin >= startMin && slotMin < endMin) {
+                    slot.dataset.subject = cls.subject;
+                    slot.dataset.type = 'class';
+                    const base = stripeBaseColors[cls.subject];
+                    slot.style.background = `repeating-linear-gradient(45deg, ${base}, ${base} 4px, #ffffff 4px, #ffffff 8px)`;
+                    appliedCount++;
+                }
+            });
+        });
+
+        // 반영 후 수정 모드 활성화(바로 고칠 수 있도록) 및 안내
+        if (typeof window.setPlannerMode === 'function') {
+            window.setPlannerMode('edit');
+        }
+
+        if (typeof showToast === 'function') {
+            showToast(`오늘의 수업 시간(${appliedCount * 10}분)이 정규수업(빗금)으로 반영되었습니다.`);
+        } else {
+            alert(`오늘의 수업 시간(${appliedCount * 10}분)이 정규수업(빗금)으로 반영되었습니다. 수정 모드에서 자유롭게 고칠 수 있습니다.`);
+        }
+    }
+</script>

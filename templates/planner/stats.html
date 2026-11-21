@@ -1,0 +1,395 @@
+{% extends 'planner/planner_base.html' %}
+
+{% block extra_css %}
+<style>
+    .stats-header {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 24px 28px;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    .stats-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #1d1d1f;
+        margin: 0 0 4px 0;
+    }
+    .stats-subtitle {
+        font-size: 13.5px;
+        color: #86868b;
+        margin: 0;
+    }
+    .btn-back-planner {
+        padding: 9px 18px;
+        border-radius: 980px;
+        font-size: 13.5px;
+        font-weight: 700;
+        background: #1d1d1f;
+        color: #ffffff;
+        text-decoration: none;
+        transition: opacity 0.2s ease;
+    }
+    .btn-back-planner:hover {
+        opacity: 0.85;
+    }
+
+    /* 요약 KPI 카드 4개 */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    .kpi-card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 20px 22px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .kpi-label {
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #86868b;
+        margin-bottom: 8px;
+    }
+    .kpi-value {
+        font-size: 24px;
+        font-weight: 800;
+        color: #1d1d1f;
+    }
+    .kpi-unit {
+        font-size: 14px;
+        font-weight: 600;
+        color: #86868b;
+        margin-left: 2px;
+    }
+
+    /* 기간 전환 탭 */
+    .period-tabs {
+        display: inline-flex;
+        background: #e5e5ea;
+        padding: 4px;
+        border-radius: 980px;
+        margin-bottom: 20px;
+    }
+    .period-tab-btn {
+        border: none;
+        background: transparent;
+        padding: 8px 22px;
+        border-radius: 980px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #6e6e73;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .period-tab-btn.active {
+        background: #ffffff;
+        color: #1d1d1f;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    /* 차트 영역 */
+    .tab-panel {
+        display: none;
+    }
+    .tab-panel.active {
+        display: block;
+    }
+    .charts-two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+    .chart-card {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 24px 28px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .chart-card-title {
+        font-size: 16px;
+        font-weight: 800;
+        color: #1d1d1f;
+        margin: 0 0 18px 0;
+    }
+    .canvas-wrap {
+        position: relative;
+        height: 280px;
+        width: 100%;
+    }
+
+    /* 월간 학습 잔디 히트맵 */
+    .heatmap-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: #86868b;
+        margin-bottom: 8px;
+    }
+    .heatmap-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+    }
+    .heatmap-cell {
+        aspect-ratio: 1 / 1;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        background: #f5f5f7;
+        color: #86868b;
+    }
+    .heatmap-cell.empty {
+        background: transparent;
+    }
+    .heatmap-cell.level-1 { background: #d0ebff; color: #1864ab; }
+    .heatmap-cell.level-2 { background: #74c0fc; color: #ffffff; }
+    .heatmap-cell.level-3 { background: #228be6; color: #ffffff; }
+    .heatmap-cell.level-4 { background: #1864ab; color: #ffffff; }
+    .heatmap-cell.is-today {
+        outline: 2px solid #1d1d1f;
+        outline-offset: 1px;
+    }
+    .heatmap-hours {
+        font-size: 10px;
+        font-weight: 600;
+        margin-top: 2px;
+    }
+
+    @media (max-width: 900px) {
+        .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        .charts-two-col { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 상단 헤더 -->
+<section class="stats-header">
+    <div>
+        <h2 class="stats-title">{{ user_display_name }}님의 학습 통계 리포트</h2>
+        <p class="stats-subtitle">{{ today|date:"Y년 n월 j일" }} 기준 · 일과 전송된 서버 기록을 바탕으로 분석합니다.</p>
+    </div>
+    <a href="{% url 'planner:dashboard' %}" class="btn-back-planner">← 플래너로 돌아가기</a>
+</section>
+
+<!-- 핵심 요약 KPI 4개 -->
+<section class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-label">오늘 순공 시간</div>
+        <div class="kpi-value">{{ today_total_hours }}<span class="kpi-unit">시간</span></div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">최근 7일 일평균</div>
+        <div class="kpi-value">{{ weekly_avg_hours }}<span class="kpi-unit">시간</span></div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">이번 달 누적 순공</div>
+        <div class="kpi-value">{{ monthly_total_hours }}<span class="kpi-unit">시간 ({{ active_days }}일)</span></div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-label">오늘 To-Do 달성률</div>
+        <div class="kpi-value">{{ todo_avg_rate }}<span class="kpi-unit">%</span></div>
+    </div>
+</section>
+
+<!-- 일별 · 주별 · 월별 전환 탭 -->
+<div class="period-tabs">
+    <button type="button" class="period-tab-btn active" onclick="switchStatsTab('daily', this)">일별 분석</button>
+    <button type="button" class="period-tab-btn" onclick="switchStatsTab('weekly', this)">주별 누적</button>
+    <button type="button" class="period-tab-btn" onclick="switchStatsTab('monthly', this)">월별 추이</button>
+</div>
+
+<!-- 1. 일별 패널 -->
+<section id="panel-daily" class="tab-panel active">
+    <div class="charts-two-col">
+        <div class="chart-card">
+            <h3 class="chart-card-title">오늘 과목별 순공 비율 (분)</h3>
+            <div class="canvas-wrap">
+                <canvas id="dailyDonutChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3 class="chart-card-title">계획 시간 vs 실제 순공 시간 (분)</h3>
+            <div class="canvas-wrap">
+                <canvas id="dailyCompareChart"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 2. 주별 패널 -->
+<section id="panel-weekly" class="tab-panel">
+    <div class="chart-card">
+        <h3 class="chart-card-title">최근 7일 요일별 · 과목별 누적 순공 시간 (시간)</h3>
+        <div class="canvas-wrap" style="height: 340px;">
+            <canvas id="weeklyStackedChart"></canvas>
+        </div>
+    </div>
+</section>
+
+<!-- 3. 월별 패널 -->
+<section id="panel-monthly" class="tab-panel">
+    <div class="charts-two-col">
+        <div class="chart-card">
+            <h3 class="chart-card-title">{{ today.year }}년 {{ today.month }}월 학습 잔디 캘린더</h3>
+            <div class="heatmap-weekdays">
+                <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+            </div>
+            <div class="heatmap-grid" id="monthly-heatmap-grid"></div>
+        </div>
+        <div class="chart-card">
+            <h3 class="chart-card-title">이번 달 주차별 과목 투자 추이 (시간)</h3>
+            <div class="canvas-wrap">
+                <canvas id="monthlyTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script id="stats-data-json" type="application/json">{{ stats_json|safe }}</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    function switchStatsTab(tabName, btn) {
+        document.querySelectorAll('.period-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('panel-' + tabName).classList.add('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const data = JSON.parse(document.getElementById('stats-data-json').textContent || '{}');
+        const subjects = data.subjects || ['국어', '수학', '영어', '과탐', '사탐'];
+        const subjectColors = {
+            '국어': '#fdd835',
+            '수학': '#26c6da',
+            '영어': '#ffa726',
+            '과탐': '#66bb6a',
+            '사탐': '#ec407a'
+        };
+        const colorList = subjects.map(s => subjectColors[s]);
+
+        // 1. 일별 도넛 차트
+        new Chart(document.getElementById('dailyDonutChart'), {
+            type: 'doughnut',
+            data: {
+                labels: subjects,
+                datasets: [{
+                    data: data.daily.actual_min,
+                    backgroundColor: colorList,
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // 2. 일별 계획 vs 실제 비교 차트
+        new Chart(document.getElementById('dailyCompareChart'), {
+            type: 'bar',
+            data: {
+                labels: subjects,
+                datasets: [
+                    {
+                        label: '계획 시간(분)',
+                        data: data.daily.plan_min,
+                        backgroundColor: 'rgba(134, 134, 139, 0.25)',
+                        borderRadius: 6
+                    },
+                    {
+                        label: '실제 순공(분)',
+                        data: data.daily.actual_min,
+                        backgroundColor: colorList,
+                        borderRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // 3. 주별 누적 막대 차트
+        new Chart(document.getElementById('weeklyStackedChart'), {
+            type: 'bar',
+            data: {
+                labels: data.weekly.labels,
+                datasets: subjects.map(s => ({
+                    label: s,
+                    data: data.weekly.by_subject[s],
+                    backgroundColor: subjectColors[s],
+                    borderRadius: 4
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true }
+                },
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // 4. 월별 학습 잔디 렌더링
+        const heatmapGrid = document.getElementById('monthly-heatmap-grid');
+        if (heatmapGrid && data.monthly && data.monthly.calendar_cells) {
+            heatmapGrid.innerHTML = data.monthly.calendar_cells.map(cell => {
+                if (cell.empty) return `<div class="heatmap-cell empty"></div>`;
+                return `
+                    <div class="heatmap-cell level-${cell.level} ${cell.is_today ? 'is-today' : ''}" title="${cell.day}일: ${cell.hours}시간">
+                        <span>${cell.day}</span>
+                        ${cell.hours > 0 ? `<span class="heatmap-hours">${cell.hours}h</span>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 5. 월별 주차별 추이 꺾은선 차트
+        new Chart(document.getElementById('monthlyTrendChart'), {
+            type: 'line',
+            data: {
+                labels: ['1주차', '2주차', '3주차', '4주차', '5주차'],
+                datasets: subjects.map(s => ({
+                    label: s,
+                    data: data.monthly.weekly_trend[s],
+                    borderColor: subjectColors[s],
+                    backgroundColor: subjectColors[s],
+                    tension: 0.3,
+                    fill: false
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    });
+</script>
+{% endblock %}

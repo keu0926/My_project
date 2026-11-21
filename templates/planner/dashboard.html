@@ -2,13 +2,19 @@
 
 {% block extra_css %}
 <style>
-    /* 좌측(240px 타임테이블)과 우측(나머지 전체 투두리스트) 24px 간격 및 높이 일치 */
+/* PC/태블릿 가로: 좌측 1(약 33.3%) : 우측 2(약 66.6%) 비율 */
     .planner-content-grid {
         display: grid;
-        grid-template-columns: 240px 1fr;
+        grid-template-columns: 2fr 5fr;
         gap: 24px;
         align-items: stretch;
         margin-bottom: 24px;
+    }
+
+    /* ★ 핵심: 그리드 자식 요소가 내부 긴 텍스트 때문에 우측으로 끝없이 늘어나는 현상 방지 */
+    .planner-content-grid > * {
+        min-width: 0;
+        max-width: 100%;
     }
 
     /* 하단 제어 버튼 묶음 영역 */
@@ -31,13 +37,54 @@
         margin-bottom: 8px;
         letter-spacing: 0.02em;
     }
-    .action-buttons-wrap {
+.action-buttons-wrap {
         display: flex;
-        gap: 8px;
+        gap: 10px;
         flex-wrap: wrap;
         align-items: center;
     }
+
+    /* 통계 페이지 탭과 동일한 애플 스타일 세그먼트 토글 트랙 */
+    .toggle-track {
+        display: inline-flex;
+        background: #f2f2f7;
+        padding: 4px;
+        border-radius: 980px;
+        gap: 2px;
+    }
+
     .plan-btn {
+        padding: 7px 15px;
+        border-radius: 980px;
+        font-size: 13.5px;
+        font-weight: 600;
+        border: none;
+        background: transparent;
+        color: #6e6e73;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+
+    .plan-btn:hover:not(.active) {
+        color: #1d1d1f;
+    }
+    
+    /* 선택(활성화)된 토글 버튼: 하얀 알약이 떠오르는 효과 */
+    .plan-btn.active {
+        background: #ffffff;
+        color: #1d1d1f;
+        font-weight: 800;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 수정 모드 활성화 시 오렌지 포인트 강조 */
+    #btn-mode-edit.active {
+        background: #ff9500;
+        color: #ffffff;
+    }
+
+    /* 우측 단독 버튼(오늘 초기화, 통계)용 스타일 유지 */
+    .action-pill-btn {
         padding: 8px 16px;
         border-radius: 980px;
         font-size: 13.5px;
@@ -48,15 +95,11 @@
         cursor: pointer;
         transition: all 0.2s ease;
     }
-    .plan-btn:hover {
+    .action-pill-btn:hover {
         border-color: #0071e3;
         color: #0071e3;
     }
-    .plan-btn.active {
-        background: #1d1d1f;
-        color: #ffffff;
-        border-color: #1d1d1f;
-    }
+
     .btn-submit-day {
         background: #0071e3;
         color: #ffffff;
@@ -72,15 +115,53 @@
         background: #0077ed;
     }
 
+    /* 애플 스타일 토스트 알림 */
+    .apple-toast {
+        position: fixed;
+        bottom: 36px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        background: rgba(29, 29, 31, 0.88);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        color: #ffffff;
+        padding: 12px 24px;
+        border-radius: 980px;
+        font-size: 14px;
+        font-weight: 600;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .apple-toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .apple-toast.error {
+        background: rgba(255, 59, 48, 0.92);
+    }
+
+
+
+/* 모바일 및 세로 모드(900px 이하): 1열로 쌓이면서 좌우 100% 꽉 차게 배치 */
     @media (max-width: 900px) {
         .planner-content-grid {
             grid-template-columns: 1fr;
         }
-        .timetable-card {
+        .timetable-card,
+        .todo-card {
             width: 100%;
         }
     }
 </style>
+
 {% endblock %}
 
 {% block content %}
@@ -101,33 +182,46 @@
     <div>
         <div class="btn-group-label">과목 및 모드 제어 도구</div>
         <div class="action-buttons-wrap">
-            <button type="button" class="plan-btn active" onclick="selectSubject('국어', this)">국어</button>
-            <button type="button" class="plan-btn" onclick="selectSubject('수학', this)">수학</button>
-            <button type="button" class="plan-btn" onclick="selectSubject('영어', this)">영어</button>
-            <button type="button" class="plan-btn" onclick="selectSubject('과탐', this)">과탐</button>
-            <button type="button" class="plan-btn" onclick="selectSubject('사탐', this)">사탐</button>
+            <!-- 1. 과목 선택 토글 트랙 -->
+            <div class="toggle-track">
+                <button type="button" class="plan-btn active" onclick="selectSubject('국어', this)">국어</button>
+                <button type="button" class="plan-btn" onclick="selectSubject('수학', this)">수학</button>
+                <button type="button" class="plan-btn" onclick="selectSubject('영어', this)">영어</button>
+                <button type="button" class="plan-btn" onclick="selectSubject('과탐', this)">과탐</button>
+                <button type="button" class="plan-btn" onclick="selectSubject('사탐', this)">사탐</button>
+            </div>
             
-            <span style="border-left: 1px solid #d2d2d7; height: 16px; margin: 0 4px;"></span>
+            <!-- 2. 개별공부 / 정규수업 토글 트랙 -->
+            <div class="toggle-track">
+                <button type="button" class="plan-btn active" id="type-study-btn" onclick="selectType('study', this)">개별공부</button>
+                <button type="button" class="plan-btn" id="type-class-btn" onclick="selectType('class', this)">정규수업</button>
+            </div>
             
-            <button type="button" class="plan-btn active" id="type-study-btn" onclick="selectType('study', this)">개별공부</button>
-            <button type="button" class="plan-btn" id="type-class-btn" onclick="selectType('class', this)">정규수업</button>
-            
-            <span style="border-left: 1px solid #d2d2d7; height: 16px; margin: 0 4px;"></span>
-            
-            <button type="button" class="plan-btn" id="btn-mode-exec" onclick="setPlannerMode('exec')">실행 모드</button>
-            <button type="button" class="plan-btn active" id="btn-mode-edit" onclick="setPlannerMode('edit')">수정 모드</button>
+            <!-- 3. 실행 모드 / 수정 모드 토글 트랙 -->
+            <div class="toggle-track">
+                <button type="button" class="plan-btn" id="btn-mode-exec" onclick="setPlannerMode('exec')">실행 모드</button>
+                <button type="button" class="plan-btn active" id="btn-mode-edit" onclick="setPlannerMode('edit')">수정 모드</button>
+            </div>
         </div>
     </div>
     
     <div>
         <div class="btn-group-label" style="text-align: right;">데이터 전송 및 통계</div>
         <div class="action-buttons-wrap">
-            <button type="button" class="plan-btn" style="color: #ff3b30; border-color: #ffd5d2;" onclick="resetTodayPlanner()">오늘 초기화</button>
-            <a href="#" class="plan-btn" style="text-decoration: none; line-height: 1.4;">통계</a>
+            <button type="button" class="action-pill-btn" style="color: #ff3b30; border-color: #ffd5d2;" onclick="resetTodayPlanner()">오늘 초기화</button>
+            <a href="{% url 'planner:stats' %}" class="action-pill-btn" style="text-decoration: none; line-height: 1.4;">통계</a>
             <button type="button" class="btn-submit-day" onclick="submitDailyPlanner()">일과 전송</button>
         </div>
     </div>
 </section>
+
+<!-- 5. 오늘의 수업 시간표 (토탈스케줄 연동) -->
+{% include 'planner/partials/_today_classes.html' %}
+
+<!-- 토스트 알림 컨테이너 -->
+<div id="apple-toast" class="apple-toast"></div>
+
+
 
 <!-- 서버에서 넘어온 JSON 데이터 블록 -->
 <script id="server-timetable-data" type="application/json">{{ saved_timetable_json|default:"{}"|safe }}</script>
@@ -298,15 +392,30 @@ function submitDailyPlanner() {
         })
         .then(data => {
             if (data.status === 'success') {
-                alert(`${data.message} (저장 시각: ${data.updated_at})`);
+                showToast(`${data.message} (${data.updated_at})`);
             } else {
-                alert('저장 실패: ' + data.message);
+                showToast('저장 실패: ' + data.message, true);
             }
         })
         .catch(err => {
-            alert('전송 실패 원인: ' + err.message);
+            showToast('전송 실패: ' + err.message, true);
             console.error(err);
         });
+    }
+
+let toastTimer = null;
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('apple-toast');
+        if (!toast) return;
+
+        toast.textContent = (isError ? '⚠️ ' : '✓ ') + message;
+        toast.classList.toggle('error', isError);
+        toast.classList.add('show');
+
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2500); // 2.5초 후 자동으로 사라짐
     }
 </script>
 {% endblock %}

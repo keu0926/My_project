@@ -24,6 +24,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main',
     'planner',  # ★ 학습 플래너 전용 앱
+    'total_schedule',
+    'academy_admin',
 ]
 
 MIDDLEWARE = [

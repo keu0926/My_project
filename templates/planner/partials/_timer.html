@@ -90,13 +90,28 @@
         gap: 8px;
     }
     .t-btn {
-        padding: 8px 16px;
-        border-radius: 980px;
-        font-size: 13px;
-        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%; /* 완벽한 원형 */
+        padding: 0;
         border: none;
         cursor: pointer;
-        transition: all 0.15s ease;
+        transition: transform 0.15s cubic-bezier(0.25, 0.1, 0.25, 1), background-color 0.2s ease, opacity 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    /* 애플 특유의 쫀득한 클릭감 */
+    .t-btn:active:not(:disabled) {
+        transform: scale(0.92);
+    }
+
+    .t-btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+        box-shadow: none;
     }
     .t-btn:disabled {
         opacity: 0.35;
@@ -176,9 +191,21 @@
         <div class="timer-main-controls">
             <div class="timer-display" id="stopwatch-display">00:00:00</div>
             <div class="timer-btn-wrap">
-                <button type="button" class="t-btn t-btn-start" id="btn-timer-start">시작</button>
-                <button type="button" class="t-btn t-btn-pause" id="btn-timer-pause" disabled>잠시 멈춤</button>
-                <button type="button" class="t-btn t-btn-stop" id="btn-timer-stop" disabled>종료</button>
+                <button type="button" class="t-btn t-btn-start" id="btn-timer-start" title="시작 / 계속" aria-label="시작">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </button>
+                <button type="button" class="t-btn t-btn-pause" id="btn-timer-pause" title="잠시 멈춤" aria-label="잠시 멈춤" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                    </svg>
+                </button>
+                <button type="button" class="t-btn t-btn-stop" id="btn-timer-stop" title="종료 및 기록" aria-label="종료" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 6h12v12H6z"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
