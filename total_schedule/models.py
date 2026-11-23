@@ -69,7 +69,7 @@ class ClassSlot(models.Model):
         ordering = ['day_of_week', 'period__order', 'id']
 
     def __str__(self):
-        return f"{self.get_day_of_week_display()} {self.period.get_code_display()} - {self.subject} {self.teacher_name} {self.class_name}"
+        return f"[{self.season.name}] {self.get_day_of_week_display()} {self.period.name} - {self.subject} ({self.teacher_name} {self.class_name})"
 
 
 class StudentEnrollment(models.Model):

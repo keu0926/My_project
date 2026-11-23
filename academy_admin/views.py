@@ -50,7 +50,14 @@ def manage_schedule_view(request):
         _ensure_season_periods(default_season)
         seasons = ScheduleSeason.objects.all()
 
-    season_id = request.GET.get('season') or request.POST.get('season_id')
+    payload = {}
+    if request.method == 'POST' and request.body:
+        try:
+            payload = json.loads(request.body.decode('utf-8'))
+        except Exception:
+            payload = {}
+
+    season_id = request.GET.get('season') or request.POST.get('season_id') or payload.get('season_id')
     if season_id:
         current_season = ScheduleSeason.objects.filter(id=season_id).first() or seasons.first()
     else:
@@ -60,7 +67,6 @@ def manage_schedule_view(request):
 
     if request.method == 'POST':
         try:
-            payload = json.loads(request.body.decode('utf-8'))
             action = payload.get('action')
 
             if action == 'create_season':
@@ -278,7 +284,15 @@ def manage_schedule_view(request):
 def student_enroll_view(request):
     """관리자 전용: 회원 가입한 학생별 수강 반 배정 및 동시간대 충돌 검증"""
     seasons = ScheduleSeason.objects.all()
-    season_id = request.GET.get('season') or request.POST.get('season_id')
+
+    payload = {}
+    if request.method == 'POST' and request.body:
+        try:
+            payload = json.loads(request.body.decode('utf-8'))
+        except Exception:
+            payload = {}
+
+    season_id = request.GET.get('season') or request.POST.get('season_id') or payload.get('season_id')
     if season_id:
         current_season = ScheduleSeason.objects.filter(id=season_id).first() or seasons.first()
     else:
@@ -288,7 +302,7 @@ def student_enroll_view(request):
         return render(request, 'academy_admin/student_enroll.html', {'no_season': True})
 
     students = list(User.objects.filter(is_staff=False, is_superuser=False).order_by('first_name', 'username'))
-    selected_student_id = request.GET.get('student') or request.POST.get('student_id')
+    selected_student_id = request.GET.get('student') or request.POST.get('student_id') or payload.get('student_id')
     current_student = None
     if students:
         if selected_student_id:
@@ -319,7 +333,6 @@ def student_enroll_view(request):
 
     if request.method == 'POST' and current_student:
         try:
-            payload = json.loads(request.body.decode('utf-8'))
             action = payload.get('action')
 
             if action == 'enroll':
