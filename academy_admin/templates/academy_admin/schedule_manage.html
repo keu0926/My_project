@@ -126,6 +126,7 @@
             font-size: 13px;
             color: #6e6e73;
         }
+        .selection-actions { display: inline-flex; gap: 8px; align-items: center; }
         .schedule-table {
             width: 100%;
             min-width: 1020px;
@@ -162,7 +163,9 @@
             height: 70px;
             cursor: pointer;
             transition: background-color 0.12s ease;
-            touch-action: none;
+            /* 터치 화면에서도 표를 손가락으로 스크롤할 수 있도록 허용
+               (터치에서는 칸을 눌러서 선택하고, 드래그 선택은 마우스에서만 동작) */
+            touch-action: pan-x pan-y;
         }
         .slot-cell:hover { background: #f0f7ff; }
         .slot-cell.selecting {
@@ -279,7 +282,7 @@
     <section class="control-card">
         <div>
             <h1 class="page-title">학원 토탈스케줄 편성</h1>
-            <p class="page-sub">빈 칸을 클릭하거나 드래그(스와이프)해 과목·강사·반명을 배정하세요. 좌측 교시 칸을 누르면 시간을 자유롭게 수정할 수 있습니다.</p>
+            <p class="page-sub">빈 칸을 클릭하거나 드래그해 과목·강사·반명을 배정하세요. (모바일/태블릿은 칸을 눌러 여러 개 선택) 좌측 교시 칸을 누르면 시간을 자유롭게 수정할 수 있습니다.</p>
         </div>
 
         <div class="season-bar">
@@ -302,10 +305,13 @@
 
     <section class="board-card">
         <div class="guide-bar">
-            <span>💡 <b>입력 방법:</b> 칸을 클릭하거나 여러 교시를 드래그/스와이프한 뒤 손을 떼면 입력창이 열립니다. (좌측 교시 클릭 시 시간 즉시 수정)</span>
-            <button type="button" class="pill-btn primary" id="btn-open-selected" style="display:none;" onclick="openSlotInputModal()">
-                선택한 <span id="selected-count-badge">0</span>칸 입력하기
-            </button>
+            <span>💡 <b>입력 방법:</b> PC는 칸을 클릭하거나 여러 교시를 드래그한 뒤 손을 떼면 입력창이 열립니다. 모바일/태블릿은 칸을 눌러 선택(다시 누르면 해제)한 뒤 오른쪽 [입력하기] 버튼을 누르세요. (좌측 교시 클릭 시 시간 즉시 수정)</span>
+            <span class="selection-actions" id="selection-actions" style="display:none;">
+                <button type="button" class="pill-btn" onclick="clearSelection()">선택 해제</button>
+                <button type="button" class="pill-btn primary" id="btn-open-selected" onclick="openSlotInputModal()">
+                    선택한 <span id="selected-count-badge">0</span>칸 입력하기
+                </button>
+            </span>
         </div>
 
         <table class="schedule-table" id="admin-timetable-grid">
@@ -487,6 +493,7 @@
     const CSRF_TOKEN = '{{ csrf_token }}';
     const CURRENT_SEASON_ID = {{ current_season.id }};
     let isDragging = false;
+    let lastPointerType = 'mouse';
     let selectedCells = new Map();
 
     function openModal(id) { document.getElementById(id).classList.add('open'); }
@@ -498,6 +505,7 @@
         updateSelectionBadge();
     }
 
+    // 선택에 추가 (마우스 드래그용)
     function toggleCellSelection(cell) {
         const key = `${cell.dataset.day}-${cell.dataset.periodId}`;
         if (!selectedCells.has(key)) {
@@ -507,15 +515,32 @@
         updateSelectionBadge();
     }
 
+    // 선택/해제 번갈아 (터치 탭용)
+    function tapToggleCellSelection(cell) {
+        const key = `${cell.dataset.day}-${cell.dataset.periodId}`;
+        if (selectedCells.has(key)) {
+            selectedCells.delete(key);
+            cell.classList.remove('selecting');
+        } else {
+            selectedCells.set(key, { day: parseInt(cell.dataset.day), period_id: parseInt(cell.dataset.periodId) });
+            cell.classList.add('selecting');
+        }
+        updateSelectionBadge();
+    }
+
     function updateSelectionBadge() {
-        const btn = document.getElementById('btn-open-selected');
+        const actions = document.getElementById('selection-actions');
         const badge = document.getElementById('selected-count-badge');
         badge.textContent = selectedCells.size;
-        btn.style.display = selectedCells.size > 0 ? 'inline-block' : 'none';
+        actions.style.display = selectedCells.size > 0 ? 'inline-flex' : 'none';
     }
 
     const grid = document.getElementById('admin-timetable-grid');
+
     grid.addEventListener('pointerdown', (e) => {
+        lastPointerType = e.pointerType;
+        // 터치는 스크롤을 방해하지 않도록 탭(click)으로 선택합니다.
+        if (e.pointerType === 'touch') return;
         if (e.target.closest('.slot-del-btn')) return;
         const cell = e.target.closest('.slot-cell');
         if (!cell) return;
@@ -539,7 +564,16 @@
         }
     });
 
+    grid.addEventListener('click', (e) => {
+        if (lastPointerType !== 'touch') return;
+        if (e.target.closest('.slot-del-btn')) return;
+        const cell = e.target.closest('.slot-cell');
+        if (!cell) return;
+        tapToggleCellSelection(cell);
+    });
+
     function openSlotInputModal() {
+        if (selectedCells.size === 0) return;
         document.getElementById('modal-target-summary').textContent = `선택된 ${selectedCells.size}개 교시`;
         openModal('slot-modal');
     }
@@ -550,14 +584,26 @@
         document.getElementById('input-classname').value = className;
     }
 
+    // 서버가 JSON이 아닌 응답(로그인 만료, 서버 오류 화면 등)을 주거나 통신이 끊겨도 안내가 뜨도록 처리
     async function postAdminAction(payload) {
         payload.season_id = CURRENT_SEASON_ID;
-        const res = await fetch(window.location.pathname, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-            body: JSON.stringify(payload)
-        });
-        return res.json();
+        try {
+            const res = await fetch(window.location.pathname, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+                body: JSON.stringify(payload)
+            });
+            const contentType = res.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) {
+                const message = (res.status === 403 || res.redirected)
+                    ? '권한이 없거나 로그인이 만료되었습니다. 새로고침 후 다시 로그인해 주세요.'
+                    : `서버 응답을 처리하지 못했습니다. (HTTP ${res.status})`;
+                return { status: 'error', message: message };
+            }
+            return await res.json();
+        } catch (err) {
+            return { status: 'error', message: '서버와 통신하지 못했습니다. 네트워크 상태를 확인해 주세요.' };
+        }
     }
 
     async function submitClassSlots(confirmMerged) {
@@ -585,11 +631,24 @@
         else alert(data.message);
     }
 
-    async function deleteClassSlot(e, slotId) {
+    async function deleteClassSlot(e, slotId, confirmUnenroll) {
         e.stopPropagation();
-        if (!confirm('이 수업을 시간표에서 삭제하시겠습니까?')) return;
-        const data = await postAdminAction({ action: 'delete_slot', slot_id: slotId });
+        if (!confirmUnenroll && !confirm('이 수업을 시간표에서 삭제하시겠습니까?')) return;
+
+        const data = await postAdminAction({
+            action: 'delete_slot',
+            slot_id: slotId,
+            confirm_unenroll: !!confirmUnenroll
+        });
+
+        if (data.status === 'confirm_unenroll') {
+            if (confirm(data.message)) {
+                return deleteClassSlot(e, slotId, true);
+            }
+            return;
+        }
         if (data.status === 'success') location.reload();
+        else alert(data.message);
     }
 
     function calcSpDuration() {
@@ -625,13 +684,23 @@
         else alert(data.message);
     }
 
-    async function deleteSinglePeriod() {
-        if (!confirm('이 교시 행을 삭제하시겠습니까? 해당 교시에 배정된 수업도 함께 삭제됩니다.')) return;
+    async function deleteSinglePeriod(confirmUnenroll) {
+        if (!confirmUnenroll && !confirm('이 교시 행을 삭제하시겠습니까? 해당 교시에 배정된 수업도 함께 삭제됩니다.')) return;
+
         const data = await postAdminAction({
             action: 'delete_period',
-            period_id: parseInt(document.getElementById('sp-id').value)
+            period_id: parseInt(document.getElementById('sp-id').value),
+            confirm_unenroll: !!confirmUnenroll
         });
+
+        if (data.status === 'confirm_unenroll') {
+            if (confirm(data.message)) {
+                return deleteSinglePeriod(true);
+            }
+            return;
+        }
         if (data.status === 'success') location.reload();
+        else alert(data.message);
     }
 
     async function addNewPeriodRow() {
@@ -675,6 +744,8 @@
         if (data.status === 'success') {
             alert(data.message);
             location.reload();
+        } else {
+            alert(data.message);
         }
     }
 </script>
