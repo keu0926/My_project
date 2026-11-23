@@ -1,13 +1,17 @@
 import json
+import logging
 from datetime import time
+
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
-from django.db import models
+from django.db import transaction
+from django.db.models import Max, Q
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 
 from total_schedule.models import ScheduleSeason, PeriodConfig, ClassSlot, StudentEnrollment
 
+logger = logging.getLogger(__name__)
 User = get_user_model()
 
 DEFAULT_PERIODS = [
@@ -27,13 +31,373 @@ DEFAULT_PERIODS = [
     ('12교시', False, 14, time(22, 0), time(23, 0)),
 ]
 
+VALID_DAYS = {value for value, _label in ClassSlot.DAY_CHOICES}
+VALID_SUBJECTS = {value for value, _label in ClassSlot.SUBJECT_CHOICES}
+DAY_NAMES = ['월', '화', '수', '목', '금', '토', '일']
+
+MAX_SLOT_TARGETS = 300          # 한 번에 배정할 수 있는 칸 수
+MAX_TEACHERS_PER_CELL = 10      # 동일 요일·교시에 배치 가능한 최대 강사 수
+LAST_MINUTE_OF_DAY = 23 * 60 + 59
+
+
+class ActionError(Exception):
+    """사용자에게 그대로 보여줄 수 있는 입력 오류.
+    처리 중이던 DB 변경은 모두 취소(롤백)됩니다."""
+
+    def __init__(self, message, status=400):
+        super().__init__(message)
+        self.message = message
+        self.status = status
+
+
+# ---------------------------------------------------------------------------
+# 공통 도구
+# ---------------------------------------------------------------------------
+def _run_action(handler, *args):
+    """한 번의 요청에서 일어나는 모든 DB 변경을 하나의 트랜잭션으로 묶어 실행합니다.
+    중간에 오류가 나면 일부만 저장되지 않고 전부 취소됩니다."""
+    try:
+        with transaction.atomic():
+            return handler(*args)
+    except ActionError as exc:
+        return JsonResponse({'status': 'error', 'message': exc.message}, status=exc.status)
+    except Exception:
+        # 내부 오류 문구는 화면에 내보내지 않고 서버 로그에만 남깁니다.
+        logger.exception('academy_admin 요청 처리 중 오류')
+        return JsonResponse(
+            {'status': 'error', 'message': '처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'},
+            status=500,
+        )
+
+
+def _read_payload(request):
+    if request.method == 'POST' and request.body:
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            return data if isinstance(data, dict) else {}
+        except (ValueError, UnicodeDecodeError):
+            return {}
+    return {}
+
+
+def _pick_season(request, payload, seasons):
+    season_id = request.GET.get('season') or request.POST.get('season_id') or payload.get('season_id')
+    if season_id:
+        try:
+            found = seasons.filter(id=int(season_id)).first()
+        except (TypeError, ValueError):
+            found = None
+        return found or seasons.first()
+    return seasons.filter(is_active=True).first() or seasons.first()
+
+
+def _to_int(value, label):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        raise ActionError(f'{label} 값이 올바르지 않습니다.')
+
+
+def _parse_hhmm(value):
+    try:
+        hour_str, minute_str = str(value).split(':')[:2]
+        return time(int(hour_str), int(minute_str))
+    except (ValueError, TypeError):
+        raise ActionError('시각은 HH:MM 형식(00:00~23:59)으로 입력해 주세요.')
+
+
+def _minutes(t):
+    return t.hour * 60 + t.minute
+
+
+def _parse_time_range(start_value, end_value):
+    start = _parse_hhmm(start_value)
+    end = _parse_hhmm(end_value)
+    if _minutes(end) <= _minutes(start):
+        raise ActionError('종료 시각은 시작 시각보다 늦어야 합니다.')
+    return start, end
+
+
+def _day_label(day_idx):
+    return DAY_NAMES[day_idx] if 0 <= day_idx < len(DAY_NAMES) else '?'
+
 
 def _ensure_season_periods(season):
-    if not season.periods.exists():
-        PeriodConfig.objects.bulk_create([
-            PeriodConfig(season=season, name=name, is_break=is_brk, order=order, start_time=st, end_time=et)
-            for name, is_brk, order, st, et in DEFAULT_PERIODS
-        ])
+    with transaction.atomic():
+        if not season.periods.exists():
+            PeriodConfig.objects.bulk_create([
+                PeriodConfig(season=season, name=name, is_break=is_brk, order=order, start_time=st, end_time=et)
+                for name, is_brk, order, st, et in DEFAULT_PERIODS
+            ])
+
+
+def _orphaned_enrollments(season, removing_slots):
+    """삭제하려는 수업 칸(removing_slots)이 사라지면 시간표 어디에도 남지 않게 되는 반을
+    수강 중인 학생 배정(StudentEnrollment) 목록을 돌려줍니다.
+    (수강 배정은 과목·강사명·반명 문자열로 수업과 연결되어 있어서, 수업이 모두 사라지면 고아가 됩니다.)"""
+    removed_ids = list(removing_slots.values_list('id', flat=True))
+    if not removed_ids:
+        return StudentEnrollment.objects.none()
+
+    removed_keys = set(removing_slots.values_list('subject', 'teacher_name', 'class_name'))
+    remaining_keys = set(
+        ClassSlot.objects.filter(season=season)
+        .exclude(id__in=removed_ids)
+        .values_list('subject', 'teacher_name', 'class_name')
+    )
+    orphan_keys = removed_keys - remaining_keys
+    if not orphan_keys:
+        return StudentEnrollment.objects.none()
+
+    condition = Q()
+    for subject, teacher_name, class_name in orphan_keys:
+        condition |= Q(subject=subject, teacher_name=teacher_name, class_name=class_name)
+    return StudentEnrollment.objects.filter(season=season).filter(condition)
+
+
+# ---------------------------------------------------------------------------
+# 1. 토탈스케줄 편성
+# ---------------------------------------------------------------------------
+def _handle_schedule_action(payload, current_season):
+    action = payload.get('action')
+
+    if action == 'create_season':
+        name = str(payload.get('name', '')).strip()[:100]
+        if not name:
+            raise ActionError('시즌 이름을 입력해 주세요.')
+
+        set_active = bool(payload.get('set_active', True))
+        new_season = ScheduleSeason.objects.create(name=name, is_active=set_active)
+        if set_active:
+            ScheduleSeason.objects.exclude(id=new_season.id).update(is_active=False)
+
+        copy_from_id = payload.get('copy_from_id')
+        if copy_from_id:
+            src = ScheduleSeason.objects.filter(id=_to_int(copy_from_id, '복사할 시즌')).first()
+            if src:
+                period_map = {}
+                for p in src.periods.all():
+                    period_map[p.id] = PeriodConfig.objects.create(
+                        season=new_season, name=p.name, is_break=p.is_break, order=p.order,
+                        start_time=p.start_time, end_time=p.end_time,
+                    )
+                ClassSlot.objects.bulk_create([
+                    ClassSlot(
+                        season=new_season, day_of_week=s.day_of_week, period=period_map[s.period_id],
+                        subject=s.subject, teacher_user=s.teacher_user, teacher_name=s.teacher_name,
+                        class_name=s.class_name, is_merged=s.is_merged,
+                    )
+                    for s in src.class_slots.all() if s.period_id in period_map
+                ])
+        _ensure_season_periods(new_season)
+        return JsonResponse({'status': 'success', 'season_id': new_season.id})
+
+    if action == 'activate_season':
+        ScheduleSeason.objects.all().update(is_active=False)
+        current_season.is_active = True
+        current_season.save(update_fields=['is_active'])
+        return JsonResponse({
+            'status': 'success',
+            'message': f'[{current_season.name}] 시즌이 현재 적용 시즌으로 설정되었습니다.',
+        })
+
+    if action == 'save_periods':
+        items = payload.get('periods', [])
+        if not isinstance(items, list):
+            raise ActionError('교시 목록 형식이 올바르지 않습니다.')
+
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            p_obj = PeriodConfig.objects.filter(
+                id=_to_int(item.get('id'), '교시'), season=current_season
+            ).first()
+            if not p_obj:
+                continue
+            try:
+                start, end = _parse_time_range(item.get('start_time'), item.get('end_time'))
+            except ActionError as exc:
+                raise ActionError(f'[{p_obj.name}] {exc.message}')
+            p_obj.start_time = start
+            p_obj.end_time = end
+            p_obj.save(update_fields=['start_time', 'end_time'])
+        return JsonResponse({'status': 'success', 'message': '교시별 시간 설정이 저장되었습니다.'})
+
+    if action == 'update_single_period':
+        p_obj = PeriodConfig.objects.filter(
+            id=_to_int(payload.get('period_id'), '교시'), season=current_season
+        ).first()
+        if not p_obj:
+            raise ActionError('교시를 찾을 수 없습니다.', status=404)
+
+        start, end = _parse_time_range(payload.get('start_time'), payload.get('end_time'))
+        old_end_min = _minutes(p_obj.end_time)
+
+        p_obj.name = str(payload.get('name', p_obj.name)).strip()[:50] or p_obj.name
+        p_obj.start_time = start
+        p_obj.end_time = end
+        p_obj.save(update_fields=['name', 'start_time', 'end_time'])
+
+        diff_min = _minutes(end) - old_end_min
+        if payload.get('cascade') and diff_min != 0:
+            following = list(PeriodConfig.objects.filter(season=current_season, order__gt=p_obj.order))
+            shifted = []
+            for fp in following:
+                s_tot = _minutes(fp.start_time) + diff_min
+                e_tot = _minutes(fp.end_time) + diff_min
+                if s_tot < 0 or e_tot > LAST_MINUTE_OF_DAY:
+                    raise ActionError(
+                        '뒤 교시를 함께 밀면 하루(00:00~23:59) 범위를 벗어납니다. '
+                        '자동으로 밀기를 끄거나 시간을 줄여 주세요.'
+                    )
+                shifted.append((fp, s_tot, e_tot))
+            for fp, s_tot, e_tot in shifted:
+                fp.start_time = time(s_tot // 60, s_tot % 60)
+                fp.end_time = time(e_tot // 60, e_tot % 60)
+                fp.save(update_fields=['start_time', 'end_time'])
+
+        return JsonResponse({'status': 'success'})
+
+    if action == 'add_period':
+        name = str(payload.get('name', '')).strip()[:50] or '추가 교시'
+        start, end = _parse_time_range(payload.get('start_time'), payload.get('end_time'))
+        last_order = current_season.periods.aggregate(Max('order'))['order__max'] or 0
+        PeriodConfig.objects.create(
+            season=current_season,
+            name=name,
+            is_break=bool(payload.get('is_break', False)),
+            order=last_order + 1,
+            start_time=start,
+            end_time=end,
+        )
+        return JsonResponse({'status': 'success'})
+
+    if action == 'delete_period':
+        p_obj = PeriodConfig.objects.filter(
+            id=_to_int(payload.get('period_id'), '교시'), season=current_season
+        ).first()
+        if not p_obj:
+            raise ActionError('교시를 찾을 수 없습니다.', status=404)
+
+        slots = ClassSlot.objects.filter(season=current_season, period=p_obj)
+        orphan_ids = list(_orphaned_enrollments(current_season, slots).values_list('id', flat=True))
+        if orphan_ids and not payload.get('confirm_unenroll'):
+            return JsonResponse({
+                'status': 'confirm_unenroll',
+                'message': (
+                    f'이 교시를 삭제하면 이 교시에만 남아 있던 반을 수강 중인 학생 배정 {len(orphan_ids)}건도 '
+                    '함께 해제됩니다.\n계속하시겠습니까?'
+                ),
+            })
+
+        if orphan_ids:
+            StudentEnrollment.objects.filter(id__in=orphan_ids).delete()
+        p_obj.delete()  # 이 교시의 수업 칸은 함께 삭제됩니다.
+        return JsonResponse({'status': 'success'})
+
+    if action == 'add_slots':
+        subject = str(payload.get('subject', '')).strip()
+        teacher_name = str(payload.get('teacher_name', '')).strip()[:50]
+        class_name = str(payload.get('class_name', '')).strip()[:100]
+        confirm_merged = bool(payload.get('confirm_merged', False))
+        targets_raw = payload.get('targets', [])
+
+        if not isinstance(targets_raw, list) or not targets_raw or not class_name:
+            raise ActionError('교시를 선택하고 반명(또는 활동명)을 입력해 주세요.')
+        if subject not in VALID_SUBJECTS:
+            raise ActionError('과목이 올바르지 않습니다.')
+        if len(targets_raw) > MAX_SLOT_TARGETS:
+            raise ActionError(f'한 번에 배정할 수 있는 칸은 최대 {MAX_SLOT_TARGETS}개입니다.')
+
+        targets = []
+        seen = set()
+        for t in targets_raw:
+            if not isinstance(t, dict):
+                raise ActionError('선택한 칸 정보가 올바르지 않습니다.')
+            day = _to_int(t.get('day'), '요일')
+            pid = _to_int(t.get('period_id'), '교시')
+            if day not in VALID_DAYS:
+                raise ActionError('요일이 올바르지 않습니다.')
+            if (day, pid) in seen:
+                continue
+            seen.add((day, pid))
+            targets.append((day, pid))
+
+        period_ids = {pid for _day, pid in targets}
+        periods = {p.id: p for p in PeriodConfig.objects.filter(season=current_season, id__in=period_ids)}
+        if len(periods) != len(period_ids):
+            raise ActionError('현재 시즌에 없는 교시가 포함되어 있습니다. 새로고침 후 다시 시도해 주세요.')
+
+        conflict_details = []
+        for day, pid in targets:
+            existing_qs = ClassSlot.objects.filter(season=current_season, day_of_week=day, period_id=pid)
+            if existing_qs.count() >= MAX_TEACHERS_PER_CELL:
+                raise ActionError('동일한 요일과 시간대에는 최대 10명 강사까지만 배치할 수 있습니다.')
+
+            if teacher_name:
+                same_teacher = existing_qs.filter(teacher_name=teacher_name).first()
+                if same_teacher:
+                    day_label = dict(ClassSlot.DAY_CHOICES).get(day, '')
+                    conflict_details.append(
+                        f"{day_label} {periods[pid].name} ({same_teacher.subject} {same_teacher.class_name})"
+                    )
+
+        if conflict_details and not confirm_merged:
+            return JsonResponse({
+                'status': 'confirm_merge',
+                'message': (
+                    f"같은 시간대에 [{teacher_name}] 선생님이 이미 배치되어 있습니다.\n"
+                    f"({', '.join(conflict_details)})\n\n합반입니까?"
+                ),
+            })
+
+        created_count = 0
+        for day, pid in targets:
+            period_obj = periods[pid]
+
+            is_merged_flag = False
+            if teacher_name:
+                existing_same = ClassSlot.objects.filter(
+                    season=current_season, day_of_week=day, period=period_obj, teacher_name=teacher_name
+                )
+                if existing_same.exists():
+                    is_merged_flag = True
+                    existing_same.update(is_merged=True)
+
+            ClassSlot.objects.create(
+                season=current_season,
+                day_of_week=day,
+                period=period_obj,
+                subject=subject,
+                teacher_name=teacher_name,
+                class_name=class_name,
+                is_merged=is_merged_flag,
+            )
+            created_count += 1
+
+        return JsonResponse({'status': 'success', 'message': f'{created_count}개 시간대에 수업이 등록되었습니다.'})
+
+    if action == 'delete_slot':
+        slot_qs = ClassSlot.objects.filter(id=_to_int(payload.get('slot_id'), '수업'), season=current_season)
+        if not slot_qs.exists():
+            raise ActionError('수업을 찾을 수 없습니다. 새로고침 후 다시 시도해 주세요.', status=404)
+
+        orphan_ids = list(_orphaned_enrollments(current_season, slot_qs).values_list('id', flat=True))
+        if orphan_ids and not payload.get('confirm_unenroll'):
+            return JsonResponse({
+                'status': 'confirm_unenroll',
+                'message': (
+                    f'이 수업을 삭제하면 이 반을 수강 중인 학생 배정 {len(orphan_ids)}건도 함께 해제됩니다.\n'
+                    '계속하시겠습니까?'
+                ),
+            })
+
+        if orphan_ids:
+            StudentEnrollment.objects.filter(id__in=orphan_ids).delete()
+        slot_qs.delete()
+        return JsonResponse({'status': 'success', 'message': '삭제되었습니다.'})
+
+    raise ActionError('알 수 없는 요청입니다.')
 
 
 @staff_member_required(login_url='/login/')
@@ -44,198 +408,21 @@ def dashboard_redirect_view(request):
 @staff_member_required(login_url='/login/')
 def manage_schedule_view(request):
     """관리자 전용: 시즌별 학원 토탈스케줄 편성 및 교시 시간 유동 설정"""
+    payload = _read_payload(request)
+
+    # 시즌이 하나도 없는 최초 접속 때만 기본 시즌을 자동으로 만듭니다.
+    if not ScheduleSeason.objects.exists():
+        with transaction.atomic():
+            if not ScheduleSeason.objects.exists():
+                default_season = ScheduleSeason.objects.create(name='기본 시즌 스케줄', is_active=True)
+                _ensure_season_periods(default_season)
+
     seasons = ScheduleSeason.objects.all()
-    if not seasons.exists():
-        default_season = ScheduleSeason.objects.create(name='기본 시즌 스케줄', is_active=True)
-        _ensure_season_periods(default_season)
-        seasons = ScheduleSeason.objects.all()
-
-    payload = {}
-    if request.method == 'POST' and request.body:
-        try:
-            payload = json.loads(request.body.decode('utf-8'))
-        except Exception:
-            payload = {}
-
-    season_id = request.GET.get('season') or request.POST.get('season_id') or payload.get('season_id')
-    if season_id:
-        current_season = ScheduleSeason.objects.filter(id=season_id).first() or seasons.first()
-    else:
-        current_season = seasons.filter(is_active=True).first() or seasons.first()
-
+    current_season = _pick_season(request, payload, seasons)
     _ensure_season_periods(current_season)
 
     if request.method == 'POST':
-        try:
-            action = payload.get('action')
-
-            if action == 'create_season':
-                name = str(payload.get('name', '')).strip()[:100]
-                if not name:
-                    return JsonResponse({'status': 'error', 'message': '시즌 이름을 입력해 주세요.'}, status=400)
-                copy_from_id = payload.get('copy_from_id')
-                new_season = ScheduleSeason.objects.create(name=name, is_active=bool(payload.get('set_active', True)))
-                if new_season.is_active:
-                    ScheduleSeason.objects.exclude(id=new_season.id).update(is_active=False)
-
-                if copy_from_id:
-                    src = ScheduleSeason.objects.filter(id=copy_from_id).first()
-                    if src:
-                        period_map = {}
-                        for p in src.periods.all():
-                            new_p = PeriodConfig.objects.create(
-                                season=new_season, name=p.name, is_break=p.is_break, order=p.order,
-                                start_time=p.start_time, end_time=p.end_time
-                            )
-                            period_map[p.id] = new_p
-                        ClassSlot.objects.bulk_create([
-                            ClassSlot(
-                                season=new_season, day_of_week=s.day_of_week, period=period_map[s.period_id],
-                                subject=s.subject, teacher_user=s.teacher_user, teacher_name=s.teacher_name,
-                                class_name=s.class_name, is_merged=s.is_merged
-                            )
-                            for s in src.class_slots.all() if s.period_id in period_map
-                        ])
-                _ensure_season_periods(new_season)
-                return JsonResponse({'status': 'success', 'season_id': new_season.id})
-
-            if action == 'activate_season':
-                ScheduleSeason.objects.all().update(is_active=False)
-                current_season.is_active = True
-                current_season.save(update_fields=['is_active'])
-                return JsonResponse({'status': 'success', 'message': f'[{current_season.name}] 시즌이 현재 적용 시즌으로 설정되었습니다.'})
-
-            if action == 'save_periods':
-                for item in payload.get('periods', []):
-                    p_obj = PeriodConfig.objects.filter(id=item.get('id'), season=current_season).first()
-                    if p_obj:
-                        sh, sm = map(int, item['start_time'].split(':'))
-                        eh, em = map(int, item['end_time'].split(':'))
-                        p_obj.start_time = time(sh, sm)
-                        p_obj.end_time = time(eh, em)
-                        p_obj.save(update_fields=['start_time', 'end_time'])
-                return JsonResponse({'status': 'success', 'message': '교시별 시간 설정이 저장되었습니다.'})
-
-            if action == 'update_single_period':
-                p_obj = PeriodConfig.objects.filter(id=payload.get('period_id'), season=current_season).first()
-                if not p_obj:
-                    return JsonResponse({'status': 'error', 'message': '교시를 찾을 수 없습니다.'}, status=404)
-
-                old_end_min = p_obj.end_time.hour * 60 + p_obj.end_time.minute
-                sh, sm = map(int, payload['start_time'].split(':'))
-                eh, em = map(int, payload['end_time'].split(':'))
-                new_end_min = eh * 60 + em
-
-                if new_end_min <= (sh * 60 + sm):
-                    return JsonResponse({'status': 'error', 'message': '종료 시각은 시작 시각보다 늦어야 합니다.'}, status=400)
-
-                p_obj.name = str(payload.get('name', p_obj.name)).strip()[:50] or p_obj.name
-                p_obj.start_time = time(sh, sm)
-                p_obj.end_time = time(eh, em)
-                p_obj.save(update_fields=['name', 'start_time', 'end_time'])
-
-                diff_min = new_end_min - old_end_min
-                if payload.get('cascade') and diff_min != 0:
-                    following = PeriodConfig.objects.filter(season=current_season, order__gt=p_obj.order)
-                    for fp in following:
-                        s_tot = max(0, min(23 * 60 + 59, fp.start_time.hour * 60 + fp.start_time.minute + diff_min))
-                        e_tot = max(0, min(23 * 60 + 59, fp.end_time.hour * 60 + fp.end_time.minute + diff_min))
-                        fp.start_time = time(s_tot // 60, s_tot % 60)
-                        fp.end_time = time(e_tot // 60, e_tot % 60)
-                        fp.save(update_fields=['start_time', 'end_time'])
-
-                return JsonResponse({'status': 'success'})
-
-            if action == 'add_period':
-                name = str(payload.get('name', '')).strip()[:50] or '추가 교시'
-                sh, sm = map(int, payload['start_time'].split(':'))
-                eh, em = map(int, payload['end_time'].split(':'))
-                last_order = current_season.periods.aggregate(models.Max('order'))['order__max'] or 0
-                PeriodConfig.objects.create(
-                    season=current_season,
-                    name=name,
-                    is_break=bool(payload.get('is_break', False)),
-                    order=last_order + 1,
-                    start_time=time(sh, sm),
-                    end_time=time(eh, em),
-                )
-                return JsonResponse({'status': 'success'})
-
-            if action == 'delete_period':
-                PeriodConfig.objects.filter(id=payload.get('period_id'), season=current_season).delete()
-                return JsonResponse({'status': 'success'})
-
-            if action == 'add_slots':
-                targets = payload.get('targets', [])
-                subject = payload.get('subject', '국어')
-                teacher_name = str(payload.get('teacher_name', '')).strip()[:50]
-                class_name = str(payload.get('class_name', '')).strip()[:100]
-                confirm_merged = bool(payload.get('confirm_merged', False))
-
-                if not targets or not class_name:
-                    return JsonResponse({'status': 'error', 'message': '교시를 선택하고 반명(또는 활동명)을 입력해 주세요.'}, status=400)
-
-                conflict_details = []
-                for t in targets:
-                    day = int(t['day'])
-                    pid = int(t['period_id'])
-                    existing_qs = ClassSlot.objects.filter(season=current_season, day_of_week=day, period_id=pid)
-
-                    if existing_qs.count() >= 10:
-                        return JsonResponse({
-                            'status': 'error',
-                            'message': '동일한 요일과 시간대에는 최대 10명 강사까지만 배치할 수 있습니다.'
-                        }, status=400)
-
-                    if teacher_name:
-                        same_teacher = existing_qs.filter(teacher_name=teacher_name).first()
-                        if same_teacher:
-                            p_label = same_teacher.period.name
-                            day_label = dict(ClassSlot.DAY_CHOICES).get(day, '')
-                            conflict_details.append(f"{day_label} {p_label} ({same_teacher.subject} {same_teacher.class_name})")
-
-                if conflict_details and not confirm_merged:
-                    return JsonResponse({
-                        'status': 'confirm_merge',
-                        'message': f"같은 시간대에 [{teacher_name}] 선생님이 이미 배치되어 있습니다.\n({', '.join(conflict_details)})\n\n합반입니까?"
-                    })
-
-                created_count = 0
-                for t in targets:
-                    day = int(t['day'])
-                    pid = int(t['period_id'])
-                    period_obj = PeriodConfig.objects.filter(id=pid, season=current_season).first()
-                    if not period_obj:
-                        continue
-
-                    is_merged_flag = False
-                    if teacher_name:
-                        existing_same = ClassSlot.objects.filter(
-                            season=current_season, day_of_week=day, period=period_obj, teacher_name=teacher_name
-                        )
-                        if existing_same.exists():
-                            is_merged_flag = True
-                            existing_same.update(is_merged=True)
-
-                    ClassSlot.objects.create(
-                        season=current_season,
-                        day_of_week=day,
-                        period=period_obj,
-                        subject=subject,
-                        teacher_name=teacher_name,
-                        class_name=class_name,
-                        is_merged=is_merged_flag,
-                    )
-                    created_count += 1
-
-                return JsonResponse({'status': 'success', 'message': f'{created_count}개 시간대에 수업이 등록되었습니다.'})
-
-            if action == 'delete_slot':
-                ClassSlot.objects.filter(id=payload.get('slot_id'), season=current_season).delete()
-                return JsonResponse({'status': 'success', 'message': '삭제되었습니다.'})
-
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': f'처리 중 오류: {str(e)}'}, status=400)
+        return _run_action(_handle_schedule_action, payload, current_season)
 
     periods = list(current_season.periods.all())
     slots = list(current_season.class_slots.select_related('period').all())
@@ -280,23 +467,76 @@ def manage_schedule_view(request):
     return render(request, 'academy_admin/schedule_manage.html', context)
 
 
+# ---------------------------------------------------------------------------
+# 2. 학생별 수강 배정
+# ---------------------------------------------------------------------------
+def _handle_enroll_action(payload, current_season, current_student, course_map):
+    action = payload.get('action')
+
+    if action == 'enroll':
+        subject = str(payload.get('subject', '')).strip()
+        teacher_name = str(payload.get('teacher_name', '')).strip()
+        class_name = str(payload.get('class_name', '')).strip()
+
+        target_course = course_map.get((subject, teacher_name, class_name))
+        if not target_course:
+            raise ActionError('토탈스케줄에 존재하지 않는 강좌입니다.')
+
+        if StudentEnrollment.objects.filter(
+            student=current_student, season=current_season,
+            subject=subject, teacher_name=teacher_name, class_name=class_name
+        ).exists():
+            raise ActionError('이미 해당 학생에게 배정된 반입니다.')
+
+        occupied = {}
+        for enr in StudentEnrollment.objects.filter(student=current_student, season=current_season):
+            enr_course = course_map.get((enr.subject, enr.teacher_name, enr.class_name))
+            if enr_course:
+                for dp in enr_course['slots']:
+                    occupied[dp] = f"{enr.subject}({enr.teacher_name} {enr.class_name})".strip()
+
+        conflicts = []
+        period_lookup = {p.id: p for p in current_season.periods.all()}
+        for day_idx, pid in target_course['slots']:
+            if (day_idx, pid) in occupied:
+                p_obj = period_lookup.get(pid)
+                p_name = p_obj.name if p_obj else ''
+                conflicts.append(
+                    f"{_day_label(day_idx)}요일 {p_name} — 기존 [{occupied[(day_idx, pid)]}] 수업과 겹침"
+                )
+
+        if conflicts:
+            return JsonResponse({
+                'status': 'conflict',
+                'message': "⚠️ 시간표 충돌로 배정할 수 없습니다!\n\n" + "\n".join(conflicts),
+            }, status=400)
+
+        StudentEnrollment.objects.create(
+            student=current_student,
+            season=current_season,
+            subject=subject,
+            teacher_name=teacher_name,
+            class_name=class_name,
+        )
+        return JsonResponse({'status': 'success'})
+
+    if action == 'unenroll':
+        deleted, _detail = StudentEnrollment.objects.filter(
+            id=_to_int(payload.get('enrollment_id'), '배정'), student=current_student
+        ).delete()
+        if not deleted:
+            raise ActionError('배정 정보를 찾을 수 없습니다. 새로고침 후 다시 시도해 주세요.', status=404)
+        return JsonResponse({'status': 'success'})
+
+    raise ActionError('알 수 없는 요청입니다.')
+
+
 @staff_member_required(login_url='/login/')
 def student_enroll_view(request):
     """관리자 전용: 회원 가입한 학생별 수강 반 배정 및 동시간대 충돌 검증"""
     seasons = ScheduleSeason.objects.all()
-
-    payload = {}
-    if request.method == 'POST' and request.body:
-        try:
-            payload = json.loads(request.body.decode('utf-8'))
-        except Exception:
-            payload = {}
-
-    season_id = request.GET.get('season') or request.POST.get('season_id') or payload.get('season_id')
-    if season_id:
-        current_season = ScheduleSeason.objects.filter(id=season_id).first() or seasons.first()
-    else:
-        current_season = seasons.filter(is_active=True).first() or seasons.first()
+    payload = _read_payload(request)
+    current_season = _pick_season(request, payload, seasons)
 
     if not current_season:
         return render(request, 'academy_admin/student_enroll.html', {'no_season': True})
@@ -311,7 +551,6 @@ def student_enroll_view(request):
             current_student = students[0]
 
     all_slots = list(current_season.class_slots.select_related('period').order_by('day_of_week', 'period__order'))
-    day_names = ['월', '화', '수', '목', '금', '토', '일']
 
     course_map = {}
     for s in all_slots:
@@ -326,67 +565,15 @@ def student_enroll_view(request):
             }
         course_map[key]['slots'].append((s.day_of_week, s.period_id))
         course_map[key]['schedule_texts'].append(
-            f"{day_names[s.day_of_week]} {s.period.name}({s.period.start_time:%H:%M}~{s.period.end_time:%H:%M})"
+            f"{_day_label(s.day_of_week)} {s.period.name}({s.period.start_time:%H:%M}~{s.period.end_time:%H:%M})"
         )
 
     available_courses = sorted(course_map.values(), key=lambda x: (x['subject'], x['teacher_name'], x['class_name']))
 
-    if request.method == 'POST' and current_student:
-        try:
-            action = payload.get('action')
-
-            if action == 'enroll':
-                subject = payload.get('subject', '')
-                teacher_name = payload.get('teacher_name', '')
-                class_name = payload.get('class_name', '')
-
-                target_course = course_map.get((subject, teacher_name, class_name))
-                if not target_course:
-                    return JsonResponse({'status': 'error', 'message': '토탈스케줄에 존재하지 않는 강좌입니다.'}, status=400)
-
-                if StudentEnrollment.objects.filter(
-                    student=current_student, season=current_season,
-                    subject=subject, teacher_name=teacher_name, class_name=class_name
-                ).exists():
-                    return JsonResponse({'status': 'error', 'message': '이미 해당 학생에게 배정된 반입니다.'}, status=400)
-
-                existing_enrollments = StudentEnrollment.objects.filter(student=current_student, season=current_season)
-                occupied = {}
-                for enr in existing_enrollments:
-                    enr_course = course_map.get((enr.subject, enr.teacher_name, enr.class_name))
-                    if enr_course:
-                        for dp in enr_course['slots']:
-                            occupied[dp] = f"{enr.subject}({enr.teacher_name} {enr.class_name})".strip()
-
-                conflicts = []
-                period_lookup = {p.id: p for p in current_season.periods.all()}
-                for day_idx, pid in target_course['slots']:
-                    if (day_idx, pid) in occupied:
-                        p_obj = period_lookup.get(pid)
-                        p_name = p_obj.name if p_obj else ''
-                        conflicts.append(f"{day_names[day_idx]}요일 {p_name} — 기존 [{occupied[(day_idx, pid)]}] 수업과 겹침")
-
-                if conflicts:
-                    return JsonResponse({
-                        'status': 'conflict',
-                        'message': "⚠️ 시간표 충돌로 배정할 수 없습니다!\n\n" + "\n".join(conflicts)
-                    }, status=400)
-
-                StudentEnrollment.objects.create(
-                    student=current_student,
-                    season=current_season,
-                    subject=subject,
-                    teacher_name=teacher_name,
-                    class_name=class_name,
-                )
-                return JsonResponse({'status': 'success'})
-
-            if action == 'unenroll':
-                StudentEnrollment.objects.filter(id=payload.get('enrollment_id'), student=current_student).delete()
-                return JsonResponse({'status': 'success'})
-
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    if request.method == 'POST':
+        if not current_student:
+            return JsonResponse({'status': 'error', 'message': '배정할 학생 회원이 없습니다.'}, status=400)
+        return _run_action(_handle_enroll_action, payload, current_season, current_student, course_map)
 
     student_enrollments = []
     student_slot_lookup = {}
