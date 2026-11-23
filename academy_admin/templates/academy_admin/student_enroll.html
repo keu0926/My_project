@@ -122,8 +122,8 @@
         <span class="admin-badge">ADMIN</span>
     </div>
     <nav class="admin-nav-tabs">
-        <a href="{% url 'academy_admin:schedule_manage' %}?season={{ current_season.id }}" class="admin-nav-tab">1. 학원 토탈스케줄 편성</a>
-        <a href="{% url 'academy_admin:student_enroll' %}?season={{ current_season.id }}" class="admin-nav-tab active">2. 학생별 수강 배정</a>
+        <a href="{% url 'academy_admin:schedule_manage' %}{% if current_season %}?season={{ current_season.id }}{% endif %}" class="admin-nav-tab">1. 학원 토탈스케줄 편성</a>
+        <a href="{% url 'academy_admin:student_enroll' %}{% if current_season %}?season={{ current_season.id }}{% endif %}" class="admin-nav-tab active">2. 학생별 수강 배정</a>
     </nav>
     <div>
         <a href="/admin/" class="pill-btn">Django Admin</a>
@@ -131,6 +131,13 @@
 </header>
 
 <main class="admin-container">
+    {% if no_season %}
+    <section class="card-box">
+        <h2 class="card-title">등록된 시즌이 없습니다</h2>
+        <p style="color:#86868b; font-size:13.5px; margin:0 0 16px 0;">먼저 [1. 학원 토탈스케줄 편성]에서 시즌과 수업을 만든 뒤 학생 수강 배정을 진행해 주세요.</p>
+        <a href="{% url 'academy_admin:schedule_manage' %}" class="pill-btn primary">토탈스케줄 편성으로 이동</a>
+    </section>
+    {% else %}
     <section class="top-filter-card">
         <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
             <strong>시즌:</strong>
@@ -240,11 +247,13 @@
         </section>
     </div>
     {% endif %}
+    {% endif %}
 </main>
 
+{% if not no_season %}
 <script>
     const CSRF_TOKEN = '{{ csrf_token }}';
-    const SEASON_ID = {{ current_season.id }};
+    const SEASON_ID = {{ current_season.id|default:'null' }};
     const STUDENT_ID = {{ current_student.id|default:'null' }};
 
     function filterCourses(subj) {
@@ -253,39 +262,52 @@
         });
     }
 
+    // 서버가 JSON이 아닌 응답(로그인 만료, 서버 오류 화면 등)을 주거나 통신이 끊겨도 안내가 뜨도록 처리
+    async function postEnrollAction(payload) {
+        try {
+            const res = await fetch(window.location.pathname, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+                body: JSON.stringify(payload)
+            });
+            const contentType = res.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) {
+                const message = (res.status === 403 || res.redirected)
+                    ? '권한이 없거나 로그인이 만료되었습니다. 새로고침 후 다시 로그인해 주세요.'
+                    : `서버 응답을 처리하지 못했습니다. (HTTP ${res.status})`;
+                return { status: 'error', message: message };
+            }
+            return await res.json();
+        } catch (err) {
+            return { status: 'error', message: '서버와 통신하지 못했습니다. 네트워크 상태를 확인해 주세요.' };
+        }
+    }
+
     async function enrollCourse(subject, teacherName, className) {
-        const res = await fetch(window.location.pathname, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-            body: JSON.stringify({
-                action: 'enroll',
-                season_id: SEASON_ID,
-                student_id: STUDENT_ID,
-                subject: subject,
-                teacher_name: teacherName,
-                class_name: className
-            })
+        const data = await postEnrollAction({
+            action: 'enroll',
+            season_id: SEASON_ID,
+            student_id: STUDENT_ID,
+            subject: subject,
+            teacher_name: teacherName,
+            class_name: className
         });
-        const data = await res.json();
         if (data.status === 'success') location.reload();
         else alert(data.message);
     }
 
     async function unenrollCourse(enrollmentId) {
         if (!confirm('이 반 배정을 해제하시겠습니까?')) return;
-        const res = await fetch(window.location.pathname, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
-            body: JSON.stringify({
-                action: 'unenroll',
-                season_id: SEASON_ID,
-                student_id: STUDENT_ID,
-                enrollment_id: enrollmentId
-            })
+        const data = await postEnrollAction({
+            action: 'unenroll',
+            season_id: SEASON_ID,
+            student_id: STUDENT_ID,
+            enrollment_id: enrollmentId
         });
-        const data = await res.json();
         if (data.status === 'success') location.reload();
+        else alert(data.message);
     }
 </script>
+{% endif %}
 </body>
 </html>
